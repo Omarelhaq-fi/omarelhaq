@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime, date
@@ -8,14 +8,15 @@ from datetime import datetime, date
 app = Flask(__name__)
 
 # --- MySQL Database Configuration ---
-# It's crucial to use environment variables for sensitive data in production.
-# Vercel allows you to set these in your project settings.
+# Your actual database details are now directly in the file.
+# Remember that for production deployments, using environment variables
+# (as in the previous version) is generally more secure.
 DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', 'sql.freedb.tech'),
-    'port': int(os.environ.get('DB_PORT', 3306)),
-    'database': os.environ.get('DB_DATABASE', 'freedb_omarelhaq'),
-    'user': os.environ.get('DB_USER', 'freedb_omarelhaq'),
-    'password': os.environ.get('DB_PASSWORD', 'N@a2brrJR9%&&ct')
+    'host': 'sql.freedb.tech',
+    'port': 3306,
+    'database': 'freedb_omarelhaq',
+    'user': 'freedb_omarelhaq',
+    'password': 'N@a2brrJR9%&&ct'
 }
 
 # --- Database Connection Helper ---
