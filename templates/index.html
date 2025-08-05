@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omar's Life Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .sidebar {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover {
+            background-color: #e2e8f0;
+        }
+        .nav-link.active {
+            background-color: #3b82f6;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .nav-link.active svg {
+            fill: #ffffff;
+        }
+        .content-section {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            min-height: 80vh;
+        }
+        .card {
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        input[type="text"], input[type="date"], input[type="number"], input[type="url"], textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e0;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .delete-btn {
+            background-color: #ef4444;
+        }
+        .delete-btn:hover {
+            background-color: #dc2626;
+        }
+        .add-btn {
+            background-color: #10b981;
+        }
+        .add-btn:hover {
+            background-color: #059669;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container flex flex-col lg:flex-row gap-4 py-4">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar p-4 lg:w-1/4">
+            <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Omar's Dashboard</h1>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="#home" class="nav-link active" data-section="home">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#medical" class="nav-link" data-section="medical">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Medical Student Hub
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#fitness" class="nav-link" data-section="fitness">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Fitness & Gym Tracker
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#basketball" class="nav-link" data-section="basketball">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2m2-2l2 2m-2-2v12h5l2-2V6m0 0H9m11 0h-4M4 18v-7a4 4 0 014-4h8a4 4 0 014 4v7"></path></svg>
+                            Basketball Lab
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#self-development" class="nav-link" data-section="self-development">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
+                            Self-Development
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#daily-schedule" class="nav-link" data-section="daily-schedule">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Daily Schedule
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-section flex-1">
+            <!-- Home Section -->
+            <section id="home" class="dashboard-section">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome, Omar Elhaq!</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Mood Tracker Card -->
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-2">Mood Tracker</h3>
+                        <div id="mood-list" class="mb-4"></div>
+                        <input type="date" id="mood-date" class="mb-2">
+                        <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
+                        <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
+                        <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
+                    </div>
+
+                    <!-- Sleep Tracker Card -->
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-2">Sleep Tracker</h3>
+                        <div id="sleep-list" class="mb-4"></div>
+                        <input type="date" id="sleep-date" class="mb-2">
+                        <input type="number" id="hours-slept" placeholder="Hours Slept" step="0.1" class="mb-2">
+                        <input type="number" id="sleep-quality" placeholder="Quality (1-5)" min="1" max="5" class="mb-2">
+                        <button onclick="addSleep()" class="add-btn w-full">Add Sleep</button>
+                    </div>
+
+                    <!-- Achievements Card -->
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-2">Achievements (Weekly)</h3>
+                        <div id="achievements-list" class="mb-4"></div>
+                        <input type="date" id="achievement-date" class="mb-2">
+                        <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
+                        <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
+                    </div>
+
+                    <!-- Shortcuts Card -->
+                    <div class="card col-span-full">
+                        <h3 class="text-xl font-semibold mb-2">Shortcuts</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-md">Launch Study Timer</button>
+                            <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md">Add Clip</button>
+                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">Mark Workout Done</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Medical Student Hub Section -->
+            <section id="medical" class="dashboard-section hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Medical Student Hub</h2>
+                
+                <!-- Study Plan Tab -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Daily Study Plan</h3>
+                    <div id="study-plan-list" class="mb-4"></div>
+                    <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
+                    <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
+                    <input type="text" id="study-topic" placeholder="Topic">
+                    <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
+                    <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
+                </div>
+
+                <!-- Subjects Tracker -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Subjects Tracker</h3>
+                    <div id="subjects-list" class="mb-4"></div>
+                    <input type="text" id="subject-name" placeholder="Subject Name">
+                    <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
+                    <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
+                </div>
+
+                <!-- To-Read/Watch Queue -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">To-Read/Watch Queue</h3>
+                    <div id="read-watch-list" class="mb-4"></div>
+                    <input type="text" id="queue-title" placeholder="Title">
+                    <select id="queue-type" class="mb-2">
+                        <option value="">Select Type</option>
+                        <option value="Video">Video</option>
+                        <option value="PDF">PDF</option>
+                        <option value="Lecture">Lecture</option>
+                    </select>
+                    <input type="url" id="queue-url" placeholder="URL">
+                    <label class="flex items-center mb-2">
+                        <input type="checkbox" id="queue-completed" class="mr-2"> Completed
+                    </label>
+                    <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
+                </div>
+
+                <!-- Progress Chart -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Progress Chart: Weekly Hours Studied</h3>
+                    <canvas id="studyProgressChart"></canvas>
+                    <input type="date" id="chart-week-start-date" class="mb-2">
+                    <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
+                    <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
+                    <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
+                </div>
+            </section>
+
+            <!-- Fitness & Gym Tracker Section -->
+            <section id="fitness" class="dashboard-section hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Fitness & Gym Tracker</h2>
+                
+                <!-- Workout Plan Tab -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Workout Plan</h3>
+                    <div id="workout-list" class="mb-4"></div>
+                    <input type="date" id="workout-date" class="mb-2">
+                    <select id="workout-split" class="mb-2">
+                        <option value="">Select Split</option>
+                        <option value="Push">Push</option>
+                        <option value="Pull">Pull</option>
+                        <option value="Legs">Legs</option>
+                        <option value="Cardio">Cardio</option>
+                        <option value="Mobility">Mobility</option>
+                    </select>
+                    <input type="text" id="exercise-name" placeholder="Exercise Name">
+                    <input type="number" id="exercise-sets" placeholder="Sets">
+                    <input type="number" id="exercise-reps" placeholder="Reps">
+                    <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
+                    <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
+                    <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
+                    <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
+                </div>
+
+                <!-- Body Progress Tracker -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Body Progress Tracker</h3>
+                    <div id="body-progress-list" class="mb-4"></div>
+                    <input type="date" id="body-record-date" class="mb-2">
+                    <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
+                    <input type="url" id="body-photo-url" placeholder="Photo URL">
+                    <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
+                    <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
+                    <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
+                </div>
+
+                <!-- Nutrition Tab -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Nutrition Tab</h3>
+                    <div id="nutrition-list" class="mb-4"></div>
+                    <input type="date" id="meal-date" class="mb-2">
+                    <select id="meal-type" class="mb-2">
+                        <option value="">Select Meal Type</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Snack">Snack</option>
+                    </select>
+                    <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
+                    <input type="number" id="meal-calories" placeholder="Calories">
+                    <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
+                    <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
+                </div>
+
+                <!-- Weekly Shopping List -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Weekly Shopping List</h3>
+                    <div id="shopping-list-items" class="mb-4"></div>
+                    <input type="text" id="shopping-item-name" placeholder="Item Name">
+                    <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
+                    <label class="flex items-center mb-2">
+                        <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
+                    </label>
+                    <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
+                </div>
+            </section>
+
+            <!-- Basketball & Analysis Lab Section -->
+            <section id="basketball" class="dashboard-section hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Basketball & Analysis Lab</h2>
+                
+                <!-- Video Analysis Board -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Video Analysis Board</h3>
+                    <div id="game-clips-list" class="mb-4"></div>
+                    <input type="text" id="clip-title" placeholder="Clip Title">
+                    <input type="url" id="clip-video-url" placeholder="Video URL">
+                    <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
+                    <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
+                </div>
+
+                <!-- Scouting Templates -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Scouting Templates</h3>
+                    <div id="scouting-templates-list" class="mb-4"></div>
+                    <input type="text" id="template-name" placeholder="Template Name">
+                    <input type="text" id="opponent-name" placeholder="Opponent Name">
+                    <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
+                    <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
+                </div>
+
+                <!-- Learning Tab -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Learning Tab</h3>
+                    <div id="learning-resources-list" class="mb-4"></div>
+                    <input type="text" id="resource-title" placeholder="Resource Title">
+                    <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
+                    <input type="url" id="resource-url" placeholder="URL">
+                    <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
+                </div>
+            </section>
+
+            <!-- Self-Development & Courses Section -->
+            <section id="self-development" class="dashboard-section hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Self-Development & Courses</h2>
+                
+                <!-- Courses Tracker -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Courses Tracker</h3>
+                    <div id="courses-list" class="mb-4"></div>
+                    <input type="text" id="course-name" placeholder="Course Name">
+                    <select id="course-status" class="mb-2">
+                        <option value="">Select Status</option>
+                        <option value="Not started">Not started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <input type="date" id="course-start-date" class="mb-2">
+                    <input type="date" id="course-completion-date" class="mb-2">
+                    <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
+                </div>
+
+                <!-- Skill Goals -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Skill Goals</h3>
+                    <div id="skill-goals-list" class="mb-4"></div>
+                    <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
+                    <input type="date" id="skill-target-date" class="mb-2">
+                    <label class="flex items-center mb-2">
+                        <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
+                    </label>
+                    <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
+                </div>
+            </section>
+
+            <!-- Daily Schedule & Routine Section -->
+            <section id="daily-schedule" class="dashboard-section hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Daily Schedule & Routine</h2>
+                
+                <!-- Morning Routine -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Morning Routine</h3>
+                    <div id="daily-schedule-list" class="mb-4"></div>
+                    <input type="date" id="schedule-date" class="mb-2">
+                    <label class="flex items-center mb-2">
+                        <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
+                    </label>
+                    <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
+                </div>
+
+                <!-- Time-Blocking Plan -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Time-Blocking Plan</h3>
+                    <div id="time-blocking-list" class="mb-4"></div>
+                    <input type="date" id="time-block-date" class="mb-2">
+                    <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
+                    <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
+                    <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
+                </div>
+
+                <!-- Consistency Score -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold mb-2">Consistency Score</h3>
+                    <div id="consistency-score-list" class="mb-4"></div>
+                    <input type="date" id="consistency-date" class="mb-2">
+                    <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
+                    <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
+                    <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
+                    <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Message Box Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeMessageModal()">&times;</span>
+            <p id="messageText" class="text-lg text-center"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Utility Functions ---
+        function showMessage(message, type = 'info') {
+            const messageModal = document.getElementById('messageModal');
+            const messageText = document.getElementById('messageText');
+            messageText.textContent = message;
+            if (type === 'error') {
+                messageText.style.color = 'red';
+            } else if (type === 'success') {
+                messageText.style.color = 'green';
+            } else {
+                messageText.style.color = 'black';
+            }
+            messageModal.style.display = 'flex';
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showMessage(`Error fetching data: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function postData(url, data) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Post error:', error);
+                showMessage(`Error adding data: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function deleteData(url) {
+            try {
+                const response = await fetch(url, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Delete error:', error);
+                showMessage(`Error deleting data: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        // --- Navigation Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.dashboard-section');
+
+            function showSection(sectionId) {
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(sectionId).classList.remove('hidden');
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`.nav-link[data-section="${sectionId}"]`).classList.add('active');
+                
+                // Load data for the active section
+                loadSectionData(sectionId);
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sectionId = e.currentTarget.dataset.section;
+                    history.pushState(null, '', `#${sectionId}`);
+                    showSection(sectionId);
+                });
+            });
+
+            // Handle initial load and hash changes
+            const initialHash = window.location.hash.substring(1) || 'home';
+            showSection(initialHash);
+
+            window.addEventListener('hashchange', () => {
+                const newHash = window.location.hash.substring(1) || 'home';
+                showSection(newHash);
+            });
+        });
+
+        // --- Data Loading Functions for Each Section ---
+        async function loadSectionData(sectionId) {
+            switch (sectionId) {
+                case 'home':
+                    await loadMoods();
+                    await loadSleepData();
+                    await loadAchievements();
+                    break;
+                case 'medical':
+                    await loadStudyPlans();
+                    await loadSubjects();
+                    await loadReadWatchQueue();
+                    await loadProgressCharts();
+                    break;
+                case 'fitness':
+                    await loadWorkouts();
+                    await loadBodyProgress();
+                    await loadNutrition();
+                    await loadShoppingList();
+                    break;
+                case 'basketball':
+                    await loadGameClips();
+                    await loadScoutingTemplates();
+                    await loadLearningResources();
+                    break;
+                case 'self-development':
+                    await loadCourses();
+                    await loadSkillGoals();
+                    break;
+                case 'daily-schedule':
+                    await loadDailySchedule();
+                    await loadTimeBlocking();
+                    await loadConsistencyScore();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // --- Home Section Functions ---
+        async function loadMoods() {
+            const moods = await fetchData('/api/mood_tracker');
+            const moodListDiv = document.getElementById('mood-list');
+            moodListDiv.innerHTML = '';
+            if (moods && moods.length > 0) {
+                moods.forEach(mood => {
+                    moodListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${mood.record_date}: Mood ${mood.mood_level} (${mood.notes || 'No notes'})</span>
+                        </div>
+                    `;
+                });
+            } else {
+                moodListDiv.innerHTML = '<p class="text-gray-500">No mood entries yet.</p>';
+            }
+        }
+
+        async function addMood() {
+            const recordDate = document.getElementById('mood-date').value;
+            const moodLevel = document.getElementById('mood-level').value;
+            const notes = document.getElementById('mood-notes').value;
+
+            if (!recordDate || !moodLevel) {
+                showMessage('Please fill in date and mood level.', 'error');
+                return;
+            }
+
+            const data = { record_date: recordDate, mood_level: parseInt(moodLevel), notes: notes };
+            const result = await postData('/api/mood_tracker', data);
+            if (result) {
+                showMessage('Mood added successfully!', 'success');
+                document.getElementById('mood-date').value = '';
+                document.getElementById('mood-level').value = '';
+                document.getElementById('mood-notes').value = '';
+                await loadMoods();
+            }
+        }
+
+        async function loadSleepData() {
+            const sleepData = await fetchData('/api/sleep_tracker');
+            const sleepListDiv = document.getElementById('sleep-list');
+            sleepListDiv.innerHTML = '';
+            if (sleepData && sleepData.length > 0) {
+                sleepData.forEach(sleep => {
+                    sleepListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${sleep.sleep_date}: ${sleep.hours_slept} hrs (Quality: ${sleep.quality_score})</span>
+                        </div>
+                    `;
+                });
+            } else {
+                sleepListDiv.innerHTML = '<p class="text-gray-500">No sleep entries yet.</p>';
+            }
+        }
+
+        async function addSleep() {
+            const sleepDate = document.getElementById('sleep-date').value;
+            const hoursSlept = document.getElementById('hours-slept').value;
+            const qualityScore = document.getElementById('sleep-quality').value;
+
+            if (!sleepDate || !hoursSlept || !qualityScore) {
+                showMessage('Please fill in all sleep details.', 'error');
+                return;
+            }
+
+            const data = { sleep_date: sleepDate, hours_slept: parseFloat(hoursSlept), quality_score: parseInt(qualityScore) };
+            const result = await postData('/api/sleep_tracker', data);
+            if (result) {
+                showMessage('Sleep entry added successfully!', 'success');
+                document.getElementById('sleep-date').value = '';
+                document.getElementById('hours-slept').value = '';
+                document.getElementById('sleep-quality').value = '';
+                await loadSleepData();
+            }
+        }
+
+        async function loadAchievements() {
+            const achievements = await fetchData('/api/achievements');
+            const achievementsListDiv = document.getElementById('achievements-list');
+            achievementsListDiv.innerHTML = '';
+            if (achievements && achievements.length > 0) {
+                achievements.forEach(achievement => {
+                    achievementsListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${achievement.achievement_date}: ${achievement.description}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                achievementsListDiv.innerHTML = '<p class="text-gray-500">No achievements yet.</p>';
+            }
+        }
+
+        async function addAchievement() {
+            const achievementDate = document.getElementById('achievement-date').value;
+            const description = document.getElementById('achievement-description').value;
+
+            if (!achievementDate || !description) {
+                showMessage('Please fill in achievement date and description.', 'error');
+                return;
+            }
+
+            const data = { achievement_date: achievementDate, description: description };
+            const result = await postData('/api/achievements', data);
+            if (result) {
+                showMessage('Achievement added successfully!', 'success');
+                document.getElementById('achievement-date').value = '';
+                document.getElementById('achievement-description').value = '';
+                await loadAchievements();
+            }
+        }
+
+        // --- Medical Student Hub Functions ---
+        async function loadStudyPlans() {
+            const plans = await fetchData('/api/study_plans');
+            const studyPlanListDiv = document.getElementById('study-plan-list');
+            studyPlanListDiv.innerHTML = '';
+            if (plans && plans.length > 0) {
+                plans.forEach(plan => {
+                    studyPlanListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${plan.day_of_week} ${plan.time_slot}: ${plan.topic} (${plan.resource_type})</span>
+                            <button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-2 py-1 rounded-md">Delete</button>
+                        </div>
+                    `;
+                });
+            } else {
+                studyPlanListDiv.innerHTML = '<p class="text-gray-500">No study plans yet.</p>';
+            }
+        }
+
+        async function addStudyPlan() {
+            const day = document.getElementById('study-day').value;
+            const time = document.getElementById('study-time').value;
+            const topic = document.getElementById('study-topic').value;
+            const resource = document.getElementById('study-resource').value;
+
+            if (!day || !time || !topic || !resource) {
+                showMessage('Please fill in all study plan fields.', 'error');
+                return;
+            }
+
+            const data = { day_of_week: day, time_slot: time, topic: topic, resource_type: resource };
+            const result = await postData('/api/study_plans', data);
+            if (result) {
+                showMessage('Study plan added successfully!', 'success');
+                document.getElementById('study-day').value = '';
+                document.getElementById('study-time').value = '';
+                document.getElementById('study-topic').value = '';
+                document.getElementById('study-resource').value = '';
+                await loadStudyPlans();
+            }
+        }
+
+        async function deleteStudyPlan(id) {
+            const result = await deleteData(`/api/study_plans/${id}`);
+            if (result) {
+                showMessage('Study plan deleted successfully!', 'success');
+                await loadStudyPlans();
+            }
+        }
+
+        async function loadSubjects() {
+            const subjects = await fetchData('/api/subjects');
+            const subjectsListDiv = document.getElementById('subjects-list');
+            subjectsListDiv.innerHTML = '';
+            if (subjects && subjects.length > 0) {
+                subjects.forEach(subject => {
+                    subjectsListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${subject.subject_name}: ${subject.description || 'No description'}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                subjectsListDiv.innerHTML = '<p class="text-gray-500">No subjects added yet.</p>';
+            }
+        }
+
+        async function addSubject() {
+            const name = document.getElementById('subject-name').value;
+            const description = document.getElementById('subject-description').value;
+
+            if (!name) {
+                showMessage('Please enter a subject name.', 'error');
+                return;
+            }
+
+            const data = { subject_name: name, description: description };
+            const result = await postData('/api/subjects', data);
+            if (result) {
+                showMessage('Subject added successfully!', 'success');
+                document.getElementById('subject-name').value = '';
+                document.getElementById('subject-description').value = '';
+                await loadSubjects();
+            }
+        }
+
+        async function loadReadWatchQueue() {
+            const queueItems = await fetchData('/api/read_watch_queue');
+            const readWatchListDiv = document.getElementById('read-watch-list');
+            readWatchListDiv.innerHTML = '';
+            if (queueItems && queueItems.length > 0) {
+                queueItems.forEach(item => {
+                    readWatchListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${item.title} (${item.type}) - ${item.is_completed ? 'Completed' : 'Pending'} <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline">Link</a></span>
+                        </div>
+                    `;
+                });
+            } else {
+                readWatchListDiv.innerHTML = '<p class="text-gray-500">No items in queue yet.</p>';
+            }
+        }
+
+        async function addReadWatchQueue() {
+            const title = document.getElementById('queue-title').value;
+            const type = document.getElementById('queue-type').value;
+            const url = document.getElementById('queue-url').value;
+            const isCompleted = document.getElementById('queue-completed').checked;
+
+            if (!title || !type || !url) {
+                showMessage('Please fill in all queue item fields.', 'error');
+                return;
+            }
+
+            const data = { title: title, type: type, url: url, is_completed: isCompleted };
+            const result = await postData('/api/read_watch_queue', data);
+            if (result) {
+                showMessage('Item added to queue successfully!', 'success');
+                document.getElementById('queue-title').value = '';
+                document.getElementById('queue-type').value = '';
+                document.getElementById('queue-url').value = '';
+                document.getElementById('queue-completed').checked = false;
+                await loadReadWatchQueue();
+            }
+        }
+
+        let studyProgressChartInstance = null;
+        async function loadProgressCharts() {
+            const chartData = await fetchData('/api/progress_charts');
+            const ctx = document.getElementById('studyProgressChart').getContext('2d');
+
+            if (studyProgressChartInstance) {
+                studyProgressChartInstance.destroy();
+            }
+
+            if (chartData && chartData.length > 0) {
+                const labels = chartData.map(d => d.week_start_date);
+                const dataPoints = chartData.map(d => d.hours_studied);
+
+                studyProgressChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Hours Studied',
+                            data: dataPoints,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Clear canvas if no data
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+        }
+
+        async function addProgressChartData() {
+            const weekStartDate = document.getElementById('chart-week-start-date').value;
+            const hoursStudied = document.getElementById('chart-hours-studied').value;
+            const topicsCovered = document.getElementById('chart-topics-covered').value;
+
+            if (!weekStartDate || !hoursStudied || !topicsCovered) {
+                showMessage('Please fill in all progress chart fields.', 'error');
+                return;
+            }
+
+            const data = { week_start_date: weekStartDate, hours_studied: parseFloat(hoursStudied), topics_covered: topicsCovered };
+            const result = await postData('/api/progress_charts', data);
+            if (result) {
+                showMessage('Progress data added successfully!', 'success');
+                document.getElementById('chart-week-start-date').value = '';
+                document.getElementById('chart-hours-studied').value = '';
+                document.getElementById('chart-topics-covered').value = '';
+                await loadProgressCharts();
+            }
+        }
+
+        // --- Fitness & Gym Tracker Functions ---
+        async function loadWorkouts() {
+            const workouts = await fetchData('/api/workouts');
+            const workoutListDiv = document.getElementById('workout-list');
+            workoutListDiv.innerHTML = '';
+            if (workouts && workouts.length > 0) {
+                workouts.forEach(workout => {
+                    workoutListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${workout.workout_date} - ${workout.split_type}: ${workout.exercise_name} (${workout.sets}x${workout.reps} @ ${workout.weight}kg)</span>
+                        </div>
+                    `;
+                });
+            } else {
+                workoutListDiv.innerHTML = '<p class="text-gray-500">No workouts recorded yet.</p>';
+            }
+        }
+
+        async function addWorkout() {
+            const workoutDate = document.getElementById('workout-date').value;
+            const splitType = document.getElementById('workout-split').value;
+            const exerciseName = document.getElementById('exercise-name').value;
+            const sets = document.getElementById('exercise-sets').value;
+            const reps = document.getElementById('exercise-reps').value;
+            const weight = document.getElementById('exercise-weight').value;
+            const muscleSoreness = document.getElementById('muscle-soreness').value;
+            const notes = document.getElementById('workout-notes').value;
+
+            if (!workoutDate || !splitType || !exerciseName || !sets || !reps || !weight) {
+                showMessage('Please fill in all required workout fields.', 'error');
+                return;
+            }
+
+            const data = {
+                workout_date: workoutDate,
+                split_type: splitType,
+                exercise_name: exerciseName,
+                sets: parseInt(sets),
+                reps: parseInt(reps),
+                weight: parseFloat(weight),
+                muscle_soreness: muscleSoreness ? parseInt(muscleSoreness) : null,
+                notes: notes
+            };
+            const result = await postData('/api/workouts', data);
+            if (result) {
+                showMessage('Workout added successfully!', 'success');
+                document.getElementById('workout-date').value = '';
+                document.getElementById('workout-split').value = '';
+                document.getElementById('exercise-name').value = '';
+                document.getElementById('exercise-sets').value = '';
+                document.getElementById('exercise-reps').value = '';
+                document.getElementById('exercise-weight').value = '';
+                document.getElementById('muscle-soreness').value = '';
+                document.getElementById('workout-notes').value = '';
+                await loadWorkouts();
+            }
+        }
+
+        async function loadBodyProgress() {
+            const progress = await fetchData('/api/body_progress');
+            const bodyProgressListDiv = document.getElementById('body-progress-list');
+            bodyProgressListDiv.innerHTML = '';
+            if (progress && progress.length > 0) {
+                progress.forEach(item => {
+                    const measurementsText = item.measurements ? JSON.stringify(item.measurements) : 'N/A';
+                    bodyProgressListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${item.record_date}: ${item.weight}kg, Measurements: ${measurementsText}, Goal: ${item.goal || 'N/A'}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                bodyProgressListDiv.innerHTML = '<p class="text-gray-500">No body progress recorded yet.</p>';
+            }
+        }
+
+        async function addBodyProgress() {
+            const recordDate = document.getElementById('body-record-date').value;
+            const weight = document.getElementById('body-weight').value;
+            const photoUrl = document.getElementById('body-photo-url').value;
+            const measurements = document.getElementById('body-measurements').value;
+            const goal = document.getElementById('body-goal').value;
+
+            if (!recordDate || !weight) {
+                showMessage('Please fill in record date and weight.', 'error');
+                return;
+            }
+
+            let parsedMeasurements = null;
+            if (measurements) {
+                try {
+                    parsedMeasurements = JSON.parse(measurements);
+                } catch (e) {
+                    showMessage('Invalid JSON for measurements.', 'error');
+                    return;
+                }
+            }
+
+            const data = {
+                record_date: recordDate,
+                weight: parseFloat(weight),
+                photo_url: photoUrl,
+                measurements: parsedMeasurements, // Send as object, Flask will stringify
+                goal: goal
+            };
+            const result = await postData('/api/body_progress', data);
+            if (result) {
+                showMessage('Body progress added successfully!', 'success');
+                document.getElementById('body-record-date').value = '';
+                document.getElementById('body-weight').value = '';
+                document.getElementById('body-photo-url').value = '';
+                document.getElementById('body-measurements').value = '';
+                document.getElementById('body-goal').value = '';
+                await loadBodyProgress();
+            }
+        }
+
+        async function loadNutrition() {
+            const nutritionData = await fetchData('/api/nutrition');
+            const nutritionListDiv = document.getElementById('nutrition-list');
+            nutritionListDiv.innerHTML = '';
+            if (nutritionData && nutritionData.length > 0) {
+                nutritionData.forEach(meal => {
+                    nutritionListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${meal.meal_date} - ${meal.meal_type}: ${meal.meal_description} (${meal.calories} kcal, ${meal.protein_intake}g protein)</span>
+                        </div>
+                    `;
+                });
+            } else {
+                nutritionListDiv.innerHTML = '<p class="text-gray-500">No nutrition entries yet.</p>';
+            }
+        }
+
+        async function addNutrition() {
+            const mealDate = document.getElementById('meal-date').value;
+            const mealType = document.getElementById('meal-type').value;
+            const mealDescription = document.getElementById('meal-description').value;
+            const calories = document.getElementById('meal-calories').value;
+            const protein = document.getElementById('meal-protein').value;
+
+            if (!mealDate || !mealType || !mealDescription || !calories || !protein) {
+                showMessage('Please fill in all nutrition fields.', 'error');
+                return;
+            }
+
+            const data = {
+                meal_date: mealDate,
+                meal_type: mealType,
+                meal_description: mealDescription,
+                calories: parseInt(calories),
+                protein_intake: parseFloat(protein)
+            };
+            const result = await postData('/api/nutrition', data);
+            if (result) {
+                showMessage('Nutrition entry added successfully!', 'success');
+                document.getElementById('meal-date').value = '';
+                document.getElementById('meal-type').value = '';
+                document.getElementById('meal-description').value = '';
+                document.getElementById('meal-calories').value = '';
+                document.getElementById('meal-protein').value = '';
+                await loadNutrition();
+            }
+        }
+
+        async function loadShoppingList() {
+            const shoppingItems = await fetchData('/api/shopping_list');
+            const shoppingListItemsDiv = document.getElementById('shopping-list-items');
+            shoppingListItemsDiv.innerHTML = '';
+            if (shoppingItems && shoppingItems.length > 0) {
+                shoppingItems.forEach(item => {
+                    shoppingListItemsDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${item.item_name} (${item.quantity || 'N/A'}) - ${item.is_purchased ? 'Purchased' : 'Pending'}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                shoppingListItemsDiv.innerHTML = '<p class="text-gray-500">No shopping items yet.</p>';
+            }
+        }
+
+        async function addShoppingItem() {
+            const itemName = document.getElementById('shopping-item-name').value;
+            const quantity = document.getElementById('shopping-item-quantity').value;
+            const isPurchased = document.getElementById('shopping-item-purchased').checked;
+
+            if (!itemName) {
+                showMessage('Please enter an item name.', 'error');
+                return;
+            }
+
+            const data = { item_name: itemName, quantity: quantity, is_purchased: isPurchased };
+            const result = await postData('/api/shopping_list', data);
+            if (result) {
+                showMessage('Item added to shopping list successfully!', 'success');
+                document.getElementById('shopping-item-name').value = '';
+                document.getElementById('shopping-item-quantity').value = '';
+                document.getElementById('shopping-item-purchased').checked = false;
+                await loadShoppingList();
+            }
+        }
+
+        // --- Basketball & Analysis Lab Functions ---
+        async function loadGameClips() {
+            const clips = await fetchData('/api/game_clips');
+            const gameClipsListDiv = document.getElementById('game-clips-list');
+            gameClipsListDiv.innerHTML = '';
+            if (clips && clips.length > 0) {
+                clips.forEach(clip => {
+                    const annotationsText = clip.annotations ? JSON.stringify(clip.annotations) : 'N/A';
+                    gameClipsListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${clip.clip_title} (Uploaded: ${clip.upload_date}) <a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline">Watch</a> - Annotations: ${annotationsText}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                gameClipsListDiv.innerHTML = '<p class="text-gray-500">No game clips added yet.</p>';
+            }
+        }
+
+        async function addGameClip() {
+            const clipTitle = document.getElementById('clip-title').value;
+            const videoUrl = document.getElementById('clip-video-url').value;
+            const annotations = document.getElementById('clip-annotations').value;
+
+            if (!clipTitle || !videoUrl) {
+                showMessage('Please fill in clip title and video URL.', 'error');
+                return;
+            }
+
+            let parsedAnnotations = null;
+            if (annotations) {
+                try {
+                    parsedAnnotations = JSON.parse(annotations);
+                } catch (e) {
+                    showMessage('Invalid JSON for annotations.', 'error');
+                    return;
+                }
+            }
+
+            const data = { clip_title: clipTitle, video_url: videoUrl, annotations: parsedAnnotations };
+            const result = await postData('/api/game_clips', data);
+            if (result) {
+                showMessage('Game clip added successfully!', 'success');
+                document.getElementById('clip-title').value = '';
+                document.getElementById('clip-video-url').value = '';
+                document.getElementById('clip-annotations').value = '';
+                await loadGameClips();
+            }
+        }
+
+        async function loadScoutingTemplates() {
+            const templates = await fetchData('/api/scouting_templates');
+            const scoutingTemplatesListDiv = document.getElementById('scouting-templates-list');
+            scoutingTemplatesListDiv.innerHTML = '';
+            if (templates && templates.length > 0) {
+                templates.forEach(template => {
+                    scoutingTemplatesListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${template.template_name} (Opponent: ${template.opponent_name || 'N/A'})</span>
+                        </div>
+                    `;
+                });
+            } else {
+                scoutingTemplatesListDiv.innerHTML = '<p class="text-gray-500">No scouting templates added yet.</p>';
+            }
+        }
+
+        async function addScoutingTemplate() {
+            const templateName = document.getElementById('template-name').value;
+            const opponentName = document.getElementById('opponent-name').value;
+            const reportContent = document.getElementById('report-content').value;
+
+            if (!templateName) {
+                showMessage('Please enter a template name.', 'error');
+                return;
+            }
+
+            const data = { template_name: templateName, opponent_name: opponentName, report_content: reportContent };
+            const result = await postData('/api/scouting_templates', data);
+            if (result) {
+                showMessage('Scouting template added successfully!', 'success');
+                document.getElementById('template-name').value = '';
+                document.getElementById('opponent-name').value = '';
+                document.getElementById('report-content').value = '';
+                await loadScoutingTemplates();
+            }
+        }
+
+        async function loadLearningResources() {
+            const resources = await fetchData('/api/learning_resources');
+            const learningResourcesListDiv = document.getElementById('learning-resources-list');
+            learningResourcesListDiv.innerHTML = '';
+            if (resources && resources.length > 0) {
+                resources.forEach(resource => {
+                    learningResourcesListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${resource.resource_title} (${resource.platform || 'N/A'}) <a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline">Link</a></span>
+                        </div>
+                    `;
+                });
+            } else {
+                learningResourcesListDiv.innerHTML = '<p class="text-gray-500">No learning resources added yet.</p>';
+            }
+        }
+
+        async function addLearningResource() {
+            const resourceTitle = document.getElementById('resource-title').value;
+            const platform = document.getElementById('resource-platform').value;
+            const url = document.getElementById('resource-url').value;
+
+            if (!resourceTitle || !url) {
+                showMessage('Please fill in resource title and URL.', 'error');
+                return;
+            }
+
+            const data = { resource_title: resourceTitle, platform: platform, url: url };
+            const result = await postData('/api/learning_resources', data);
+            if (result) {
+                showMessage('Learning resource added successfully!', 'success');
+                document.getElementById('resource-title').value = '';
+                document.getElementById('resource-platform').value = '';
+                document.getElementById('resource-url').value = '';
+                await loadLearningResources();
+            }
+        }
+
+        // --- Self-Development & Courses Functions ---
+        async function loadCourses() {
+            const courses = await fetchData('/api/courses');
+            const coursesListDiv = document.getElementById('courses-list');
+            coursesListDiv.innerHTML = '';
+            if (courses && courses.length > 0) {
+                courses.forEach(course => {
+                    coursesListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${course.course_name} - Status: ${course.status} (Start: ${course.start_date || 'N/A'}, End: ${course.completion_date || 'N/A'})</span>
+                        </div>
+                    `;
+                });
+            } else {
+                coursesListDiv.innerHTML = '<p class="text-gray-500">No courses added yet.</p>';
+            }
+        }
+
+        async function addCourse() {
+            const courseName = document.getElementById('course-name').value;
+            const status = document.getElementById('course-status').value;
+            const startDate = document.getElementById('course-start-date').value;
+            const completionDate = document.getElementById('course-completion-date').value;
+
+            if (!courseName || !status) {
+                showMessage('Please fill in course name and status.', 'error');
+                return;
+            }
+
+            const data = {
+                course_name: courseName,
+                status: status,
+                start_date: startDate || null,
+                completion_date: completionDate || null
+            };
+            const result = await postData('/api/courses', data);
+            if (result) {
+                showMessage('Course added successfully!', 'success');
+                document.getElementById('course-name').value = '';
+                document.getElementById('course-status').value = '';
+                document.getElementById('course-start-date').value = '';
+                document.getElementById('course-completion-date').value = '';
+                await loadCourses();
+            }
+        }
+
+        async function loadSkillGoals() {
+            const goals = await fetchData('/api/skill_goals');
+            const skillGoalsListDiv = document.getElementById('skill-goals-list');
+            skillGoalsListDiv.innerHTML = '';
+            if (goals && goals.length > 0) {
+                goals.forEach(goal => {
+                    skillGoalsListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${goal.skill_name} (Target: ${goal.target_date || 'N/A'}) - ${goal.is_achieved ? 'Achieved' : 'Pending'}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                skillGoalsListDiv.innerHTML = '<p class="text-gray-500">No skill goals added yet.</p>';
+            }
+        }
+
+        async function addSkillGoal() {
+            const skillName = document.getElementById('skill-name').value;
+            const targetDate = document.getElementById('skill-target-date').value;
+            const isAchieved = document.getElementById('skill-achieved').checked;
+
+            if (!skillName) {
+                showMessage('Please enter a skill name.', 'error');
+                return;
+            }
+
+            const data = { skill_name: skillName, target_date: targetDate || null, is_achieved: isAchieved };
+            const result = await postData('/api/skill_goals', data);
+            if (result) {
+                showMessage('Skill goal added successfully!', 'success');
+                document.getElementById('skill-name').value = '';
+                document.getElementById('skill-target-date').value = '';
+                document.getElementById('skill-achieved').checked = false;
+                await loadSkillGoals();
+            }
+        }
+
+        // --- Daily Schedule & Routine Functions ---
+        async function loadDailySchedule() {
+            const schedule = await fetchData('/api/daily_schedule');
+            const dailyScheduleListDiv = document.getElementById('daily-schedule-list');
+            dailyScheduleListDiv.innerHTML = '';
+            if (schedule && schedule.length > 0) {
+                schedule.forEach(entry => {
+                    dailyScheduleListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${entry.schedule_date}: Morning Routine ${entry.morning_routine_completed ? 'Completed' : 'Pending'}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                dailyScheduleListDiv.innerHTML = '<p class="text-gray-500">No daily schedule entries yet.</p>';
+            }
+        }
+
+        async function addDailySchedule() {
+            const scheduleDate = document.getElementById('schedule-date').value;
+            const morningRoutineCompleted = document.getElementById('morning-routine-completed').checked;
+
+            if (!scheduleDate) {
+                showMessage('Please select a schedule date.', 'error');
+                return;
+            }
+
+            const data = { schedule_date: scheduleDate, morning_routine_completed: morningRoutineCompleted };
+            const result = await postData('/api/daily_schedule', data);
+            if (result) {
+                showMessage('Daily schedule entry added successfully!', 'success');
+                document.getElementById('schedule-date').value = '';
+                document.getElementById('morning-routine-completed').checked = false;
+                await loadDailySchedule();
+            }
+        }
+
+        async function loadTimeBlocking() {
+            const blocks = await fetchData('/api/time_blocking');
+            const timeBlockingListDiv = document.getElementById('time-blocking-list');
+            timeBlockingListDiv.innerHTML = '';
+            if (blocks && blocks.length > 0) {
+                blocks.forEach(block => {
+                    timeBlockingListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${block.schedule_date} ${block.time_slot}: ${block.activity}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                timeBlockingListDiv.innerHTML = '<p class="text-gray-500">No time blocks added yet.</p>';
+            }
+        }
+
+        async function addTimeBlock() {
+            const scheduleDate = document.getElementById('time-block-date').value;
+            const timeSlot = document.getElementById('time-block-slot').value;
+            const activity = document.getElementById('time-block-activity').value;
+
+            if (!scheduleDate || !timeSlot || !activity) {
+                showMessage('Please fill in all time block fields.', 'error');
+                return;
+            }
+
+            const data = { schedule_date: scheduleDate, time_slot: timeSlot, activity: activity };
+            const result = await postData('/api/time_blocking', data);
+            if (result) {
+                showMessage('Time block added successfully!', 'success');
+                document.getElementById('time-block-date').value = '';
+                document.getElementById('time-block-slot').value = '';
+                document.getElementById('time-block-activity').value = '';
+                await loadTimeBlocking();
+            }
+        }
+
+        async function loadConsistencyScore() {
+            const scores = await fetchData('/api/consistency_score');
+            const consistencyScoreListDiv = document.getElementById('consistency-score-list');
+            consistencyScoreListDiv.innerHTML = '';
+            if (scores && scores.length > 0) {
+                scores.forEach(score => {
+                    consistencyScoreListDiv.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                            <span>${score.record_date}: Sleep: ${score.sleep_score}, Gym: ${score.gym_score}, Study: ${score.study_score}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                consistencyScoreListDiv.innerHTML = '<p class="text-gray-500">No consistency scores yet.</p>';
+            }
+        }
+
+        async function addConsistencyScore() {
+            const recordDate = document.getElementById('consistency-date').value;
+            const sleepScore = document.getElementById('consistency-sleep').value;
+            const gymScore = document.getElementById('consistency-gym').value;
+            const studyScore = document.getElementById('consistency-study').value;
+
+            if (!recordDate || !sleepScore || !gymScore || !studyScore) {
+                showMessage('Please fill in all consistency score fields.', 'error');
+                return;
+            }
+
+            const data = {
+                record_date: recordDate,
+                sleep_score: parseInt(sleepScore),
+                gym_score: parseInt(gymScore),
+                study_score: parseInt(studyScore)
+            };
+            const result = await postData('/api/consistency_score', data);
+            if (result) {
+                showMessage('Consistency score added successfully!', 'success');
+                document.getElementById('consistency-date').value = '';
+                document.getElementById('consistency-sleep').value = '';
+                document.getElementById('consistency-gym').value = '';
+                document.getElementById('consistency-study').value = '';
+                await loadConsistencyScore();
+            }
+        }
+
+    </script>
+</body>
+</html>
