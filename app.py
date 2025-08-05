@@ -12,11 +12,11 @@ app = Flask(__name__)
 # Remember that for production deployments, using environment variables
 # (as in the previous version) is generally more secure.
 DB_CONFIG = {
-    'host': 'sql.freedb.tech',
-    'port': 3306,
-    'database': 'freedb_omarelhaq',
-    'user': 'freedb_omarelhaq',
-    'password': 'N@a2brrJR9%&&ct'
+    'host': 'mysql6013.site4now.net',
+    'port': 3306, # Assuming default MySQL port as not explicitly provided in new image
+    'database': 'db_abc901_omarelh',
+    'user': 'abc901_omarelh',
+    'password': 'omarreda123'
 }
 
 # --- Database Connection Helper ---
