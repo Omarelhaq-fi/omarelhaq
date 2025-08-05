@@ -12,6 +12,11 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
             color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .dark body {
+            background-color: #1a202c;
+            color: #e2e8f0;
         }
         .container {
             max-width: 1200px;
@@ -22,6 +27,11 @@
             background-color: #ffffff;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark .sidebar {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
         .nav-link {
             display: flex;
@@ -34,6 +44,9 @@
         }
         .nav-link:hover {
             background-color: #e2e8f0;
+        }
+        .dark .nav-link:hover {
+            background-color: #4a5568;
         }
         .nav-link.active {
             background-color: #3b82f6;
@@ -49,6 +62,12 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             min-height: 80vh;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out; /* Fade in animation */
+        }
+        .dark .content-section {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
         .card {
             background-color: #f8fafc;
@@ -56,6 +75,11 @@
             padding: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark .card {
+            background-color: #4a5568;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         input[type="text"], input[type="date"], input[type="number"], input[type="url"], textarea, select {
             width: 100%;
@@ -64,6 +88,14 @@
             border: 1px solid #cbd5e0;
             margin-bottom: 0.75rem;
             font-size: 1rem;
+            background-color: #ffffff;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .dark input[type="text"], .dark input[type="date"], .dark input[type="number"], .dark input[type="url"], .dark textarea, .dark select {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
         }
         button {
             background-color: #3b82f6;
@@ -71,10 +103,14 @@
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             font-weight: 600;
-            transition: background-color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
         }
         button:hover {
             background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
         }
         .delete-btn {
             background-color: #ef4444;
@@ -110,12 +146,18 @@
             max-width: 500px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
+            transition: background-color 0.3s ease;
+        }
+        .dark .modal-content {
+            background-color: #2d3748;
+            color: #e2e8f0;
         }
         .close-button {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
         }
         .close-button:hover,
         .close-button:focus {
@@ -123,13 +165,63 @@
             text-decoration: none;
             cursor: pointer;
         }
+        .dark .close-button:hover,
+        .dark .close-button:focus {
+            color: #e2e8f0;
+        }
+        .completed-item {
+            text-decoration: line-through;
+            color: #6b7280; /* Gray out completed items */
+        }
+        .dark .completed-item {
+            color: #a0aec0;
+        }
+        .pomodoro-timer {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            background-color: #e0f2fe; /* Light blue for timer */
+            color: #000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        .dark .pomodoro-timer {
+            background-color: #1e3a8a; /* Darker blue for timer */
+            color: #fff;
+        }
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1d4ed8;
+            transition: color 0.3s ease;
+        }
+        .dark .timer-display {
+            color: #93c5fd;
+        }
+        .timer-buttons button {
+            margin: 0.5rem;
+            min-width: 100px;
+        }
+        .timer-config input {
+            width: 80px;
+            text-align: center;
+            margin: 0 0.5rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container flex flex-col lg:flex-row gap-4 py-4">
         <!-- Sidebar Navigation -->
         <aside class="sidebar p-4 lg:w-1/4">
-            <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Omar's Dashboard</h1>
+            <h1 class="text-2xl font-bold text-center mb-6 text-blue-600 dark:text-blue-300">Omar's Dashboard</h1>
+            <button id="darkModeToggle" class="w-full py-2 px-4 mb-4 rounded-md bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 transition-colors duration-300">
+                Toggle Dark Mode
+            </button>
             <nav>
                 <ul>
                     <li>
@@ -176,12 +268,12 @@
         <main class="content-section flex-1">
             <!-- Home Section -->
             <section id="home" class="dashboard-section">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome, Omar Elhaq!</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Welcome, Omar Elhaq!</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Mood Tracker Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2">Mood Tracker</h3>
-                        <div id="mood-list" class="mb-4"></div>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Mood Tracker</h3>
+                        <div id="mood-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                         <input type="date" id="mood-date" class="mb-2">
                         <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
                         <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
@@ -190,8 +282,8 @@
 
                     <!-- Sleep Tracker Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2">Sleep Tracker</h3>
-                        <div id="sleep-list" class="mb-4"></div>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Sleep Tracker</h3>
+                        <div id="sleep-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                         <input type="date" id="sleep-date" class="mb-2">
                         <input type="number" id="hours-slept" placeholder="Hours Slept" step="0.1" class="mb-2">
                         <input type="number" id="sleep-quality" placeholder="Quality (1-5)" min="1" max="5" class="mb-2">
@@ -200,16 +292,34 @@
 
                     <!-- Achievements Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2">Achievements (Weekly)</h3>
-                        <div id="achievements-list" class="mb-4"></div>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Achievements (Weekly)</h3>
+                        <div id="achievements-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                         <input type="date" id="achievement-date" class="mb-2">
                         <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
                         <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
                     </div>
 
+                    <!-- Pomodoro Timer Card -->
+                    <div class="card col-span-full lg:col-span-1">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer</h3>
+                        <div class="pomodoro-timer">
+                            <p class="text-lg mb-2" id="timer-status">Work Time!</p>
+                            <div class="timer-display" id="timer-display">25:00</div>
+                            <div class="timer-buttons flex justify-center mb-4">
+                                <button onclick="startTimer()" class="add-btn">Start</button>
+                                <button onclick="pauseTimer()" class="bg-yellow-500 hover:bg-yellow-600">Pause</button>
+                                <button onclick="resetTimer()" class="delete-btn">Reset</button>
+                            </div>
+                            <div class="timer-config text-gray-700 dark:text-gray-300">
+                                <label>Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
+                                <label>Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Shortcuts Card -->
-                    <div class="card col-span-full">
-                        <h3 class="text-xl font-semibold mb-2">Shortcuts</h3>
+                    <div class="card col-span-full lg:col-span-2">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Shortcuts</h3>
                         <div class="flex flex-wrap gap-2">
                             <button class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-md">Launch Study Timer</button>
                             <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md">Add Clip</button>
@@ -221,12 +331,12 @@
 
             <!-- Medical Student Hub Section -->
             <section id="medical" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Medical Student Hub</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub</h2>
                 
                 <!-- Study Plan Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Daily Study Plan</h3>
-                    <div id="study-plan-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Daily Study Plan</h3>
+                    <div id="study-plan-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
                     <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
                     <input type="text" id="study-topic" placeholder="Topic">
@@ -236,8 +346,8 @@
 
                 <!-- Subjects Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Subjects Tracker</h3>
-                    <div id="subjects-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Subjects Tracker</h3>
+                    <div id="subjects-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="subject-name" placeholder="Subject Name">
                     <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
                     <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
@@ -245,8 +355,8 @@
 
                 <!-- To-Read/Watch Queue -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">To-Read/Watch Queue</h3>
-                    <div id="read-watch-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">To-Read/Watch Queue</h3>
+                    <div id="read-watch-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="queue-title" placeholder="Title">
                     <select id="queue-type" class="mb-2">
                         <option value="">Select Type</option>
@@ -255,7 +365,7 @@
                         <option value="Lecture">Lecture</option>
                     </select>
                     <input type="url" id="queue-url" placeholder="URL">
-                    <label class="flex items-center mb-2">
+                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
                         <input type="checkbox" id="queue-completed" class="mr-2"> Completed
                     </label>
                     <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
@@ -263,7 +373,7 @@
 
                 <!-- Progress Chart -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Progress Chart: Weekly Hours Studied</h3>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Progress Chart: Weekly Hours Studied</h3>
                     <canvas id="studyProgressChart"></canvas>
                     <input type="date" id="chart-week-start-date" class="mb-2">
                     <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
@@ -274,12 +384,12 @@
 
             <!-- Fitness & Gym Tracker Section -->
             <section id="fitness" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Fitness & Gym Tracker</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker</h2>
                 
                 <!-- Workout Plan Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Workout Plan</h3>
-                    <div id="workout-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Workout Plan</h3>
+                    <div id="workout-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="workout-date" class="mb-2">
                     <select id="workout-split" class="mb-2">
                         <option value="">Select Split</option>
@@ -300,8 +410,8 @@
 
                 <!-- Body Progress Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Body Progress Tracker</h3>
-                    <div id="body-progress-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Body Progress Tracker</h3>
+                    <div id="body-progress-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="body-record-date" class="mb-2">
                     <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
                     <input type="url" id="body-photo-url" placeholder="Photo URL">
@@ -312,8 +422,8 @@
 
                 <!-- Nutrition Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Nutrition Tab</h3>
-                    <div id="nutrition-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Nutrition Tab</h3>
+                    <div id="nutrition-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="meal-date" class="mb-2">
                     <select id="meal-type" class="mb-2">
                         <option value="">Select Meal Type</option>
@@ -330,11 +440,11 @@
 
                 <!-- Weekly Shopping List -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Weekly Shopping List</h3>
-                    <div id="shopping-list-items" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Weekly Shopping List</h3>
+                    <div id="shopping-list-items" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="shopping-item-name" placeholder="Item Name">
                     <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
-                    <label class="flex items-center mb-2">
+                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
                         <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
                     </label>
                     <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
@@ -343,12 +453,12 @@
 
             <!-- Basketball & Analysis Lab Section -->
             <section id="basketball" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Basketball & Analysis Lab</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball & Analysis Lab</h2>
                 
                 <!-- Video Analysis Board -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Video Analysis Board</h3>
-                    <div id="game-clips-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Video Analysis Board</h3>
+                    <div id="game-clips-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="clip-title" placeholder="Clip Title">
                     <input type="url" id="clip-video-url" placeholder="Video URL">
                     <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
@@ -357,8 +467,8 @@
 
                 <!-- Scouting Templates -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Scouting Templates</h3>
-                    <div id="scouting-templates-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Scouting Templates</h3>
+                    <div id="scouting-templates-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="template-name" placeholder="Template Name">
                     <input type="text" id="opponent-name" placeholder="Opponent Name">
                     <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
@@ -367,8 +477,8 @@
 
                 <!-- Learning Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Learning Tab</h3>
-                    <div id="learning-resources-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Learning Tab</h3>
+                    <div id="learning-resources-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="resource-title" placeholder="Resource Title">
                     <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
                     <input type="url" id="resource-url" placeholder="URL">
@@ -378,12 +488,12 @@
 
             <!-- Self-Development & Courses Section -->
             <section id="self-development" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Self-Development & Courses</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Self-Development & Courses</h2>
                 
                 <!-- Courses Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Courses Tracker</h3>
-                    <div id="courses-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Courses Tracker</h3>
+                    <div id="courses-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="course-name" placeholder="Course Name">
                     <select id="course-status" class="mb-2">
                         <option value="">Select Status</option>
@@ -398,11 +508,11 @@
 
                 <!-- Skill Goals -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Skill Goals</h3>
-                    <div id="skill-goals-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Skill Goals</h3>
+                    <div id="skill-goals-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
                     <input type="date" id="skill-target-date" class="mb-2">
-                    <label class="flex items-center mb-2">
+                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
                         <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
                     </label>
                     <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
@@ -411,14 +521,14 @@
 
             <!-- Daily Schedule & Routine Section -->
             <section id="daily-schedule" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Daily Schedule & Routine</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Daily Schedule & Routine</h2>
                 
                 <!-- Morning Routine -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Morning Routine</h3>
-                    <div id="daily-schedule-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Morning Routine</h3>
+                    <div id="daily-schedule-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="schedule-date" class="mb-2">
-                    <label class="flex items-center mb-2">
+                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
                         <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
                     </label>
                     <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
@@ -426,8 +536,8 @@
 
                 <!-- Time-Blocking Plan -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Time-Blocking Plan</h3>
-                    <div id="time-blocking-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Time-Blocking Plan</h3>
+                    <div id="time-blocking-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="time-block-date" class="mb-2">
                     <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
                     <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
@@ -436,8 +546,8 @@
 
                 <!-- Consistency Score -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2">Consistency Score</h3>
-                    <div id="consistency-score-list" class="mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Consistency Score</h3>
+                    <div id="consistency-score-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
                     <input type="date" id="consistency-date" class="mb-2">
                     <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
                     <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
@@ -456,7 +566,49 @@
         </div>
     </div>
 
+    <audio id="timer-beep" src="https://www.soundjay.com/buttons/beep-07.wav" preload="auto"></audio>
+
+
     <script>
+        // --- Dark Mode Toggle ---
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference or system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function setDarkMode(isDark) {
+            if (isDark) {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                darkModeToggle.textContent = 'Light Mode';
+            } else {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                darkModeToggle.textContent = 'Dark Mode';
+            }
+        }
+
+        // Initialize theme on load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setDarkMode(savedTheme === 'dark');
+        } else {
+            setDarkMode(prefersDark.matches); // Use system preference
+        }
+
+        // Listen for system theme changes
+        prefersDark.addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) { // Only react if no explicit preference is set
+                setDarkMode(e.matches);
+            }
+        });
+
+        darkModeToggle.addEventListener('click', () => {
+            setDarkMode(!htmlElement.classList.contains('dark'));
+        });
+
+
         // --- Utility Functions ---
         function showMessage(message, type = 'info') {
             const messageModal = document.getElementById('messageModal');
@@ -575,6 +727,7 @@
                     await loadMoods();
                     await loadSleepData();
                     await loadAchievements();
+                    // No need to load Pomodoro data, it's client-side
                     break;
                 case 'medical':
                     await loadStudyPlans();
@@ -615,13 +768,13 @@
             if (moods && moods.length > 0) {
                 moods.forEach(mood => {
                     moodListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${mood.record_date}: Mood ${mood.mood_level} (${mood.notes || 'No notes'})</span>
                         </div>
                     `;
                 });
             } else {
-                moodListDiv.innerHTML = '<p class="text-gray-500">No mood entries yet.</p>';
+                moodListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No mood entries yet.</p>';
             }
         }
 
@@ -653,13 +806,13 @@
             if (sleepData && sleepData.length > 0) {
                 sleepData.forEach(sleep => {
                     sleepListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${sleep.sleep_date}: ${sleep.hours_slept} hrs (Quality: ${sleep.quality_score})</span>
                         </div>
                     `;
                 });
             } else {
-                sleepListDiv.innerHTML = '<p class="text-gray-500">No sleep entries yet.</p>';
+                sleepListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No sleep entries yet.</p>';
             }
         }
 
@@ -691,13 +844,13 @@
             if (achievements && achievements.length > 0) {
                 achievements.forEach(achievement => {
                     achievementsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${achievement.achievement_date}: ${achievement.description}</span>
                         </div>
                     `;
                 });
             } else {
-                achievementsListDiv.innerHTML = '<p class="text-gray-500">No achievements yet.</p>';
+                achievementsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No achievements yet.</p>';
             }
         }
 
@@ -720,6 +873,74 @@
             }
         }
 
+        // --- Pomodoro Timer Functions ---
+        let workMinutesInput = document.getElementById('work-minutes');
+        let breakMinutesInput = document.getElementById('break-minutes');
+        let timerDisplay = document.getElementById('timer-display');
+        let timerStatus = document.getElementById('timer-status');
+        let timerBeep = document.getElementById('timer-beep');
+
+        let intervalId;
+        let isPaused = true;
+        let isWorkPhase = true;
+        let currentTime = 25 * 60; // Default work time in seconds
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = currentTime % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function togglePhase() {
+            isWorkPhase = !isWorkPhase;
+            if (isWorkPhase) {
+                currentTime = parseInt(workMinutesInput.value) * 60;
+                timerStatus.textContent = "Work Time!";
+            } else {
+                currentTime = parseInt(breakMinutesInput.value) * 60;
+                timerStatus.textContent = "Break Time!";
+            }
+            timerBeep.play(); // Play sound when phase changes
+            updateTimerDisplay();
+        }
+
+        function startTimer() {
+            if (!isPaused) return; // Already running
+            isPaused = false;
+            intervalId = setInterval(() => {
+                if (currentTime <= 0) {
+                    clearInterval(intervalId);
+                    togglePhase();
+                    startTimer(); // Auto-start next phase
+                } else {
+                    currentTime--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(intervalId);
+            isPaused = true;
+        }
+
+        function resetTimer() {
+            clearInterval(intervalId);
+            isPaused = true;
+            isWorkPhase = true;
+            currentTime = parseInt(workMinutesInput.value) * 60;
+            timerStatus.textContent = "Work Time!";
+            updateTimerDisplay();
+        }
+
+        // Initialize timer display on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTimerDisplay();
+            workMinutesInput.addEventListener('change', resetTimer);
+            breakMinutesInput.addEventListener('change', resetTimer);
+        });
+
+
         // --- Medical Student Hub Functions ---
         async function loadStudyPlans() {
             const plans = await fetchData('/api/study_plans');
@@ -728,14 +949,14 @@
             if (plans && plans.length > 0) {
                 plans.forEach(plan => {
                     studyPlanListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${plan.day_of_week} ${plan.time_slot}: ${plan.topic} (${plan.resource_type})</span>
                             <button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-2 py-1 rounded-md">Delete</button>
                         </div>
                     `;
                 });
             } else {
-                studyPlanListDiv.innerHTML = '<p class="text-gray-500">No study plans yet.</p>';
+                studyPlanListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No study plans yet.</p>';
             }
         }
 
@@ -777,13 +998,13 @@
             if (subjects && subjects.length > 0) {
                 subjects.forEach(subject => {
                     subjectsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${subject.subject_name}: ${subject.description || 'No description'}</span>
                         </div>
                     `;
                 });
             } else {
-                subjectsListDiv.innerHTML = '<p class="text-gray-500">No subjects added yet.</p>';
+                subjectsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No subjects added yet.</p>';
             }
         }
 
@@ -812,14 +1033,15 @@
             readWatchListDiv.innerHTML = '';
             if (queueItems && queueItems.length > 0) {
                 queueItems.forEach(item => {
+                    const completedClass = item.is_completed ? 'completed-item' : '';
                     readWatchListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${item.title} (${item.type}) - ${item.is_completed ? 'Completed' : 'Pending'} <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline">Link</a></span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
+                            <span>${item.title} (${item.type}) <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a> ${item.is_completed ? '✅' : '⏳'}</span>
                         </div>
                     `;
                 });
             } else {
-                readWatchListDiv.innerHTML = '<p class="text-gray-500">No items in queue yet.</p>';
+                readWatchListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No items in queue yet.</p>';
             }
         }
 
@@ -916,13 +1138,13 @@
             if (workouts && workouts.length > 0) {
                 workouts.forEach(workout => {
                     workoutListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${workout.workout_date} - ${workout.split_type}: ${workout.exercise_name} (${workout.sets}x${workout.reps} @ ${workout.weight}kg)</span>
                         </div>
                     `;
                 });
             } else {
-                workoutListDiv.innerHTML = '<p class="text-gray-500">No workouts recorded yet.</p>';
+                workoutListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No workouts recorded yet.</p>';
             }
         }
 
@@ -974,13 +1196,13 @@
                 progress.forEach(item => {
                     const measurementsText = item.measurements ? JSON.stringify(item.measurements) : 'N/A';
                     bodyProgressListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${item.record_date}: ${item.weight}kg, Measurements: ${measurementsText}, Goal: ${item.goal || 'N/A'}</span>
                         </div>
                     `;
                 });
             } else {
-                bodyProgressListDiv.innerHTML = '<p class="text-gray-500">No body progress recorded yet.</p>';
+                bodyProgressListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No body progress recorded yet.</p>';
             }
         }
 
@@ -1032,13 +1254,13 @@
             if (nutritionData && nutritionData.length > 0) {
                 nutritionData.forEach(meal => {
                     nutritionListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${meal.meal_date} - ${meal.meal_type}: ${meal.meal_description} (${meal.calories} kcal, ${meal.protein_intake}g protein)</span>
                         </div>
                     `;
                 });
             } else {
-                nutritionListDiv.innerHTML = '<p class="text-gray-500">No nutrition entries yet.</p>';
+                nutritionListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No nutrition entries yet.</p>';
             }
         }
 
@@ -1079,14 +1301,15 @@
             shoppingListItemsDiv.innerHTML = '';
             if (shoppingItems && shoppingItems.length > 0) {
                 shoppingItems.forEach(item => {
+                    const completedClass = item.is_purchased ? 'completed-item' : '';
                     shoppingListItemsDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${item.item_name} (${item.quantity || 'N/A'}) - ${item.is_purchased ? 'Purchased' : 'Pending'}</span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
+                            <span>${item.item_name} (${item.quantity || 'N/A'}) ${item.is_purchased ? '✅' : '🛒'}</span>
                         </div>
                     `;
                 });
             } else {
-                shoppingListItemsDiv.innerHTML = '<p class="text-gray-500">No shopping items yet.</p>';
+                shoppingListItemsDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No shopping items yet.</p>';
             }
         }
 
@@ -1120,13 +1343,13 @@
                 clips.forEach(clip => {
                     const annotationsText = clip.annotations ? JSON.stringify(clip.annotations) : 'N/A';
                     gameClipsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${clip.clip_title} (Uploaded: ${clip.upload_date}) <a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline">Watch</a> - Annotations: ${annotationsText}</span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
+                            <span>${clip.clip_title} (Uploaded: ${clip.upload_date}) <a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Watch</a> - Annotations: ${annotationsText}</span>
                         </div>
                     `;
                 });
             } else {
-                gameClipsListDiv.innerHTML = '<p class="text-gray-500">No game clips added yet.</p>';
+                gameClipsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No game clips added yet.</p>';
             }
         }
 
@@ -1168,13 +1391,13 @@
             if (templates && templates.length > 0) {
                 templates.forEach(template => {
                     scoutingTemplatesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${template.template_name} (Opponent: ${template.opponent_name || 'N/A'})</span>
                         </div>
                     `;
                 });
             } else {
-                scoutingTemplatesListDiv.innerHTML = '<p class="text-gray-500">No scouting templates added yet.</p>';
+                scoutingTemplatesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No scouting templates added yet.</p>';
             }
         }
 
@@ -1206,13 +1429,13 @@
             if (resources && resources.length > 0) {
                 resources.forEach(resource => {
                     learningResourcesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${resource.resource_title} (${resource.platform || 'N/A'}) <a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline">Link</a></span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
+                            <span>${resource.resource_title} (${resource.platform || 'N/A'}) <a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></span>
                         </div>
                     `;
                 });
             } else {
-                learningResourcesListDiv.innerHTML = '<p class="text-gray-500">No learning resources added yet.</p>';
+                learningResourcesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No learning resources added yet.</p>';
             }
         }
 
@@ -1245,13 +1468,13 @@
             if (courses && courses.length > 0) {
                 courses.forEach(course => {
                     coursesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${course.course_name} - Status: ${course.status} (Start: ${course.start_date || 'N/A'}, End: ${course.completion_date || 'N/A'})</span>
                         </div>
                     `;
                 });
             } else {
-                coursesListDiv.innerHTML = '<p class="text-gray-500">No courses added yet.</p>';
+                coursesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No courses added yet.</p>';
             }
         }
 
@@ -1289,14 +1512,15 @@
             skillGoalsListDiv.innerHTML = '';
             if (goals && goals.length > 0) {
                 goals.forEach(goal => {
+                    const achievedClass = goal.is_achieved ? 'completed-item' : '';
                     skillGoalsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${goal.skill_name} (Target: ${goal.target_date || 'N/A'}) - ${goal.is_achieved ? 'Achieved' : 'Pending'}</span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${achievedClass}">
+                            <span>${goal.skill_name} (Target: ${goal.target_date || 'N/A'}) ${goal.is_achieved ? '🏆' : '🎯'}</span>
                         </div>
                     `;
                 });
             } else {
-                skillGoalsListDiv.innerHTML = '<p class="text-gray-500">No skill goals added yet.</p>';
+                skillGoalsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No skill goals added yet.</p>';
             }
         }
 
@@ -1328,14 +1552,15 @@
             dailyScheduleListDiv.innerHTML = '';
             if (schedule && schedule.length > 0) {
                 schedule.forEach(entry => {
+                    const completedClass = entry.morning_routine_completed ? 'completed-item' : '';
                     dailyScheduleListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
-                            <span>${entry.schedule_date}: Morning Routine ${entry.morning_routine_completed ? 'Completed' : 'Pending'}</span>
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
+                            <span>${entry.schedule_date}: Morning Routine ${entry.morning_routine_completed ? '✅' : '⏰'}</span>
                         </div>
                     `;
                 });
             } else {
-                dailyScheduleListDiv.innerHTML = '<p class="text-gray-500">No daily schedule entries yet.</p>';
+                dailyScheduleListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No daily schedule entries yet.</p>';
             }
         }
 
@@ -1365,13 +1590,13 @@
             if (blocks && blocks.length > 0) {
                 blocks.forEach(block => {
                     timeBlockingListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${block.schedule_date} ${block.time_slot}: ${block.activity}</span>
                         </div>
                     `;
                 });
             } else {
-                timeBlockingListDiv.innerHTML = '<p class="text-gray-500">No time blocks added yet.</p>';
+                timeBlockingListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No time blocks added yet.</p>';
             }
         }
 
@@ -1403,13 +1628,13 @@
             if (scores && scores.length > 0) {
                 scores.forEach(score => {
                     consistencyScoreListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md mb-1">
+                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
                             <span>${score.record_date}: Sleep: ${score.sleep_score}, Gym: ${score.gym_score}, Study: ${score.study_score}</span>
                         </div>
                     `;
                 });
             } else {
-                consistencyScoreListDiv.innerHTML = '<p class="text-gray-500">No consistency scores yet.</p>';
+                consistencyScoreListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No consistency scores yet.</p>';
             }
         }
 
