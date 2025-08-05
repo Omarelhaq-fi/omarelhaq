@@ -1,9 +1,9 @@
 import os
 import json
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 app = Flask(__name__)
 
@@ -22,27 +22,25 @@ DB_CONFIG = {
 # --- Database Connection Helper ---
 def create_db_connection():
     """Establishes a connection to the MySQL database."""
-    connection = None
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
         if connection.is_connected():
-            print(f"Successfully connected to MySQL database: {DB_CONFIG['database']}")
+            print(f"DEBUG: Successfully connected to MySQL database: {DB_CONFIG['database']}")
+        return connection
     except Error as e:
-        print(f"Error connecting to MySQL database: {e}")
-    return connection
+        print(f"ERROR: Database connection failed in create_db_connection: {e}")
+        return None # Explicitly return None on failure
 
-# --- Database Initialization (Create Tables) ---
+# Global flag to track if database initialization was successful
+db_initialized_successfully = False
+
 def initialize_database():
-    """
-    Creates necessary tables if they don't exist.
-    This function should be called once when the application starts or for setup.
-    In a Vercel serverless function, this will run on each invocation,
-    but `CREATE TABLE IF NOT EXISTS` ensures idempotency (it won't re-create).
-    """
-    connection = create_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        try:
+    global db_initialized_successfully
+    connection = None
+    try:
+        connection = create_db_connection()
+        if connection:
+            cursor = connection.cursor()
             # Users table (basic for now, can be expanded with hashing for passwords)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
@@ -61,6 +59,7 @@ def initialize_database():
                     time_slot VARCHAR(50),
                     topic VARCHAR(255),
                     resource_type VARCHAR(50),
+                    is_completed BOOLEAN DEFAULT FALSE,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
@@ -70,6 +69,8 @@ def initialize_database():
                     user_id INT,
                     subject_name VARCHAR(255) NOT NULL,
                     description TEXT,
+                    total_lectures INT DEFAULT 0,
+                    completed_lectures INT DEFAULT 0,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
@@ -259,8 +260,30 @@ def initialize_database():
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
+            # New table for Pomodoro sessions
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pomodoro_sessions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    session_date DATE NOT NULL,
+                    duration_minutes INT NOT NULL,
+                    is_work_session BOOLEAN NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # New table for Lecture Completion Log
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS lecture_completion_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    subject_id INT,
+                    completion_date DATE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES subjects(id)
+                )
+            """)
+
             connection.commit()
-            print("All tables checked/created successfully.")
+            print("DEBUG: All tables checked/created successfully.")
 
             # Add Omar Elhaq as a default user if not exists
             cursor.execute("SELECT id FROM users WHERE username = 'Omar Elhaq'")
@@ -269,19 +292,34 @@ def initialize_database():
                 cursor.execute("INSERT INTO users (username, password, email) VALUES (%s, %s, %s)",
                                ("Omar Elhaq", "password123", "omar.elhaq@example.com")) # Use a strong password in production
                 connection.commit()
-                print("Default user 'Omar Elhaq' added.")
-
-        except Error as e:
-            print(f"Error initializing database: {e}")
-        finally:
+                print("DEBUG: Default user 'Omar Elhaq' added.")
+            else:
+                print("DEBUG: Default user 'Omar Elhaq' already exists.")
+            db_initialized_successfully = True
+        else:
+            print("ERROR: Could not get database connection for initialization.")
+            db_initialized_successfully = False
+    except Error as e:
+        print(f"CRITICAL ERROR: Database initialization failed: {e}")
+        db_initialized_successfully = False
+        if connection:
+            connection.rollback() # Rollback any partial changes
+    finally:
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 # Call database initialization on startup
+# This will run when the serverless function is "warmed up" or first invoked.
 initialize_database()
 
 # --- Helper to get Omar's user ID (for demonstration) ---
 def get_omar_user_id():
+    # Only try to get user ID if DB was initialized
+    if not db_initialized_successfully:
+        print("WARNING: Database not initialized, cannot get user ID.")
+        return None
+
     connection = create_db_connection()
     user_id = None
     if connection:
@@ -292,10 +330,11 @@ def get_omar_user_id():
             if user:
                 user_id = user['id']
         except Error as e:
-            print(f"Error fetching user ID: {e}")
+            print(f"ERROR: Error fetching user ID: {e}")
         finally:
-            cursor.close()
-            connection.close()
+            if connection and connection.is_connected(): # Ensure connection is valid before closing
+                cursor.close()
+                connection.close()
     return user_id
 
 # --- Flask Routes ---
@@ -307,9 +346,12 @@ def index():
 
 # --- API Endpoints ---
 
-# Medical Student Hub
+# Medical Student Hub - Study Plans
 @app.route('/api/study_plans', methods=['GET', 'POST'])
 def handle_study_plans():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -325,8 +367,7 @@ def handle_study_plans():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
     elif request.method == 'POST':
         data = request.get_json()
@@ -335,19 +376,21 @@ def handle_study_plans():
             return jsonify({"error": "Missing required fields"}), 400
         try:
             cursor.execute(
-                "INSERT INTO study_plans (user_id, day_of_week, time_slot, topic, resource_type) VALUES (%s, %s, %s, %s, %s)",
-                (user_id, data['day_of_week'], data['time_slot'], data['topic'], data['resource_type'])
+                "INSERT INTO study_plans (user_id, day_of_week, time_slot, topic, resource_type, is_completed) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, data['day_of_week'], data['time_slot'], data['topic'], data['resource_type'], data.get('is_completed', False))
             )
             connection.commit()
             return jsonify({"message": "Study plan added successfully", "id": cursor.lastrowid}), 201
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 @app.route('/api/study_plans/<int:plan_id>', methods=['PUT', 'DELETE'])
 def manage_study_plan(plan_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -357,11 +400,33 @@ def manage_study_plan(plan_id):
 
     if request.method == 'PUT':
         data = request.get_json()
+        # Allow updating specific fields, including is_completed
+        update_fields = []
+        update_values = []
+        if 'day_of_week' in data:
+            update_fields.append("day_of_week = %s")
+            update_values.append(data['day_of_week'])
+        if 'time_slot' in data:
+            update_fields.append("time_slot = %s")
+            update_values.append(data['time_slot'])
+        if 'topic' in data:
+            update_fields.append("topic = %s")
+            update_values.append(data['topic'])
+        if 'resource_type' in data:
+            update_fields.append("resource_type = %s")
+            update_values.append(data['resource_type'])
+        if 'is_completed' in data:
+            update_fields.append("is_completed = %s")
+            update_values.append(data['is_completed'])
+        
+        if not update_fields:
+            return jsonify({"error": "No fields to update"}), 400
+
+        query = f"UPDATE study_plans SET {', '.join(update_fields)} WHERE id=%s AND user_id=%s"
+        update_values.extend([plan_id, user_id])
+
         try:
-            cursor.execute(
-                "UPDATE study_plans SET day_of_week=%s, time_slot=%s, topic=%s, resource_type=%s WHERE id=%s AND user_id=%s",
-                (data.get('day_of_week'), data.get('time_slot'), data.get('topic'), data.get('resource_type'), plan_id, user_id)
-            )
+            cursor.execute(query, tuple(update_values))
             connection.commit()
             if cursor.rowcount == 0:
                 return jsonify({"message": "Study plan not found or not authorized"}), 404
@@ -369,8 +434,7 @@ def manage_study_plan(plan_id):
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'DELETE':
         try:
             cursor.execute("DELETE FROM study_plans WHERE id=%s AND user_id=%s", (plan_id, user_id))
@@ -381,12 +445,14 @@ def manage_study_plan(plan_id):
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
-# Subjects
+# Medical Student Hub - Subjects
 @app.route('/api/subjects', methods=['GET', 'POST'])
 def handle_subjects():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -402,28 +468,112 @@ def handle_subjects():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         if 'subject_name' not in data:
             return jsonify({"error": "Missing subject_name"}), 400
         try:
             cursor.execute(
-                "INSERT INTO subjects (user_id, subject_name, description) VALUES (%s, %s, %s)",
-                (user_id, data['subject_name'], data.get('description'))
+                "INSERT INTO subjects (user_id, subject_name, description, total_lectures, completed_lectures) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['subject_name'], data.get('description'), data.get('total_lectures', 0), data.get('completed_lectures', 0))
             )
             connection.commit()
             return jsonify({"message": "Subject added successfully", "id": cursor.lastrowid}), 201
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
-# Read/Watch Queue
+@app.route('/api/subjects/<int:subject_id>/complete_lecture', methods=['PUT'])
+def complete_lecture(subject_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT completed_lectures, total_lectures, subject_name FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_completed_lectures = subject['completed_lectures'] + 1
+        
+        # Update subject's completed lectures
+        cursor.execute("UPDATE subjects SET completed_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_completed_lectures, subject_id, user_id))
+        
+        # Log lecture completion
+        cursor.execute("INSERT INTO lecture_completion_log (user_id, subject_id, completion_date) VALUES (%s, %s, %s)",
+                       (user_id, subject_id, date.today()))
+        
+        connection.commit()
+
+        achievement_unlocked = False
+        achievement_description = ""
+
+        # Check for achievement (e.g., "Completed 10 lectures in Anatomy")
+        if subject['subject_name'] == 'Anatomy' and new_completed_lectures == 10:
+            achievement_description = "Completed 10 Anatomy Lectures!"
+            cursor.execute("INSERT INTO achievements (user_id, achievement_date, description) VALUES (%s, %s, %s)",
+                           (user_id, date.today(), achievement_description))
+            connection.commit()
+            achievement_unlocked = True
+
+        return jsonify({
+            "message": "Lecture marked as complete!",
+            "achievement_unlocked": achievement_unlocked,
+            "achievement_description": achievement_description
+        })
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/subjects/<int:subject_id>/add_lecture', methods=['PUT'])
+def add_lecture(subject_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT total_lectures FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_total_lectures = subject['total_lectures'] + 1
+        cursor.execute("UPDATE subjects SET total_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_total_lectures, subject_id, user_id))
+        connection.commit()
+        return jsonify({"message": "New lecture added to subject!"})
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# Medical Student Hub - Read/Watch Queue
 @app.route('/api/read_watch_queue', methods=['GET', 'POST'])
 def handle_read_watch_queue():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -439,8 +589,7 @@ def handle_read_watch_queue():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['title', 'type', 'url']
@@ -456,12 +605,14 @@ def handle_read_watch_queue():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
-# Progress Charts
+# Medical Student Hub - Progress Charts (Manual Study Hours)
 @app.route('/api/progress_charts', methods=['GET', 'POST'])
 def handle_progress_charts():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -481,8 +632,7 @@ def handle_progress_charts():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['week_start_date', 'hours_studied', 'topics_covered']
@@ -498,12 +648,14 @@ def handle_progress_charts():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Fitness & Gym Tracker
 @app.route('/api/workouts', methods=['GET', 'POST'])
 def handle_workouts():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -522,8 +674,7 @@ def handle_workouts():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['workout_date', 'split_type', 'exercise_name', 'sets', 'reps', 'weight']
@@ -539,12 +690,14 @@ def handle_workouts():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Body Progress
 @app.route('/api/body_progress', methods=['GET', 'POST'])
 def handle_body_progress():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -566,8 +719,7 @@ def handle_body_progress():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['record_date', 'weight']
@@ -586,12 +738,14 @@ def handle_body_progress():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Nutrition
 @app.route('/api/nutrition', methods=['GET', 'POST'])
 def handle_nutrition():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -610,8 +764,7 @@ def handle_nutrition():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['meal_date', 'meal_type', 'meal_description', 'calories', 'protein_intake']
@@ -627,12 +780,14 @@ def handle_nutrition():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Shopping List
 @app.route('/api/shopping_list', methods=['GET', 'POST'])
 def handle_shopping_list():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -648,8 +803,7 @@ def handle_shopping_list():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         if 'item_name' not in data:
@@ -664,12 +818,14 @@ def handle_shopping_list():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Basketball & Analysis Lab
 @app.route('/api/game_clips', methods=['GET', 'POST'])
 def handle_game_clips():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -690,8 +846,7 @@ def handle_game_clips():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['clip_title', 'video_url']
@@ -710,12 +865,14 @@ def handle_game_clips():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Scouting Templates
 @app.route('/api/scouting_templates', methods=['GET', 'POST'])
 def handle_scouting_templates():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -731,8 +888,7 @@ def handle_scouting_templates():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         if 'template_name' not in data:
@@ -747,12 +903,14 @@ def handle_scouting_templates():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Learning Resources
 @app.route('/api/learning_resources', methods=['GET', 'POST'])
 def handle_learning_resources():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -768,8 +926,7 @@ def handle_learning_resources():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['resource_title', 'url']
@@ -785,12 +942,14 @@ def handle_learning_resources():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Self-Development & Courses
 @app.route('/api/courses', methods=['GET', 'POST'])
 def handle_courses():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -811,8 +970,7 @@ def handle_courses():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['course_name', 'status']
@@ -828,12 +986,14 @@ def handle_courses():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Skill Goals
 @app.route('/api/skill_goals', methods=['GET', 'POST'])
 def handle_skill_goals():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -852,8 +1012,7 @@ def handle_skill_goals():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['skill_name']
@@ -869,12 +1028,14 @@ def handle_skill_goals():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Daily Schedule & Routine
 @app.route('/api/daily_schedule', methods=['GET', 'POST'])
 def handle_daily_schedule():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -893,8 +1054,7 @@ def handle_daily_schedule():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         if 'schedule_date' not in data:
@@ -909,12 +1069,14 @@ def handle_daily_schedule():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Time Blocking
 @app.route('/api/time_blocking', methods=['GET', 'POST'])
 def handle_time_blocking():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -933,8 +1095,7 @@ def handle_time_blocking():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['schedule_date', 'time_slot', 'activity']
@@ -950,12 +1111,14 @@ def handle_time_blocking():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 # Consistency Score
 @app.route('/api/consistency_score', methods=['GET', 'POST'])
 def handle_consistency_score():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -974,8 +1137,7 @@ def handle_consistency_score():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['record_date', 'sleep_score', 'gym_score', 'study_score']
@@ -991,12 +1153,14 @@ def handle_consistency_score():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
-# Dashboard Home Page
+# Dashboard Home Page - Mood Tracker
 @app.route('/api/mood_tracker', methods=['GET', 'POST'])
 def handle_mood_tracker():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -1015,8 +1179,7 @@ def handle_mood_tracker():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['record_date', 'mood_level']
@@ -1032,11 +1195,13 @@ def handle_mood_tracker():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 @app.route('/api/sleep_tracker', methods=['GET', 'POST'])
 def handle_sleep_tracker():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -1055,8 +1220,7 @@ def handle_sleep_tracker():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['sleep_date', 'hours_slept', 'quality_score']
@@ -1072,11 +1236,13 @@ def handle_sleep_tracker():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
 
 @app.route('/api/achievements', methods=['GET', 'POST'])
 def handle_achievements():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
     user_id = get_omar_user_id()
     if not user_id: return jsonify({"error": "User not found"}), 404
 
@@ -1095,8 +1261,7 @@ def handle_achievements():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
     elif request.method == 'POST':
         data = request.get_json()
         required_fields = ['achievement_date', 'description']
@@ -1112,8 +1277,125 @@ def handle_achievements():
         except Error as e:
             return jsonify({"error": str(e)}), 500
         finally:
-            cursor.close()
-            connection.close()
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for Pomodoro sessions
+@app.route('/api/pomodoro_sessions', methods=['POST'])
+def add_pomodoro_session():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor()
+
+    data = request.get_json()
+    required_fields = ['session_date', 'duration_minutes', 'is_work_session']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    try:
+        cursor.execute(
+            "INSERT INTO pomodoro_sessions (user_id, session_date, duration_minutes, is_work_session) VALUES (%s, %s, %s, %s)",
+            (user_id, data['session_date'], data['duration_minutes'], data['is_work_session'])
+        )
+        connection.commit()
+        return jsonify({"message": "Pomodoro session recorded successfully", "id": cursor.lastrowid}), 201
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for aggregated dashboard summary data for charts
+@app.route('/api/dashboard_summary_data', methods=['GET'])
+def dashboard_summary_data():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Define the date range (e.g., last 8 weeks)
+        today = date.today()
+        # Find the start of the current week (Monday)
+        current_week_start = today - timedelta(days=today.weekday())
+        
+        # Generate labels for the last 8 weeks
+        labels = []
+        week_starts = []
+        for i in range(8): # For last 8 weeks
+            week_start = current_week_start - timedelta(weeks=7 - i)
+            labels.append(week_start.strftime('%Y-%m-%d'))
+            week_starts.append(week_start)
+
+        pomodoro_hours = [0] * 8
+        lectures_completed_weekly = [0] * 8
+        manual_study_hours = [0] * 8
+
+        # Fetch Pomodoro data
+        cursor.execute("""
+            SELECT session_date, duration_minutes FROM pomodoro_sessions
+            WHERE user_id = %s AND is_work_session = TRUE AND session_date >= %s
+            ORDER BY session_date
+        """, (user_id, week_starts[0]))
+        pomodoro_data = cursor.fetchall()
+
+        for session in pomodoro_data:
+            session_date = session['session_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= session_date < ws + timedelta(weeks=1):
+                    pomodoro_hours[i] += session['duration_minutes'] / 60.0 # Convert minutes to hours
+                    break
+        
+        # Fetch Lecture Completion Log data
+        cursor.execute("""
+            SELECT completion_date FROM lecture_completion_log
+            WHERE user_id = %s AND completion_date >= %s
+            ORDER BY completion_date
+        """, (user_id, week_starts[0]))
+        lecture_log_data = cursor.fetchall()
+
+        for log_entry in lecture_log_data:
+            completion_date = log_entry['completion_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= completion_date < ws + timedelta(weeks=1):
+                    lectures_completed_weekly[i] += 1
+                    break
+
+        # Fetch Manual Study Hours data (from progress_charts)
+        cursor.execute("""
+            SELECT week_start_date, hours_studied FROM progress_charts
+            WHERE user_id = %s AND week_start_date >= %s
+            ORDER BY week_start_date
+        """, (user_id, week_starts[0]))
+        manual_study_data = cursor.fetchall()
+
+        for study_entry in manual_study_data:
+            study_week_start = study_entry['week_start_date']
+            for i, ws in enumerate(week_starts):
+                if ws == study_week_start: # Match exact week start date
+                    manual_study_hours[i] = study_entry['hours_studied']
+                    break
+
+        return jsonify({
+            "dates": labels,
+            "pomodoro_hours": pomodoro_hours,
+            "lectures_completed": lectures_completed_weekly,
+            "manual_study_hours": manual_study_hours
+        })
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
 
 # This is for Vercel deployment. Vercel expects a 'wsgi.py' or 'app.py' at the root
 # and will automatically detect the 'app' variable.
