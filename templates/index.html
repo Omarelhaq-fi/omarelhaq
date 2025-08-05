@@ -370,6 +370,12 @@
             from { opacity: 0; transform: translateY(-50px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Chart container height */
+        .chart-container {
+            position: relative;
+            height: 400px; /* Fixed height for the chart */
+            width: 100%;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -639,7 +645,9 @@
                 <!-- Progress Chart -->
                 <div class="card">
                     <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Study Progress Chart 📈</h3>
-                    <canvas id="studyProgressChart"></canvas>
+                    <div class="chart-container"> <!-- Added container for fixed height -->
+                        <canvas id="studyProgressChart"></canvas>
+                    </div>
                     <div class="mt-4">
                         <input type="date" id="chart-week-start-date" class="mb-2">
                         <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
@@ -948,7 +956,7 @@
                                 </tr>
                             </thead>
                             <tbody id="daily-schedule-list">
-                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading daily schedule...</td></tr>
+                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No daily schedule entries yet.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -974,7 +982,7 @@
                                 </tr>
                             </thead>
                             <tbody id="time-blocking-list">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading time blocks...</td></tr>
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1000,7 +1008,7 @@
                                 </tr>
                             </thead>
                             <tbody id="consistency-score-list">
-                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading consistency scores...</td></tr>
+                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1393,21 +1401,27 @@
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        function togglePhase() {
+        async function togglePhase() {
             isWorkPhase = !isWorkPhase;
             if (isWorkPhase) {
                 currentTime = parseInt(workMinutesInput.value) * 60;
                 timerStatus.textContent = "Work Time!";
             } else {
+                // Before starting break, record the work session
+                const sessionDate = new Date().toISOString().split('T')[0];
+                const duration = parseInt(workMinutesInput.value);
+                await postData('/api/pomodoro_sessions', {
+                    session_date: sessionDate,
+                    duration_minutes: duration,
+                    is_work_session: true
+                });
+                await loadProgressCharts(); // Refresh chart after recording session
+
                 currentTime = parseInt(breakMinutesInput.value) * 60;
                 timerStatus.textContent = "Break Time!";
             }
             timerBeep.play(); // Play sound when phase changes
             updateTimerDisplay();
-            // Record Pomodoro session (assuming a new API endpoint /api/pomodoro_sessions)
-            // This part requires backend implementation to store the session.
-            // For now, it's a client-side only timer.
-            // postData('/api/pomodoro_sessions', { duration_minutes: isWorkPhase ? breakMinutesInput.value : workMinutesInput.value, is_work_session: !isWorkPhase });
         }
 
         function startTimer() {
@@ -1494,7 +1508,8 @@
                 document.getElementById('study-topic').value = '';
                 document.getElementById('study-resource').value = '';
                 await loadStudyPlans();
-                await loadProgressCharts(); // Update chart if study plan affects it
+                // No direct chart update here, as study plans themselves don't directly map to chart metrics.
+                // Chart updates when pomodoro/lectures are done or manual hours added.
             }
         }
 
@@ -1503,7 +1518,6 @@
             if (result) {
                 showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadStudyPlans();
-                await loadProgressCharts(); // Update chart if study plan affects it
             }
         }
 
@@ -1512,7 +1526,6 @@
             if (result) {
                 showMessage('Study plan deleted successfully!', 'success');
                 await loadStudyPlans();
-                await loadProgressCharts(); // Update chart if study plan affects it
             }
         }
 
@@ -1563,7 +1576,7 @@
                 document.getElementById('subject-total-lectures').value = '';
                 document.getElementById('subject-description').value = '';
                 await loadSubjects();
-                await loadProgressCharts();
+                await loadProgressCharts(); // Update chart on new subject (though counts are 0 initially)
             }
         }
 
@@ -1638,12 +1651,19 @@
             // Fetch aggregated data for the chart from a new API endpoint
             const chartData = await fetchData('/api/dashboard_summary_data');
             const ctx = document.getElementById('studyProgressChart').getContext('2d');
+            const chartContainer = document.querySelector('.chart-container');
+
+            // Clear any existing "no data" message
+            const existingNoDataMessage = chartContainer.querySelector('.no-chart-data-message');
+            if (existingNoDataMessage) {
+                existingNoDataMessage.remove();
+            }
 
             if (studyProgressChartInstance) {
                 studyProgressChartInstance.destroy();
             }
 
-            if (chartData) {
+            if (chartData && chartData.dates && chartData.dates.length > 0) {
                 const labels = chartData.dates; // Assuming dates are provided by the backend
                 const pomodoroHours = chartData.pomodoro_hours;
                 const lecturesCompleted = chartData.lectures_completed;
@@ -1685,7 +1705,7 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
+                        maintainAspectRatio: false, // Keep this false as height is set by container
                         scales: {
                             y: {
                                 beginAtZero: true,
@@ -1718,8 +1738,8 @@
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                 const noDataMessage = document.createElement('p');
                 noDataMessage.textContent = 'No chart data available yet.';
-                noDataMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4';
-                ctx.canvas.parentNode.insertBefore(noDataMessage, ctx.canvas.nextSibling);
+                noDataMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4 no-chart-data-message';
+                chartContainer.appendChild(noDataMessage); // Append to the container
             }
         }
 
