@@ -3,260 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omar's Life Dashboard</title>
+    <title>Omar's Dashboard - Elevate Your Life</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Base styles */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
             color: #333;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
+
+        /* Dark Mode styles */
         .dark body {
-            background-color: #1a202c;
+            background-color: #0d1117; /* Deeper dark background */
             color: #e2e8f0;
         }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px; /* Wider container */
             margin: 0 auto;
-            padding: 1rem;
+            padding: 1.5rem;
         }
+
         .sidebar {
             background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            padding: 1.5rem;
         }
         .dark .sidebar {
-            background-color: #2d3748;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            background-color: #161b22; /* Darker sidebar */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
+
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            font-weight: 500;
+            transition: all 0.25s ease-in-out;
+            color: #4a5568;
+        }
+        .dark .nav-link {
+            color: #cbd5e0;
         }
         .nav-link:hover {
             background-color: #e2e8f0;
+            transform: translateX(5px);
+            color: #2d3748;
         }
         .dark .nav-link:hover {
-            background-color: #4a5568;
+            background-color: #2a333d;
+            color: #e2e8f0;
         }
         .nav-link.active {
-            background-color: #3b82f6;
+            background-color: #6366f1; /* Vibrant blue/purple */
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
         }
         .nav-link.active svg {
             fill: #ffffff;
         }
+
         .content-section {
             background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
             min-height: 80vh;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.5s ease-out; /* Fade in animation */
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            animation: fadeIn 0.6s ease-out; /* Smoother fade in */
         }
         .dark .content-section {
-            background-color: #2d3748;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            background-color: #161b22;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
+
         .card {
             background-color: #f8fafc;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
         }
         .dark .card {
-            background-color: #4a5568;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            background-color: #21262d; /* Darker card background */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
         input[type="text"], input[type="date"], input[type="number"], input[type="url"], textarea, select {
             width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+            padding: 0.85rem;
+            border-radius: 0.6rem;
             border: 1px solid #cbd5e0;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
             font-size: 1rem;
             background-color: #ffffff;
             color: #333;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
         }
         .dark input[type="text"], .dark input[type="date"], .dark input[type="number"], .dark input[type="url"], .dark textarea, .dark select {
-            background-color: #2d3748;
+            background-color: #21262d;
             color: #e2e8f0;
             border-color: #4a5568;
         }
+
         button {
-            background-color: #3b82f6;
+            background-color: #6366f1; /* Primary button color */
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 0.6rem;
             font-weight: 600;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
         }
         button:hover {
-            background-color: #2563eb;
-            transform: translateY(-1px);
+            background-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
         }
         button:active {
             transform: translateY(0);
+            box-shadow: none;
         }
         .delete-btn {
             background-color: #ef4444;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
         }
         .delete-btn:hover {
             background-color: #dc2626;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
         }
         .add-btn {
             background-color: #10b981;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
         }
         .add-btn:hover {
             background-color: #059669;
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
         }
+
+        /* Modal styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
             justify-content: center;
             align-items: center;
         }
         .modal-content {
             background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border-radius: 0.75rem;
+            padding: 30px;
+            border-radius: 1rem;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 550px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             position: relative;
-            transition: background-color 0.3s ease;
+            animation: slideIn 0.3s ease-out;
         }
         .dark .modal-content {
-            background-color: #2d3748;
+            background-color: #21262d;
             color: #e2e8f0;
         }
         .close-button {
             color: #aaa;
-            float: right;
-            font-size: 28px;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
         .close-button:hover,
         .close-button:focus {
-            color: black;
+            color: #6366f1;
             text-decoration: none;
-            cursor: pointer;
         }
         .dark .close-button:hover,
         .dark .close-button:focus {
-            color: #e2e8f0;
+            color: #93c5fd;
         }
+
+        /* Specific item styles */
         .completed-item {
             text-decoration: line-through;
-            color: #6b7280; /* Gray out completed items */
+            color: #6b7280;
+            opacity: 0.7;
         }
         .dark .completed-item {
             color: #a0aec0;
         }
+
+        /* Pomodoro Timer */
         .pomodoro-timer {
             text-align: center;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            background-color: #e0f2fe; /* Light blue for timer */
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: #e0f2fe;
             color: #000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
         }
         .dark .pomodoro-timer {
-            background-color: #1e3a8a; /* Darker blue for timer */
+            background-color: #1e3a8a;
             color: #fff;
         }
         .timer-display {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
             color: #1d4ed8;
-            transition: color 0.3s ease;
+            transition: color 0.4s ease;
         }
         .dark .timer-display {
             color: #93c5fd;
         }
         .timer-buttons button {
-            margin: 0.5rem;
-            min-width: 100px;
+            margin: 0.75rem;
+            min-width: 120px;
+            font-size: 1.1rem;
         }
         .timer-config input {
-            width: 80px;
+            width: 90px;
             text-align: center;
-            margin: 0 0.5rem;
+            margin: 0 0.75rem;
+            padding: 0.6rem;
+            font-size: 1.1rem;
         }
+
+        /* Table styles */
+        .data-table-container {
+            overflow-x: auto; /* Ensures responsiveness for tables */
+            margin-top: 1.5rem;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius on cells */
+            border-spacing: 0 0.5rem; /* Space between rows */
+            text-align: left;
+        }
+        .data-table th, .data-table td {
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+        }
+        .data-table th {
+            background-color: #e2e8f0;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        .dark .data-table th {
+            background-color: #2a333d;
+            color: #a0aec0;
+            border-bottom: 2px solid #4a5568;
+        }
+        .data-table tbody tr {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+        .dark .data-table tbody tr {
+            background-color: #2d3748;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .data-table tbody tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .dark .data-table tbody tr:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .dark .data-table tbody tr:nth-child(even) {
+            background-color: #21262d;
+        }
+        .data-table td:first-child { border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; }
+        .data-table td:last-child { border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+        .data-table th:first-child { border-top-left-radius: 0.75rem; }
+        .data-table th:last-child { border-top-right-radius: 0.75rem; }
+
+        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-50px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="container flex flex-col lg:flex-row gap-4 py-4">
+    <div class="container flex flex-col lg:flex-row gap-6 py-6">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar p-4 lg:w-1/4">
-            <h1 class="text-2xl font-bold text-center mb-6 text-blue-600 dark:text-blue-300">Omar's Dashboard</h1>
-            <button id="darkModeToggle" class="w-full py-2 px-4 mb-4 rounded-md bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 transition-colors duration-300">
+        <aside class="sidebar p-6 lg:w-1/4">
+            <h1 class="text-3xl font-extrabold text-center mb-8 text-indigo-500 dark:text-indigo-300">
+                🚀 Omar's Life Hub
+            </h1>
+            <button id="darkModeToggle" class="w-full py-3 px-4 mb-6 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 font-semibold transition-colors duration-300 shadow-md hover:shadow-lg">
                 Toggle Dark Mode
             </button>
             <nav>
                 <ul>
                     <li>
                         <a href="#home" class="nav-link active" data-section="home">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            Home
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                            Dashboard Overview
                         </a>
                     </li>
                     <li>
                         <a href="#medical" class="nav-link" data-section="medical">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             Medical Student Hub
                         </a>
                     </li>
                     <li>
                         <a href="#fitness" class="nav-link" data-section="fitness">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             Fitness & Gym Tracker
                         </a>
                     </li>
                     <li>
                         <a href="#basketball" class="nav-link" data-section="basketball">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2m2-2l2 2m-2-2v12h5l2-2V6m0 0H9m11 0h-4M4 18v-7a4 4 0 014-4h8a4 4 0 014 4v7"></path></svg>
-                            Basketball Lab
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2m2-2l2 2m-2-2v12h5l2-2V6m0 0H9m11 0h-4M4 18v-7a4 4 0 014-4h8a4 4 0 014 4v7"></path></svg>
+                            Basketball Analysis
                         </a>
                     </li>
                     <li>
                         <a href="#self-development" class="nav-link" data-section="self-development">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                            Self-Development
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
+                            Skill & Courses
                         </a>
                     </li>
                     <li>
                         <a href="#daily-schedule" class="nav-link" data-section="daily-schedule">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             Daily Schedule
                         </a>
                     </li>
@@ -268,62 +371,109 @@
         <main class="content-section flex-1">
             <!-- Home Section -->
             <section id="home" class="dashboard-section">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Welcome, Omar Elhaq!</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <h2 class="text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">
+                    Hello, Omar! 👋 Your Daily Overview.
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Mood Tracker Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Mood Tracker</h3>
-                        <div id="mood-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                        <input type="date" id="mood-date" class="mb-2">
-                        <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
-                        <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
-                        <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Mood Tracker 😃</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Mood</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mood-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading moods...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="mood-date" class="mb-2">
+                            <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
+                            <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
+                            <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
+                        </div>
                     </div>
 
                     <!-- Sleep Tracker Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Sleep Tracker</h3>
-                        <div id="sleep-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                        <input type="date" id="sleep-date" class="mb-2">
-                        <input type="number" id="hours-slept" placeholder="Hours Slept" step="0.1" class="mb-2">
-                        <input type="number" id="sleep-quality" placeholder="Quality (1-5)" min="1" max="5" class="mb-2">
-                        <button onclick="addSleep()" class="add-btn w-full">Add Sleep</button>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Sleep Tracker 😴</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Hours</th>
+                                        <th>Quality</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sleep-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading sleep data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="sleep-date" class="mb-2">
+                            <input type="number" id="hours-slept" placeholder="Hours Slept" step="0.1" class="mb-2">
+                            <input type="number" id="sleep-quality" placeholder="Quality (1-5)" min="1" max="5" class="mb-2">
+                            <button onclick="addSleep()" class="add-btn w-full">Add Sleep</button>
+                        </div>
                     </div>
 
                     <!-- Achievements Card -->
                     <div class="card">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Achievements (Weekly)</h3>
-                        <div id="achievements-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                        <input type="date" id="achievement-date" class="mb-2">
-                        <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
-                        <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Weekly Achievements 🏆</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="achievements-list">
+                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="achievement-date" class="mb-2">
+                            <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
+                            <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
+                        </div>
                     </div>
 
                     <!-- Pomodoro Timer Card -->
                     <div class="card col-span-full lg:col-span-1">
-                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
                         <div class="pomodoro-timer">
-                            <p class="text-lg mb-2" id="timer-status">Work Time!</p>
+                            <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
                             <div class="timer-display" id="timer-display">25:00</div>
-                            <div class="timer-buttons flex justify-center mb-4">
+                            <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
                                 <button onclick="startTimer()" class="add-btn">Start</button>
-                                <button onclick="pauseTimer()" class="bg-yellow-500 hover:bg-yellow-600">Pause</button>
+                                <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
                                 <button onclick="resetTimer()" class="delete-btn">Reset</button>
                             </div>
-                            <div class="timer-config text-gray-700 dark:text-gray-300">
-                                <label>Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
-                                <label>Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
+                            <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
+                                <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
+                                <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
                             </div>
                         </div>
                     </div>
 
                     <!-- Shortcuts Card -->
                     <div class="card col-span-full lg:col-span-2">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Shortcuts</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-md">Launch Study Timer</button>
-                            <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md">Add Clip</button>
-                            <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">Mark Workout Done</button>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <button class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Launch Study Timer</button>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Add Game Clip</button>
+                            <button class="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Mark Workout Done</button>
+                            <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Record Mood</button>
                         </div>
                     </div>
                 </div>
@@ -331,228 +481,468 @@
 
             <!-- Medical Student Hub Section -->
             <section id="medical" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub 🩺</h2>
                 
                 <!-- Study Plan Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Daily Study Plan</h3>
-                    <div id="study-plan-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
-                    <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
-                    <input type="text" id="study-topic" placeholder="Topic">
-                    <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
-                    <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Study Plan 📚</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Topic</th>
+                                    <th>Resource</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="study-plan-list">
+                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
+                        <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
+                        <input type="text" id="study-topic" placeholder="Topic">
+                        <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
+                        <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
+                    </div>
                 </div>
 
                 <!-- Subjects Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Subjects Tracker</h3>
-                    <div id="subjects-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="subject-name" placeholder="Subject Name">
-                    <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
-                    <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Subjects Tracker 🧠</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject Name</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjects-list">
+                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="subject-name" placeholder="Subject Name">
+                        <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
+                        <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
+                    </div>
                 </div>
 
                 <!-- To-Read/Watch Queue -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">To-Read/Watch Queue</h3>
-                    <div id="read-watch-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="queue-title" placeholder="Title">
-                    <select id="queue-type" class="mb-2">
-                        <option value="">Select Type</option>
-                        <option value="Video">Video</option>
-                        <option value="PDF">PDF</option>
-                        <option value="Lecture">Lecture</option>
-                    </select>
-                    <input type="url" id="queue-url" placeholder="URL">
-                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="queue-completed" class="mr-2"> Completed
-                    </label>
-                    <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">To-Read/Watch Queue 📺📖</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Link</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="read-watch-list">
+                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading queue...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="queue-title" placeholder="Title">
+                        <select id="queue-type" class="mb-2">
+                            <option value="">Select Type</option>
+                            <option value="Video">Video</option>
+                            <option value="PDF">PDF</option>
+                            <option value="Lecture">Lecture</option>
+                        </select>
+                        <input type="url" id="queue-url" placeholder="URL">
+                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="queue-completed" class="mr-2"> Completed
+                        </label>
+                        <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
+                    </div>
                 </div>
 
                 <!-- Progress Chart -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Progress Chart: Weekly Hours Studied</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Study Progress Chart 📈</h3>
                     <canvas id="studyProgressChart"></canvas>
-                    <input type="date" id="chart-week-start-date" class="mb-2">
-                    <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
-                    <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
-                    <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
+                    <div class="mt-4">
+                        <input type="date" id="chart-week-start-date" class="mb-2">
+                        <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
+                        <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
+                        <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
+                    </div>
                 </div>
             </section>
 
             <!-- Fitness & Gym Tracker Section -->
             <section id="fitness" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker 💪</h2>
                 
                 <!-- Workout Plan Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Workout Plan</h3>
-                    <div id="workout-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="workout-date" class="mb-2">
-                    <select id="workout-split" class="mb-2">
-                        <option value="">Select Split</option>
-                        <option value="Push">Push</option>
-                        <option value="Pull">Pull</option>
-                        <option value="Legs">Legs</option>
-                        <option value="Cardio">Cardio</option>
-                        <option value="Mobility">Mobility</option>
-                    </select>
-                    <input type="text" id="exercise-name" placeholder="Exercise Name">
-                    <input type="number" id="exercise-sets" placeholder="Sets">
-                    <input type="number" id="exercise-reps" placeholder="Reps">
-                    <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
-                    <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
-                    <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
-                    <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Plan 🏋️</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Split</th>
+                                    <th>Exercise</th>
+                                    <th>Sets</th>
+                                    <th>Reps</th>
+                                    <th>Weight</th>
+                                    <th>Soreness</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workout-list">
+                                <tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="workout-date" class="mb-2">
+                        <select id="workout-split" class="mb-2">
+                            <option value="">Select Split</option>
+                            <option value="Push">Push</option>
+                            <option value="Pull">Pull</option>
+                            <option value="Legs">Legs</option>
+                            <option value="Cardio">Cardio</option>
+                            <option value="Mobility">Mobility</option>
+                        </select>
+                        <input type="text" id="exercise-name" placeholder="Exercise Name">
+                        <input type="number" id="exercise-sets" placeholder="Sets">
+                        <input type="number" id="exercise-reps" placeholder="Reps">
+                        <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
+                        <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
+                        <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
+                        <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
+                    </div>
                 </div>
 
                 <!-- Body Progress Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Body Progress Tracker</h3>
-                    <div id="body-progress-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="body-record-date" class="mb-2">
-                    <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
-                    <input type="url" id="body-photo-url" placeholder="Photo URL">
-                    <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
-                    <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
-                    <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Body Progress Tracker 📊</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Weight (kg/lbs)</th>
+                                    <th>Measurements</th>
+                                    <th>Goal</th>
+                                    <th>Photo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="body-progress-list">
+                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading body progress...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="body-record-date" class="mb-2">
+                        <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
+                        <input type="url" id="body-photo-url" placeholder="Photo URL">
+                        <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
+                        <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
+                        <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
+                    </div>
                 </div>
 
                 <!-- Nutrition Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Nutrition Tab</h3>
-                    <div id="nutrition-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="meal-date" class="mb-2">
-                    <select id="meal-type" class="mb-2">
-                        <option value="">Select Meal Type</option>
-                        <option value="Breakfast">Breakfast</option>
-                        <option value="Lunch">Lunch</option>
-                        <option value="Dinner">Dinner</option>
-                        <option value="Snack">Snack</option>
-                    </select>
-                    <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
-                    <input type="number" id="meal-calories" placeholder="Calories">
-                    <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
-                    <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Nutrition Log 🍎</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Meal Type</th>
+                                    <th>Description</th>
+                                    <th>Calories</th>
+                                    <th>Protein (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nutrition-list">
+                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading nutrition data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="meal-date" class="mb-2">
+                        <select id="meal-type" class="mb-2">
+                            <option value="">Select Meal Type</option>
+                            <option value="Breakfast">Breakfast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>
+                            <option value="Snack">Snack</option>
+                        </select>
+                        <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
+                        <input type="number" id="meal-calories" placeholder="Calories">
+                        <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
+                        <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
+                    </div>
                 </div>
 
                 <!-- Weekly Shopping List -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Weekly Shopping List</h3>
-                    <div id="shopping-list-items" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="shopping-item-name" placeholder="Item Name">
-                    <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
-                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
-                    </label>
-                    <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Shopping List 🛒</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shopping-list-items">
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading shopping list...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="shopping-item-name" placeholder="Item Name">
+                        <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
+                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
+                        </label>
+                        <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
+                    </div>
                 </div>
             </section>
 
             <!-- Basketball & Analysis Lab Section -->
             <section id="basketball" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball & Analysis Lab</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball Analysis Lab 🏀</h2>
                 
                 <!-- Video Analysis Board -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Video Analysis Board</h3>
-                    <div id="game-clips-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="clip-title" placeholder="Clip Title">
-                    <input type="url" id="clip-video-url" placeholder="Video URL">
-                    <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
-                    <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Video Analysis Board 🎥</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Upload Date</th>
+                                    <th>Annotations</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="game-clips-list">
+                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading game clips...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="clip-title" placeholder="Clip Title">
+                        <input type="url" id="clip-video-url" placeholder="Video URL">
+                        <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
+                        <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
+                    </div>
                 </div>
 
                 <!-- Scouting Templates -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Scouting Templates</h3>
-                    <div id="scouting-templates-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="template-name" placeholder="Template Name">
-                    <input type="text" id="opponent-name" placeholder="Opponent Name">
-                    <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
-                    <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Scouting Templates 📝</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Template Name</th>
+                                    <th>Opponent</th>
+                                    <th>Report Content</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scouting-templates-list">
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading scouting templates...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="template-name" placeholder="Template Name">
+                        <input type="text" id="opponent-name" placeholder="Opponent Name">
+                        <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
+                        <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
+                    </div>
                 </div>
 
                 <!-- Learning Tab -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Learning Tab</h3>
-                    <div id="learning-resources-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="resource-title" placeholder="Resource Title">
-                    <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
-                    <input type="url" id="resource-url" placeholder="URL">
-                    <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Learning Resources 🎓</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Platform</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="learning-resources-list">
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading learning resources...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="resource-title" placeholder="Resource Title">
+                        <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
+                        <input type="url" id="resource-url" placeholder="URL">
+                        <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
+                    </div>
                 </div>
             </section>
 
             <!-- Self-Development & Courses Section -->
             <section id="self-development" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Self-Development & Courses</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Skill & Courses Progression 🌟</h2>
                 
                 <!-- Courses Tracker -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Courses Tracker</h3>
-                    <div id="courses-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="course-name" placeholder="Course Name">
-                    <select id="course-status" class="mb-2">
-                        <option value="">Select Status</option>
-                        <option value="Not started">Not started</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                    <input type="date" id="course-start-date" class="mb-2">
-                    <input type="date" id="course-completion-date" class="mb-2">
-                    <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Courses Tracker 📈</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Status</th>
+                                    <th>Start Date</th>
+                                    <th>Completion Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courses-list">
+                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading courses...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="course-name" placeholder="Course Name">
+                        <select id="course-status" class="mb-2">
+                            <option value="">Select Status</option>
+                            <option value="Not started">Not started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <input type="date" id="course-start-date" class="mb-2">
+                        <input type="date" id="course-completion-date" class="mb-2">
+                        <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
+                    </div>
                 </div>
 
                 <!-- Skill Goals -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Skill Goals</h3>
-                    <div id="skill-goals-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
-                    <input type="date" id="skill-target-date" class="mb-2">
-                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
-                    </label>
-                    <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Skill Goals 🎯</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Skill Name</th>
+                                    <th>Target Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="skill-goals-list">
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading skill goals...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
+                        <input type="date" id="skill-target-date" class="mb-2">
+                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
+                        </label>
+                        <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
+                    </div>
                 </div>
             </section>
 
             <!-- Daily Schedule & Routine Section -->
             <section id="daily-schedule" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Daily Schedule & Routine</h2>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Daily Schedule & Routine 📅</h2>
                 
                 <!-- Morning Routine -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Morning Routine</h3>
-                    <div id="daily-schedule-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="schedule-date" class="mb-2">
-                    <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
-                    </label>
-                    <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Morning Routine ☀️</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Morning Routine Completed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="daily-schedule-list">
+                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading daily schedule...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="schedule-date" class="mb-2">
+                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
+                        </label>
+                        <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
+                    </div>
                 </div>
 
                 <!-- Time-Blocking Plan -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Time-Blocking Plan</h3>
-                    <div id="time-blocking-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="time-block-date" class="mb-2">
-                    <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
-                    <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
-                    <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Time-Blocking Plan ⏳</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time Slot</th>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="time-blocking-list">
+                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading time blocks...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="time-block-date" class="mb-2">
+                        <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
+                        <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
+                        <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
+                    </div>
                 </div>
 
                 <!-- Consistency Score -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Consistency Score</h3>
-                    <div id="consistency-score-list" class="mb-4 text-gray-700 dark:text-gray-300"></div>
-                    <input type="date" id="consistency-date" class="mb-2">
-                    <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
-                    <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
-                    <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
-                    <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Consistency Score ✅</h3>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Sleep Score</th>
+                                    <th>Gym Score</th>
+                                    <th>Study Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="consistency-score-list">
+                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading consistency scores...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        <input type="date" id="consistency-date" class="mb-2">
+                        <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
+                        <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
+                        <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
+                        <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
+                    </div>
                 </div>
             </section>
         </main>
@@ -763,18 +1153,20 @@
         // --- Home Section Functions ---
         async function loadMoods() {
             const moods = await fetchData('/api/mood_tracker');
-            const moodListDiv = document.getElementById('mood-list');
-            moodListDiv.innerHTML = '';
+            const moodListTbody = document.getElementById('mood-list');
+            moodListTbody.innerHTML = ''; // Clear existing content
             if (moods && moods.length > 0) {
                 moods.forEach(mood => {
-                    moodListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${mood.record_date}: Mood ${mood.mood_level} (${mood.notes || 'No notes'})</span>
-                        </div>
+                    moodListTbody.innerHTML += `
+                        <tr>
+                            <td>${mood.record_date}</td>
+                            <td>${mood.mood_level}</td>
+                            <td>${mood.notes || 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                moodListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No mood entries yet.</p>';
+                moodListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No mood entries yet.</td></tr>`;
             }
         }
 
@@ -801,18 +1193,20 @@
 
         async function loadSleepData() {
             const sleepData = await fetchData('/api/sleep_tracker');
-            const sleepListDiv = document.getElementById('sleep-list');
-            sleepListDiv.innerHTML = '';
+            const sleepListTbody = document.getElementById('sleep-list');
+            sleepListTbody.innerHTML = '';
             if (sleepData && sleepData.length > 0) {
                 sleepData.forEach(sleep => {
-                    sleepListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${sleep.sleep_date}: ${sleep.hours_slept} hrs (Quality: ${sleep.quality_score})</span>
-                        </div>
+                    sleepListTbody.innerHTML += `
+                        <tr>
+                            <td>${sleep.sleep_date}</td>
+                            <td>${sleep.hours_slept}</td>
+                            <td>${sleep.quality_score}</td>
+                        </tr>
                     `;
                 });
             } else {
-                sleepListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No sleep entries yet.</p>';
+                sleepListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No sleep entries yet.</td></tr>`;
             }
         }
 
@@ -839,18 +1233,19 @@
 
         async function loadAchievements() {
             const achievements = await fetchData('/api/achievements');
-            const achievementsListDiv = document.getElementById('achievements-list');
-            achievementsListDiv.innerHTML = '';
+            const achievementsListTbody = document.getElementById('achievements-list');
+            achievementsListTbody.innerHTML = '';
             if (achievements && achievements.length > 0) {
                 achievements.forEach(achievement => {
-                    achievementsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${achievement.achievement_date}: ${achievement.description}</span>
-                        </div>
+                    achievementsListTbody.innerHTML += `
+                        <tr>
+                            <td>${achievement.achievement_date}</td>
+                            <td>${achievement.description}</td>
+                        </tr>
                     `;
                 });
             } else {
-                achievementsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No achievements yet.</p>';
+                achievementsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No achievements yet.</td></tr>`;
             }
         }
 
@@ -944,19 +1339,22 @@
         // --- Medical Student Hub Functions ---
         async function loadStudyPlans() {
             const plans = await fetchData('/api/study_plans');
-            const studyPlanListDiv = document.getElementById('study-plan-list');
-            studyPlanListDiv.innerHTML = '';
+            const studyPlanListTbody = document.getElementById('study-plan-list');
+            studyPlanListTbody.innerHTML = '';
             if (plans && plans.length > 0) {
                 plans.forEach(plan => {
-                    studyPlanListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${plan.day_of_week} ${plan.time_slot}: ${plan.topic} (${plan.resource_type})</span>
-                            <button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-2 py-1 rounded-md">Delete</button>
-                        </div>
+                    studyPlanListTbody.innerHTML += `
+                        <tr>
+                            <td>${plan.day_of_week}</td>
+                            <td>${plan.time_slot}</td>
+                            <td>${plan.topic}</td>
+                            <td>${plan.resource_type}</td>
+                            <td><button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-3 py-1 rounded-md">Delete</button></td>
+                        </tr>
                     `;
                 });
             } else {
-                studyPlanListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No study plans yet.</p>';
+                studyPlanListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No study plans yet.</td></tr>`;
             }
         }
 
@@ -993,18 +1391,19 @@
 
         async function loadSubjects() {
             const subjects = await fetchData('/api/subjects');
-            const subjectsListDiv = document.getElementById('subjects-list');
-            subjectsListDiv.innerHTML = '';
+            const subjectsListTbody = document.getElementById('subjects-list');
+            subjectsListTbody.innerHTML = '';
             if (subjects && subjects.length > 0) {
                 subjects.forEach(subject => {
-                    subjectsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${subject.subject_name}: ${subject.description || 'No description'}</span>
-                        </div>
+                    subjectsListTbody.innerHTML += `
+                        <tr>
+                            <td>${subject.subject_name}</td>
+                            <td>${subject.description || 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                subjectsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No subjects added yet.</p>';
+                subjectsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No subjects added yet.</td></tr>`;
             }
         }
 
@@ -1029,19 +1428,22 @@
 
         async function loadReadWatchQueue() {
             const queueItems = await fetchData('/api/read_watch_queue');
-            const readWatchListDiv = document.getElementById('read-watch-list');
-            readWatchListDiv.innerHTML = '';
+            const readWatchListTbody = document.getElementById('read-watch-list');
+            readWatchListTbody.innerHTML = '';
             if (queueItems && queueItems.length > 0) {
                 queueItems.forEach(item => {
                     const completedClass = item.is_completed ? 'completed-item' : '';
-                    readWatchListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
-                            <span>${item.title} (${item.type}) <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a> ${item.is_completed ? '✅' : '⏳'}</span>
-                        </div>
+                    readWatchListTbody.innerHTML += `
+                        <tr class="${completedClass}">
+                            <td>${item.title}</td>
+                            <td>${item.type}</td>
+                            <td><a href="${item.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></td>
+                            <td>${item.is_completed ? '✅ Completed' : '⏳ Pending'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                readWatchListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No items in queue yet.</p>';
+                readWatchListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No items in queue yet.</td></tr>`;
             }
         }
 
@@ -1090,7 +1492,12 @@
                             data: dataPoints,
                             borderColor: 'rgb(75, 192, 192)',
                             tension: 0.1,
-                            fill: false
+                            fill: false,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            pointBackgroundColor: 'rgb(75, 192, 192)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(75, 192, 192)'
                         }]
                     },
                     options: {
@@ -1098,14 +1505,38 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(200, 200, 200, 0.2)' // Light grid lines
+                                },
+                                ticks: {
+                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(200, 200, 200, 0.2)'
+                                },
+                                ticks: {
+                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
+                                }
                             }
                         }
                     }
                 });
             } else {
-                // Clear canvas if no data
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const noDataMessage = document.createElement('p');
+                noDataMessage.textContent = 'No chart data available yet.';
+                noDataMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4';
+                ctx.canvas.parentNode.insertBefore(noDataMessage, ctx.canvas.nextSibling);
             }
         }
 
@@ -1133,18 +1564,25 @@
         // --- Fitness & Gym Tracker Functions ---
         async function loadWorkouts() {
             const workouts = await fetchData('/api/workouts');
-            const workoutListDiv = document.getElementById('workout-list');
-            workoutListDiv.innerHTML = '';
+            const workoutListTbody = document.getElementById('workout-list');
+            workoutListTbody.innerHTML = '';
             if (workouts && workouts.length > 0) {
                 workouts.forEach(workout => {
-                    workoutListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${workout.workout_date} - ${workout.split_type}: ${workout.exercise_name} (${workout.sets}x${workout.reps} @ ${workout.weight}kg)</span>
-                        </div>
+                    workoutListTbody.innerHTML += `
+                        <tr>
+                            <td>${workout.workout_date}</td>
+                            <td>${workout.split_type}</td>
+                            <td>${workout.exercise_name}</td>
+                            <td>${workout.sets}</td>
+                            <td>${workout.reps}</td>
+                            <td>${workout.weight}</td>
+                            <td>${workout.muscle_soreness || 'N/A'}</td>
+                            <td>${workout.notes || 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                workoutListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No workouts recorded yet.</p>';
+                workoutListTbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400 py-4">No workouts recorded yet.</td></tr>`;
             }
         }
 
@@ -1190,19 +1628,23 @@
 
         async function loadBodyProgress() {
             const progress = await fetchData('/api/body_progress');
-            const bodyProgressListDiv = document.getElementById('body-progress-list');
-            bodyProgressListDiv.innerHTML = '';
+            const bodyProgressListTbody = document.getElementById('body-progress-list');
+            bodyProgressListTbody.innerHTML = '';
             if (progress && progress.length > 0) {
                 progress.forEach(item => {
                     const measurementsText = item.measurements ? JSON.stringify(item.measurements) : 'N/A';
-                    bodyProgressListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${item.record_date}: ${item.weight}kg, Measurements: ${measurementsText}, Goal: ${item.goal || 'N/A'}</span>
-                        </div>
+                    bodyProgressListTbody.innerHTML += `
+                        <tr>
+                            <td>${item.record_date}</td>
+                            <td>${item.weight}</td>
+                            <td>${measurementsText}</td>
+                            <td>${item.goal || 'N/A'}</td>
+                            <td>${item.photo_url ? `<a href="${item.photo_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">View</a>` : 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                bodyProgressListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No body progress recorded yet.</p>';
+                bodyProgressListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No body progress recorded yet.</td></tr>`;
             }
         }
 
@@ -1249,18 +1691,22 @@
 
         async function loadNutrition() {
             const nutritionData = await fetchData('/api/nutrition');
-            const nutritionListDiv = document.getElementById('nutrition-list');
-            nutritionListDiv.innerHTML = '';
+            const nutritionListTbody = document.getElementById('nutrition-list');
+            nutritionListTbody.innerHTML = '';
             if (nutritionData && nutritionData.length > 0) {
                 nutritionData.forEach(meal => {
-                    nutritionListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${meal.meal_date} - ${meal.meal_type}: ${meal.meal_description} (${meal.calories} kcal, ${meal.protein_intake}g protein)</span>
-                        </div>
+                    nutritionListTbody.innerHTML += `
+                        <tr>
+                            <td>${meal.meal_date}</td>
+                            <td>${meal.meal_type}</td>
+                            <td>${meal.meal_description}</td>
+                            <td>${meal.calories}</td>
+                            <td>${meal.protein_intake}</td>
+                        </tr>
                     `;
                 });
             } else {
-                nutritionListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No nutrition entries yet.</p>';
+                nutritionListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No nutrition entries yet.</td></tr>`;
             }
         }
 
@@ -1297,19 +1743,21 @@
 
         async function loadShoppingList() {
             const shoppingItems = await fetchData('/api/shopping_list');
-            const shoppingListItemsDiv = document.getElementById('shopping-list-items');
-            shoppingListItemsDiv.innerHTML = '';
+            const shoppingListItemsTbody = document.getElementById('shopping-list-items');
+            shoppingListItemsTbody.innerHTML = '';
             if (shoppingItems && shoppingItems.length > 0) {
                 shoppingItems.forEach(item => {
                     const completedClass = item.is_purchased ? 'completed-item' : '';
-                    shoppingListItemsDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
-                            <span>${item.item_name} (${item.quantity || 'N/A'}) ${item.is_purchased ? '✅' : '🛒'}</span>
-                        </div>
+                    shoppingListItemsTbody.innerHTML += `
+                        <tr class="${completedClass}">
+                            <td>${item.item_name}</td>
+                            <td>${item.quantity || 'N/A'}</td>
+                            <td>${item.is_purchased ? '✅ Purchased' : '🛒 Pending'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                shoppingListItemsDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No shopping items yet.</p>';
+                shoppingListItemsTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No shopping items yet.</td></tr>`;
             }
         }
 
@@ -1337,19 +1785,22 @@
         // --- Basketball & Analysis Lab Functions ---
         async function loadGameClips() {
             const clips = await fetchData('/api/game_clips');
-            const gameClipsListDiv = document.getElementById('game-clips-list');
-            gameClipsListDiv.innerHTML = '';
+            const gameClipsListTbody = document.getElementById('game-clips-list');
+            gameClipsListTbody.innerHTML = '';
             if (clips && clips.length > 0) {
                 clips.forEach(clip => {
                     const annotationsText = clip.annotations ? JSON.stringify(clip.annotations) : 'N/A';
-                    gameClipsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${clip.clip_title} (Uploaded: ${clip.upload_date}) <a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Watch</a> - Annotations: ${annotationsText}</span>
-                        </div>
+                    gameClipsListTbody.innerHTML += `
+                        <tr>
+                            <td>${clip.clip_title}</td>
+                            <td>${clip.upload_date}</td>
+                            <td>${annotationsText}</td>
+                            <td><a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Watch Clip</a></td>
+                        </tr>
                     `;
                 });
             } else {
-                gameClipsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No game clips added yet.</p>';
+                gameClipsListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No game clips added yet.</td></tr>`;
             }
         }
 
@@ -1386,18 +1837,20 @@
 
         async function loadScoutingTemplates() {
             const templates = await fetchData('/api/scouting_templates');
-            const scoutingTemplatesListDiv = document.getElementById('scouting-templates-list');
-            scoutingTemplatesListDiv.innerHTML = '';
+            const scoutingTemplatesListTbody = document.getElementById('scouting-templates-list');
+            scoutingTemplatesListTbody.innerHTML = '';
             if (templates && templates.length > 0) {
                 templates.forEach(template => {
-                    scoutingTemplatesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${template.template_name} (Opponent: ${template.opponent_name || 'N/A'})</span>
-                        </div>
+                    scoutingTemplatesListTbody.innerHTML += `
+                        <tr>
+                            <td>${template.template_name}</td>
+                            <td>${template.opponent_name || 'N/A'}</td>
+                            <td>${template.report_content || 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                scoutingTemplatesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No scouting templates added yet.</p>';
+                scoutingTemplatesListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No scouting templates added yet.</td></tr>`;
             }
         }
 
@@ -1424,18 +1877,20 @@
 
         async function loadLearningResources() {
             const resources = await fetchData('/api/learning_resources');
-            const learningResourcesListDiv = document.getElementById('learning-resources-list');
-            learningResourcesListDiv.innerHTML = '';
+            const learningResourcesListTbody = document.getElementById('learning-resources-list');
+            learningResourcesListTbody.innerHTML = '';
             if (resources && resources.length > 0) {
                 resources.forEach(resource => {
-                    learningResourcesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${resource.resource_title} (${resource.platform || 'N/A'}) <a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></span>
-                        </div>
+                    learningResourcesListTbody.innerHTML += `
+                        <tr>
+                            <td>${resource.resource_title}</td>
+                            <td>${resource.platform || 'N/A'}</td>
+                            <td><a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></td>
+                        </tr>
                     `;
                 });
             } else {
-                learningResourcesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No learning resources added yet.</p>';
+                learningResourcesListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No learning resources added yet.</td></tr>`;
             }
         }
 
@@ -1463,18 +1918,21 @@
         // --- Self-Development & Courses Functions ---
         async function loadCourses() {
             const courses = await fetchData('/api/courses');
-            const coursesListDiv = document.getElementById('courses-list');
-            coursesListDiv.innerHTML = '';
+            const coursesListTbody = document.getElementById('courses-list');
+            coursesListTbody.innerHTML = '';
             if (courses && courses.length > 0) {
                 courses.forEach(course => {
-                    coursesListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${course.course_name} - Status: ${course.status} (Start: ${course.start_date || 'N/A'}, End: ${course.completion_date || 'N/A'})</span>
-                        </div>
+                    coursesListTbody.innerHTML += `
+                        <tr>
+                            <td>${course.course_name}</td>
+                            <td>${course.status}</td>
+                            <td>${course.start_date || 'N/A'}</td>
+                            <td>${course.completion_date || 'N/A'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                coursesListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No courses added yet.</p>';
+                coursesListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No courses added yet.</td></tr>`;
             }
         }
 
@@ -1508,19 +1966,21 @@
 
         async function loadSkillGoals() {
             const goals = await fetchData('/api/skill_goals');
-            const skillGoalsListDiv = document.getElementById('skill-goals-list');
-            skillGoalsListDiv.innerHTML = '';
+            const skillGoalsListTbody = document.getElementById('skill-goals-list');
+            skillGoalsListTbody.innerHTML = '';
             if (goals && goals.length > 0) {
                 goals.forEach(goal => {
                     const achievedClass = goal.is_achieved ? 'completed-item' : '';
-                    skillGoalsListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${achievedClass}">
-                            <span>${goal.skill_name} (Target: ${goal.target_date || 'N/A'}) ${goal.is_achieved ? '🏆' : '🎯'}</span>
-                        </div>
+                    skillGoalsListTbody.innerHTML += `
+                        <tr class="${achievedClass}">
+                            <td>${goal.skill_name}</td>
+                            <td>${goal.target_date || 'N/A'}</td>
+                            <td>${goal.is_achieved ? '🏆 Achieved' : '🎯 Pending'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                skillGoalsListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No skill goals added yet.</p>';
+                skillGoalsListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No skill goals added yet.</td></tr>`;
             }
         }
 
@@ -1548,19 +2008,20 @@
         // --- Daily Schedule & Routine Functions ---
         async function loadDailySchedule() {
             const schedule = await fetchData('/api/daily_schedule');
-            const dailyScheduleListDiv = document.getElementById('daily-schedule-list');
-            dailyScheduleListDiv.innerHTML = '';
+            const dailyScheduleListTbody = document.getElementById('daily-schedule-list');
+            dailyScheduleListTbody.innerHTML = '';
             if (schedule && schedule.length > 0) {
                 schedule.forEach(entry => {
                     const completedClass = entry.morning_routine_completed ? 'completed-item' : '';
-                    dailyScheduleListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1 ${completedClass}">
-                            <span>${entry.schedule_date}: Morning Routine ${entry.morning_routine_completed ? '✅' : '⏰'}</span>
-                        </div>
+                    dailyScheduleListTbody.innerHTML += `
+                        <tr class="${completedClass}">
+                            <td>${entry.schedule_date}</td>
+                            <td>${entry.morning_routine_completed ? '✅ Completed' : '⏰ Pending'}</td>
+                        </tr>
                     `;
                 });
             } else {
-                dailyScheduleListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No daily schedule entries yet.</p>';
+                dailyScheduleListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No daily schedule entries yet.</td></tr>`;
             }
         }
 
@@ -1585,18 +2046,20 @@
 
         async function loadTimeBlocking() {
             const blocks = await fetchData('/api/time_blocking');
-            const timeBlockingListDiv = document.getElementById('time-blocking-list');
-            timeBlockingListDiv.innerHTML = '';
+            const timeBlockingListTbody = document.getElementById('time-blocking-list');
+            timeBlockingListTbody.innerHTML = '';
             if (blocks && blocks.length > 0) {
                 blocks.forEach(block => {
-                    timeBlockingListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${block.schedule_date} ${block.time_slot}: ${block.activity}</span>
-                        </div>
+                    timeBlockingListTbody.innerHTML += `
+                        <tr>
+                            <td>${block.schedule_date}</td>
+                            <td>${block.time_slot}</td>
+                            <td>${block.activity}</td>
+                        </tr>
                     `;
                 });
             } else {
-                timeBlockingListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No time blocks added yet.</p>';
+                timeBlockingListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>`;
             }
         }
 
@@ -1623,18 +2086,21 @@
 
         async function loadConsistencyScore() {
             const scores = await fetchData('/api/consistency_score');
-            const consistencyScoreListDiv = document.getElementById('consistency-score-list');
-            consistencyScoreListDiv.innerHTML = '';
+            const consistencyScoreListTbody = document.getElementById('consistency-score-list');
+            consistencyScoreListTbody.innerHTML = '';
             if (scores && scores.length > 0) {
                 scores.forEach(score => {
-                    consistencyScoreListDiv.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-600 p-2 rounded-md mb-1">
-                            <span>${score.record_date}: Sleep: ${score.sleep_score}, Gym: ${score.gym_score}, Study: ${score.study_score}</span>
-                        </div>
+                    consistencyScoreListTbody.innerHTML += `
+                        <tr>
+                            <td>${score.record_date}</td>
+                            <td>${score.sleep_score}</td>
+                            <td>${score.gym_score}</td>
+                            <td>${score.study_score}</td>
+                        </tr>
                     `;
                 });
             } else {
-                consistencyScoreListDiv.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No consistency scores yet.</p>';
+                consistencyScoreListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>`;
             }
         }
 
