@@ -28,16 +28,68 @@
             padding: 1.5rem;
         }
 
+        /* Sidebar styles */
         .sidebar {
             background-color: #ffffff;
             border-radius: 1rem;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            transition: all 0.4s ease; /* Smooth transition for width and background */
             padding: 1.5rem;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+            width: 250px; /* Default width */
+            position: relative; /* For toggle button positioning */
         }
         .dark .sidebar {
             background-color: #161b22; /* Darker sidebar */
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        .sidebar.collapsed {
+            width: 70px; /* Collapsed width */
+            overflow: hidden;
+        }
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .sidebar-header h1,
+        .sidebar.collapsed #darkModeToggle {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .sidebar.collapsed .nav-link svg {
+            margin-right: 0 !important;
+        }
+        .sidebar-toggle-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: #6366f1;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .sidebar.collapsed .sidebar-toggle-btn {
+            right: 20px; /* Adjust position when collapsed */
+        }
+        .sidebar-toggle-btn:hover {
+            background-color: #4f46e5;
+            transform: scale(1.1);
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            transition: opacity 0.2s ease;
+        }
+        .sidebar.collapsed .sidebar-header {
+            margin-bottom: 0; /* Adjust margin when collapsed */
         }
 
         .nav-link {
@@ -71,6 +123,11 @@
         }
         .nav-link.active svg {
             fill: #ffffff;
+        }
+
+        .content-area-wrapper {
+            flex-grow: 1;
+            transition: margin-left 0.4s ease;
         }
 
         .content-section {
@@ -318,10 +375,15 @@
 <body class="bg-gray-100 min-h-screen">
     <div class="container flex flex-col lg:flex-row gap-6 py-6">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar p-6 lg:w-1/4">
-            <h1 class="text-3xl font-extrabold text-center mb-8 text-indigo-500 dark:text-indigo-300">
-                🚀 Omar's Life Hub
-            </h1>
+        <aside id="sidebar" class="sidebar p-6">
+            <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
+                <svg id="sidebar-toggle-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+            </div>
+            <div class="sidebar-header">
+                <h1 class="text-3xl font-extrabold text-center text-indigo-500 dark:text-indigo-300">
+                    🚀 Omar's Life Hub
+                </h1>
+            </div>
             <button id="darkModeToggle" class="w-full py-3 px-4 mb-6 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 font-semibold transition-colors duration-300 shadow-md hover:shadow-lg">
                 Toggle Dark Mode
             </button>
@@ -330,37 +392,37 @@
                     <li>
                         <a href="#home" class="nav-link active" data-section="home">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            Dashboard Overview
+                            <span>Dashboard Overview</span>
                         </a>
                     </li>
                     <li>
                         <a href="#medical" class="nav-link" data-section="medical">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Medical Student Hub
+                            <span>Medical Student Hub</span>
                         </a>
                     </li>
                     <li>
                         <a href="#fitness" class="nav-link" data-section="fitness">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Fitness & Gym Tracker
+                            <span>Fitness & Gym Tracker</span>
                         </a>
                     </li>
                     <li>
                         <a href="#basketball" class="nav-link" data-section="basketball">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2m2-2l2 2m-2-2v12h5l2-2V6m0 0H9m11 0h-4M4 18v-7a4 4 0 014-4h8a4 4 0 014 4v7"></path></svg>
-                            Basketball Analysis
+                            <span>Basketball Analysis</span>
                         </a>
                     </li>
                     <li>
                         <a href="#self-development" class="nav-link" data-section="self-development">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                            Skill & Courses
+                            <span>Skill & Courses</span>
                         </a>
                     </li>
                     <li>
                         <a href="#daily-schedule" class="nav-link" data-section="daily-schedule">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Daily Schedule
+                            <span>Daily Schedule</span>
                         </a>
                     </li>
                 </ul>
@@ -368,48 +430,49 @@
         </aside>
 
         <!-- Main Content Area -->
-        <main class="content-section flex-1">
-            <!-- Home Section -->
-            <section id="home" class="dashboard-section">
-                <h2 class="text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">
-                    Hello, Omar! 👋 Your Daily Overview.
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Mood Tracker Card -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Mood Tracker 😃</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Mood</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="mood-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading moods...</td></tr>
-                                </tbody>
-                            </table>
+        <div id="main-content" class="content-area-wrapper">
+            <main class="content-section">
+                <!-- Home Section -->
+                <section id="home" class="dashboard-section">
+                    <h2 class="text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">
+                        Hello, Omar! 👋 Your Daily Overview.
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Mood Tracker Card -->
+                        <div class="card">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Mood Tracker 😃</h3>
+                            <div class="data-table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Mood</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mood-list">
+                                        <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading moods...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4">
+                                <input type="date" id="mood-date" class="mb-2">
+                                <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
+                                <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
+                                <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
+                            </div>
                         </div>
-                        <div class="mt-4">
-                            <input type="date" id="mood-date" class="mb-2">
-                            <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
-                            <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
-                            <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
-                        </div>
-                    </div>
 
-                    <!-- Sleep Tracker Card -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Sleep Tracker 😴</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Hours</th>
-                                        <th>Quality</th>
+                        <!-- Sleep Tracker Card -->
+                        <div class="card">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Sleep Tracker 😴</h3>
+                            <div class="data-table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Hours</th>
+                                            <th>Quality</th>
                                     </tr>
                                 </thead>
                                 <tbody id="sleep-list">
@@ -448,26 +511,8 @@
                         </div>
                     </div>
 
-                    <!-- Pomodoro Timer Card -->
-                    <div class="card col-span-full lg:col-span-1">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
-                        <div class="pomodoro-timer">
-                            <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
-                            <div class="timer-display" id="timer-display">25:00</div>
-                            <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
-                                <button onclick="startTimer()" class="add-btn">Start</button>
-                                <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
-                                <button onclick="resetTimer()" class="delete-btn">Reset</button>
-                            </div>
-                            <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
-                                <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
-                                <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Shortcuts Card -->
-                    <div class="card col-span-full lg:col-span-2">
+                    <div class="card col-span-full">
                         <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
                         <div class="flex flex-wrap gap-4 justify-center">
                             <button class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Launch Study Timer</button>
@@ -483,6 +528,24 @@
             <section id="medical" class="dashboard-section hidden">
                 <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub 🩺</h2>
                 
+                <!-- Pomodoro Timer Card - Moved Here -->
+                <div class="card mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
+                    <div class="pomodoro-timer">
+                        <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
+                        <div class="timer-display" id="timer-display">25:00</div>
+                        <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
+                            <button onclick="startTimer()" class="add-btn">Start</button>
+                            <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
+                            <button onclick="resetTimer()" class="delete-btn">Reset</button>
+                        </div>
+                        <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
+                            <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
+                            <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Study Plan Tab -->
                 <div class="card">
                     <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Study Plan 📚</h3>
@@ -494,11 +557,12 @@
                                     <th>Time</th>
                                     <th>Topic</th>
                                     <th>Resource</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="study-plan-list">
-                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
+                                <tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -519,16 +583,20 @@
                             <thead>
                                 <tr>
                                     <th>Subject Name</th>
+                                    <th>Lectures Done</th>
+                                    <th>Total Lectures</th>
                                     <th>Description</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="subjects-list">
-                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
+                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="mt-4">
                         <input type="text" id="subject-name" placeholder="Subject Name">
+                        <input type="number" id="subject-total-lectures" placeholder="Total Lectures" min="0">
                         <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
                         <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
                     </div>
@@ -998,6 +1066,25 @@
             setDarkMode(!htmlElement.classList.contains('dark'));
         });
 
+        // --- Sidebar Toggle ---
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
+        let isSidebarCollapsed = false;
+
+        function toggleSidebar() {
+            isSidebarCollapsed = !isSidebarCollapsed;
+            if (isSidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('lg:ml-20'); // Adjust margin for collapsed sidebar
+                sidebarToggleIcon.innerHTML = `<path fill-rule="evenodd" d="M4 6h16V4H4zm0 5h16v-2H4zm0 5h16v-2H4z" clip-rule="evenodd"></path>`; // Hamburger icon
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('lg:ml-20');
+                sidebarToggleIcon.innerHTML = `<path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>`; // Close icon
+            }
+        }
+
 
         // --- Utility Functions ---
         function showMessage(message, type = 'info') {
@@ -1050,6 +1137,27 @@
             } catch (error) {
                 console.error('Post error:', error);
                 showMessage(`Error adding data: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function putData(url, data) {
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('PUT error:', error);
+                showMessage(`Error updating data: ${error.message}`, 'error');
                 return null;
             }
         }
@@ -1117,7 +1225,6 @@
                     await loadMoods();
                     await loadSleepData();
                     await loadAchievements();
-                    // No need to load Pomodoro data, it's client-side
                     break;
                 case 'medical':
                     await loadStudyPlans();
@@ -1297,6 +1404,10 @@
             }
             timerBeep.play(); // Play sound when phase changes
             updateTimerDisplay();
+            // Record Pomodoro session (assuming a new API endpoint /api/pomodoro_sessions)
+            // This part requires backend implementation to store the session.
+            // For now, it's a client-side only timer.
+            // postData('/api/pomodoro_sessions', { duration_minutes: isWorkPhase ? breakMinutesInput.value : workMinutesInput.value, is_work_session: !isWorkPhase });
         }
 
         function startTimer() {
@@ -1343,18 +1454,23 @@
             studyPlanListTbody.innerHTML = '';
             if (plans && plans.length > 0) {
                 plans.forEach(plan => {
+                    const completedClass = plan.is_completed ? 'completed-item' : '';
                     studyPlanListTbody.innerHTML += `
-                        <tr>
+                        <tr class="${completedClass}">
                             <td>${plan.day_of_week}</td>
                             <td>${plan.time_slot}</td>
                             <td>${plan.topic}</td>
                             <td>${plan.resource_type}</td>
+                            <td>
+                                <input type="checkbox" ${plan.is_completed ? 'checked' : ''} onchange="toggleStudyPlanCompletion(${plan.id}, this.checked)">
+                                ${plan.is_completed ? '✅' : '⏳'}
+                            </td>
                             <td><button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-3 py-1 rounded-md">Delete</button></td>
                         </tr>
                     `;
                 });
             } else {
-                studyPlanListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No study plans yet.</td></tr>`;
+                studyPlanListTbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400 py-4">No study plans yet.</td></tr>`;
             }
         }
 
@@ -1369,7 +1485,7 @@
                 return;
             }
 
-            const data = { day_of_week: day, time_slot: time, topic: topic, resource_type: resource };
+            const data = { day_of_week: day, time_slot: time, topic: topic, resource_type: resource, is_completed: false };
             const result = await postData('/api/study_plans', data);
             if (result) {
                 showMessage('Study plan added successfully!', 'success');
@@ -1378,6 +1494,16 @@
                 document.getElementById('study-topic').value = '';
                 document.getElementById('study-resource').value = '';
                 await loadStudyPlans();
+                await loadProgressCharts(); // Update chart if study plan affects it
+            }
+        }
+
+        async function toggleStudyPlanCompletion(id, isCompleted) {
+            const result = await putData(`/api/study_plans/${id}`, { is_completed: isCompleted });
+            if (result) {
+                showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
+                await loadStudyPlans();
+                await loadProgressCharts(); // Update chart if study plan affects it
             }
         }
 
@@ -1386,6 +1512,7 @@
             if (result) {
                 showMessage('Study plan deleted successfully!', 'success');
                 await loadStudyPlans();
+                await loadProgressCharts(); // Update chart if study plan affects it
             }
         }
 
@@ -1398,17 +1525,24 @@
                     subjectsListTbody.innerHTML += `
                         <tr>
                             <td>${subject.subject_name}</td>
+                            <td>${subject.completed_lectures || 0}</td>
+                            <td>${subject.total_lectures || 'N/A'}</td>
                             <td>${subject.description || 'N/A'}</td>
+                            <td>
+                                <button onclick="completeLecture(${subject.id})" class="add-btn text-white text-xs px-3 py-1 rounded-md mr-1">Done Lecture</button>
+                                <button onclick="addLecture(${subject.id})" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-md">New Lecture</button>
+                            </td>
                         </tr>
                     `;
                 });
             } else {
-                subjectsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No subjects added yet.</td></tr>`;
+                subjectsListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No subjects added yet.</td></tr>`;
             }
         }
 
         async function addSubject() {
             const name = document.getElementById('subject-name').value;
+            const totalLectures = document.getElementById('subject-total-lectures').value;
             const description = document.getElementById('subject-description').value;
 
             if (!name) {
@@ -1416,13 +1550,42 @@
                 return;
             }
 
-            const data = { subject_name: name, description: description };
+            const data = {
+                subject_name: name,
+                total_lectures: totalLectures ? parseInt(totalLectures) : 0,
+                completed_lectures: 0,
+                description: description
+            };
             const result = await postData('/api/subjects', data);
             if (result) {
                 showMessage('Subject added successfully!', 'success');
                 document.getElementById('subject-name').value = '';
+                document.getElementById('subject-total-lectures').value = '';
                 document.getElementById('subject-description').value = '';
                 await loadSubjects();
+                await loadProgressCharts();
+            }
+        }
+
+        async function completeLecture(id) {
+            const result = await putData(`/api/subjects/${id}/complete_lecture`);
+            if (result) {
+                showMessage('Lecture marked as complete!', 'success');
+                await loadSubjects();
+                await loadProgressCharts();
+                if (result.achievement_unlocked) {
+                    showMessage(`Achievement Unlocked: ${result.achievement_description}!`, 'success');
+                    await loadAchievements(); // Refresh achievements if a new one was added
+                }
+            }
+        }
+
+        async function addLecture(id) {
+            const result = await putData(`/api/subjects/${id}/add_lecture`);
+            if (result) {
+                showMessage('New lecture added to subject!', 'success');
+                await loadSubjects();
+                await loadProgressCharts();
             }
         }
 
@@ -1472,33 +1635,53 @@
 
         let studyProgressChartInstance = null;
         async function loadProgressCharts() {
-            const chartData = await fetchData('/api/progress_charts');
+            // Fetch aggregated data for the chart from a new API endpoint
+            const chartData = await fetchData('/api/dashboard_summary_data');
             const ctx = document.getElementById('studyProgressChart').getContext('2d');
 
             if (studyProgressChartInstance) {
                 studyProgressChartInstance.destroy();
             }
 
-            if (chartData && chartData.length > 0) {
-                const labels = chartData.map(d => d.week_start_date);
-                const dataPoints = chartData.map(d => d.hours_studied);
+            if (chartData) {
+                const labels = chartData.dates; // Assuming dates are provided by the backend
+                const pomodoroHours = chartData.pomodoro_hours;
+                const lecturesCompleted = chartData.lectures_completed;
+                const manualStudyHours = chartData.manual_study_hours; // From progress_charts table
 
                 studyProgressChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
-                        datasets: [{
-                            label: 'Hours Studied',
-                            data: dataPoints,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                            fill: false,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            pointBackgroundColor: 'rgb(75, 192, 192)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(75, 192, 192)'
-                        }]
+                        datasets: [
+                            {
+                                label: 'Pomodoro Hours',
+                                data: pomodoroHours,
+                                borderColor: 'rgb(255, 99, 132)', // Reddish
+                                tension: 0.1,
+                                fill: false,
+                                pointBackgroundColor: 'rgb(255, 99, 132)',
+                                pointBorderColor: '#fff',
+                            },
+                            {
+                                label: 'Lectures Completed',
+                                data: lecturesCompleted,
+                                borderColor: 'rgb(54, 162, 235)', // Blueish
+                                tension: 0.1,
+                                fill: false,
+                                pointBackgroundColor: 'rgb(54, 162, 235)',
+                                pointBorderColor: '#fff',
+                            },
+                            {
+                                label: 'Manual Study Hours',
+                                data: manualStudyHours,
+                                borderColor: 'rgb(75, 192, 192)', // Greenish
+                                tension: 0.1,
+                                fill: false,
+                                pointBackgroundColor: 'rgb(75, 192, 192)',
+                                pointBorderColor: '#fff',
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
@@ -1507,7 +1690,7 @@
                             y: {
                                 beginAtZero: true,
                                 grid: {
-                                    color: 'rgba(200, 200, 200, 0.2)' // Light grid lines
+                                    color: htmlElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                                 },
                                 ticks: {
                                     color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
@@ -1515,7 +1698,7 @@
                             },
                             x: {
                                 grid: {
-                                    color: 'rgba(200, 200, 200, 0.2)'
+                                    color: htmlElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                                 },
                                 ticks: {
                                     color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
