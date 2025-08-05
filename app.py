@@ -1,9 +1,9 @@
 import os
 import json
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 app = Flask(__name__)
 
@@ -61,6 +61,7 @@ def initialize_database():
                     time_slot VARCHAR(50),
                     topic VARCHAR(255),
                     resource_type VARCHAR(50),
+                    is_completed BOOLEAN DEFAULT FALSE,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
@@ -70,6 +71,8 @@ def initialize_database():
                     user_id INT,
                     subject_name VARCHAR(255) NOT NULL,
                     description TEXT,
+                    total_lectures INT DEFAULT 0,
+                    completed_lectures INT DEFAULT 0,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
@@ -259,6 +262,29 @@ def initialize_database():
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
+            # New table for Pomodoro sessions
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pomodoro_sessions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    session_date DATE NOT NULL,
+                    duration_minutes INT NOT NULL,
+                    is_work_session BOOLEAN NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # New table for Lecture Completion Log
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS lecture_completion_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    subject_id INT,
+                    completion_date DATE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+                )
+            """)
+
             connection.commit()
             print("All tables checked/created successfully.")
 
@@ -307,7 +333,7 @@ def index():
 
 # --- API Endpoints ---
 
-# Medical Student Hub
+# Medical Student Hub - Study Plans
 @app.route('/api/study_plans', methods=['GET', 'POST'])
 def handle_study_plans():
     user_id = get_omar_user_id()
@@ -335,8 +361,8 @@ def handle_study_plans():
             return jsonify({"error": "Missing required fields"}), 400
         try:
             cursor.execute(
-                "INSERT INTO study_plans (user_id, day_of_week, time_slot, topic, resource_type) VALUES (%s, %s, %s, %s, %s)",
-                (user_id, data['day_of_week'], data['time_slot'], data['topic'], data['resource_type'])
+                "INSERT INTO study_plans (user_id, day_of_week, time_slot, topic, resource_type, is_completed) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, data['day_of_week'], data['time_slot'], data['topic'], data['resource_type'], data.get('is_completed', False))
             )
             connection.commit()
             return jsonify({"message": "Study plan added successfully", "id": cursor.lastrowid}), 201
@@ -357,11 +383,33 @@ def manage_study_plan(plan_id):
 
     if request.method == 'PUT':
         data = request.get_json()
+        # Allow updating specific fields, including is_completed
+        update_fields = []
+        update_values = []
+        if 'day_of_week' in data:
+            update_fields.append("day_of_week = %s")
+            update_values.append(data['day_of_week'])
+        if 'time_slot' in data:
+            update_fields.append("time_slot = %s")
+            update_values.append(data['time_slot'])
+        if 'topic' in data:
+            update_fields.append("topic = %s")
+            update_values.append(data['topic'])
+        if 'resource_type' in data:
+            update_fields.append("resource_type = %s")
+            update_values.append(data['resource_type'])
+        if 'is_completed' in data:
+            update_fields.append("is_completed = %s")
+            update_values.append(data['is_completed'])
+        
+        if not update_fields:
+            return jsonify({"error": "No fields to update"}), 400
+
+        query = f"UPDATE study_plans SET {', '.join(update_fields)} WHERE id=%s AND user_id=%s"
+        update_values.extend([plan_id, user_id])
+
         try:
-            cursor.execute(
-                "UPDATE study_plans SET day_of_week=%s, time_slot=%s, topic=%s, resource_type=%s WHERE id=%s AND user_id=%s",
-                (data.get('day_of_week'), data.get('time_slot'), data.get('topic'), data.get('resource_type'), plan_id, user_id)
-            )
+            cursor.execute(query, tuple(update_values))
             connection.commit()
             if cursor.rowcount == 0:
                 return jsonify({"message": "Study plan not found or not authorized"}), 404
@@ -384,7 +432,7 @@ def manage_study_plan(plan_id):
             cursor.close()
             connection.close()
 
-# Subjects
+# Medical Student Hub - Subjects
 @app.route('/api/subjects', methods=['GET', 'POST'])
 def handle_subjects():
     user_id = get_omar_user_id()
@@ -410,8 +458,8 @@ def handle_subjects():
             return jsonify({"error": "Missing subject_name"}), 400
         try:
             cursor.execute(
-                "INSERT INTO subjects (user_id, subject_name, description) VALUES (%s, %s, %s)",
-                (user_id, data['subject_name'], data.get('description'))
+                "INSERT INTO subjects (user_id, subject_name, description, total_lectures, completed_lectures) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['subject_name'], data.get('description'), data.get('total_lectures', 0), data.get('completed_lectures', 0))
             )
             connection.commit()
             return jsonify({"message": "Subject added successfully", "id": cursor.lastrowid}), 201
@@ -421,7 +469,86 @@ def handle_subjects():
             cursor.close()
             connection.close()
 
-# Read/Watch Queue
+@app.route('/api/subjects/<int:subject_id>/complete_lecture', methods=['PUT'])
+def complete_lecture(subject_id):
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT completed_lectures, total_lectures, subject_name FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_completed_lectures = subject['completed_lectures'] + 1
+        
+        # Update subject's completed lectures
+        cursor.execute("UPDATE subjects SET completed_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_completed_lectures, subject_id, user_id))
+        
+        # Log lecture completion
+        cursor.execute("INSERT INTO lecture_completion_log (user_id, subject_id, completion_date) VALUES (%s, %s, %s)",
+                       (user_id, subject_id, date.today()))
+        
+        connection.commit()
+
+        achievement_unlocked = False
+        achievement_description = ""
+
+        # Check for achievement (e.g., "Completed 10 lectures in Anatomy")
+        if subject['subject_name'] == 'Anatomy' and new_completed_lectures == 10:
+            achievement_description = "Completed 10 Anatomy Lectures!"
+            cursor.execute("INSERT INTO achievements (user_id, achievement_date, description) VALUES (%s, %s, %s)",
+                           (user_id, date.today(), achievement_description))
+            connection.commit()
+            achievement_unlocked = True
+
+        return jsonify({
+            "message": "Lecture marked as complete!",
+            "achievement_unlocked": achievement_unlocked,
+            "achievement_description": achievement_description
+        })
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/api/subjects/<int:subject_id>/add_lecture', methods=['PUT'])
+def add_lecture(subject_id):
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT total_lectures FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_total_lectures = subject['total_lectures'] + 1
+        cursor.execute("UPDATE subjects SET total_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_total_lectures, subject_id, user_id))
+        connection.commit()
+        return jsonify({"message": "New lecture added to subject!"})
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+# Medical Student Hub - Read/Watch Queue
 @app.route('/api/read_watch_queue', methods=['GET', 'POST'])
 def handle_read_watch_queue():
     user_id = get_omar_user_id()
@@ -459,7 +586,7 @@ def handle_read_watch_queue():
             cursor.close()
             connection.close()
 
-# Progress Charts
+# Medical Student Hub - Progress Charts (Manual Study Hours)
 @app.route('/api/progress_charts', methods=['GET', 'POST'])
 def handle_progress_charts():
     user_id = get_omar_user_id()
@@ -994,7 +1121,7 @@ def handle_consistency_score():
             cursor.close()
             connection.close()
 
-# Dashboard Home Page
+# Dashboard Home Page - Mood Tracker
 @app.route('/api/mood_tracker', methods=['GET', 'POST'])
 def handle_mood_tracker():
     user_id = get_omar_user_id()
@@ -1114,6 +1241,120 @@ def handle_achievements():
         finally:
             cursor.close()
             connection.close()
+
+# New API endpoint for Pomodoro sessions
+@app.route('/api/pomodoro_sessions', methods=['POST'])
+def add_pomodoro_session():
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor()
+
+    data = request.get_json()
+    required_fields = ['session_date', 'duration_minutes', 'is_work_session']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    try:
+        cursor.execute(
+            "INSERT INTO pomodoro_sessions (user_id, session_date, duration_minutes, is_work_session) VALUES (%s, %s, %s, %s)",
+            (user_id, data['session_date'], data['duration_minutes'], data['is_work_session'])
+        )
+        connection.commit()
+        return jsonify({"message": "Pomodoro session recorded successfully", "id": cursor.lastrowid}), 201
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+# New API endpoint for aggregated dashboard summary data for charts
+@app.route('/api/dashboard_summary_data', methods=['GET'])
+def dashboard_summary_data():
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Define the date range (e.g., last 8 weeks)
+        today = date.today()
+        # Find the start of the current week (Monday)
+        current_week_start = today - timedelta(days=today.weekday())
+        
+        # Generate labels for the last 8 weeks
+        labels = []
+        week_starts = []
+        for i in range(8): # For last 8 weeks
+            week_start = current_week_start - timedelta(weeks=7 - i)
+            labels.append(week_start.strftime('%Y-%m-%d'))
+            week_starts.append(week_start)
+
+        pomodoro_hours = [0] * 8
+        lectures_completed_weekly = [0] * 8
+        manual_study_hours = [0] * 8
+
+        # Fetch Pomodoro data
+        cursor.execute("""
+            SELECT session_date, duration_minutes FROM pomodoro_sessions
+            WHERE user_id = %s AND is_work_session = TRUE AND session_date >= %s
+            ORDER BY session_date
+        """, (user_id, week_starts[0]))
+        pomodoro_data = cursor.fetchall()
+
+        for session in pomodoro_data:
+            session_date = session['session_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= session_date < ws + timedelta(weeks=1):
+                    pomodoro_hours[i] += session['duration_minutes'] / 60.0 # Convert minutes to hours
+                    break
+        
+        # Fetch Lecture Completion Log data
+        cursor.execute("""
+            SELECT completion_date FROM lecture_completion_log
+            WHERE user_id = %s AND completion_date >= %s
+            ORDER BY completion_date
+        """, (user_id, week_starts[0]))
+        lecture_log_data = cursor.fetchall()
+
+        for log_entry in lecture_log_data:
+            completion_date = log_entry['completion_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= completion_date < ws + timedelta(weeks=1):
+                    lectures_completed_weekly[i] += 1
+                    break
+
+        # Fetch Manual Study Hours data (from progress_charts)
+        cursor.execute("""
+            SELECT week_start_date, hours_studied FROM progress_charts
+            WHERE user_id = %s AND week_start_date >= %s
+            ORDER BY week_start_date
+        """, (user_id, week_starts[0]))
+        manual_study_data = cursor.fetchall()
+
+        for study_entry in manual_study_data:
+            study_week_start = study_entry['week_start_date']
+            for i, ws in enumerate(week_starts):
+                if ws == study_week_start: # Match exact week start date
+                    manual_study_hours[i] = study_entry['hours_studied']
+                    break
+
+        return jsonify({
+            "dates": labels,
+            "pomodoro_hours": pomodoro_hours,
+            "lectures_completed": lectures_completed_weekly,
+            "manual_study_hours": manual_study_hours
+        })
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 # This is for Vercel deployment. Vercel expects a 'wsgi.py' or 'app.py' at the root
 # and will automatically detect the 'app' variable.
