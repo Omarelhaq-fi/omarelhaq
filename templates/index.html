@@ -402,6 +402,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#wellness" class="nav-link" data-section="wellness">
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M16.364 16.364l.707.707M12 21v-1m-6.364-1.636l-.707-.707M3 12H4M4.636 7.636l.707-.707M6 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <span>Wellness & Mood</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#medical" class="nav-link" data-section="medical">
                             <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span>Medical Student Hub</span>
@@ -426,9 +432,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#daily-schedule" class="nav-link" data-section="daily-schedule">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span>Daily Schedule</span>
+                        <a href="#streaks-checkpoints" class="nav-link" data-section="streaks-checkpoints">
+                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Streaks & Checkpoints</span>
                         </a>
                     </li>
                 </ul>
@@ -444,6 +450,44 @@
                         Hello, Omar! 👋 Your Daily Overview.
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Today's Summary Card -->
+                        <div class="card col-span-full">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Today's Focus & Progress 🎯</h3>
+                            <div id="today-summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
+                                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+                                    <h4 class="font-semibold text-lg mb-2">Today's Schedule:</h4>
+                                    <ul id="today-schedule-list" class="list-disc list-inside">
+                                        <li>Loading...</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+                                    <h4 class="font-semibold text-lg mb-2">Overall Progress:</h4>
+                                    <ul id="overall-progress-summary" class="list-disc list-inside">
+                                        <li>Pomodoro Hours (This Week): <span id="summary-pomodoro-hours">0</span></li>
+                                        <li>Lectures Completed (Total): <span id="summary-lectures-completed">0</span></li>
+                                        <li>Workouts Logged (This Week): <span id="summary-workouts-logged">0</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shortcuts Card -->
+                        <div class="card col-span-full">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
+                            <div class="flex flex-wrap gap-4 justify-center">
+                                <button class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Launch Study Timer</button>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Add Game Clip</button>
+                                <button class="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Mark Workout Done</button>
+                                <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Record Mood</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Wellness & Mood Section (NEW) -->
+                <section id="wellness" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Wellness & Mood ✨</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Mood Tracker Card -->
                         <div class="card">
                             <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Mood Tracker 😃</h3>
@@ -493,535 +537,501 @@
                             <button onclick="addSleep()" class="add-btn w-full">Add Sleep</button>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Achievements Card -->
+                <!-- Medical Student Hub Section -->
+                <section id="medical" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub 🩺</h2>
+                    
+                    <!-- Pomodoro Timer Card - Moved Here -->
+                    <div class="card mb-6">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
+                        <div class="pomodoro-timer">
+                            <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
+                            <div class="timer-display" id="timer-display">25:00</div>
+                            <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
+                                <button onclick="startTimer()" class="add-btn">Start</button>
+                                <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
+                                <button onclick="resetTimer()" class="delete-btn">Reset</button>
+                            </div>
+                            <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
+                                <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
+                                <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study Plan Tab -->
                     <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Weekly Achievements 🏆</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Study Plan 📚</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Topic</th>
+                                        <th>Resource</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="study-plan-list">
+                                    <tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
+                            <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
+                            <input type="text" id="study-topic" placeholder="Topic">
+                            <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
+                            <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
+                        </div>
+                    </div>
+
+                    <!-- Subjects Tracker -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Subjects Tracker 🧠</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject Name</th>
+                                        <th>Lectures Done</th>
+                                        <th>Total Lectures</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subjects-list">
+                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="subject-name" placeholder="Subject Name">
+                            <input type="number" id="subject-total-lectures" placeholder="Total Lectures" min="0">
+                            <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
+                            <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
+                        </div>
+                    </div>
+
+                    <!-- To-Read/Watch Queue -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">To-Read/Watch Queue 📺📖</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Link</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="read-watch-list">
+                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading queue...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="queue-title" placeholder="Title">
+                            <select id="queue-type" class="mb-2">
+                                <option value="">Select Type</option>
+                                <option value="Video">Video</option>
+                                <option value="PDF">PDF</option>
+                                <option value="Lecture">Lecture</option>
+                            </select>
+                            <input type="url" id="queue-url" placeholder="URL">
+                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                                <input type="checkbox" id="queue-completed" class="mr-2"> Completed
+                            </label>
+                            <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
+                        </div>
+                    </div>
+
+                    <!-- Progress Chart -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Study Progress Chart 📈</h3>
+                        <div class="chart-container"> <!-- Added container for fixed height -->
+                            <canvas id="studyProgressChart"></canvas>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="chart-week-start-date" class="mb-2">
+                            <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
+                            <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
+                            <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fitness & Gym Tracker Section -->
+                <section id="fitness" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker 💪</h2>
+                    
+                    <!-- Workout Plan Tab -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Plan 🏋️</h3>
                         <div class="data-table-container">
                             <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Description</th>
+                                        <th>Split</th>
+                                        <th>Exercise</th>
+                                        <th>Sets</th>
+                                        <th>Reps</th>
+                                        <th>Weight</th>
+                                        <th>Soreness</th>
+                                        <th>Notes</th>
                                     </tr>
                                 </thead>
-                                <tbody id="achievements-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
+                                <tbody id="workout-list">
+                                    <tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="mt-4">
-                            <input type="date" id="achievement-date" class="mb-2">
-                            <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
-                            <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
+                            <input type="date" id="workout-date" class="mb-2">
+                            <select id="workout-split" class="mb-2">
+                                <option value="">Select Split</option>
+                                <option value="Push">Push</option>
+                                <option value="Pull">Pull</option>
+                                <option value="Legs">Legs</option>
+                                <option value="Cardio">Cardio</option>
+                                <option value="Mobility">Mobility</option>
+                            </select>
+                            <input type="text" id="exercise-name" placeholder="Exercise Name">
+                            <input type="number" id="exercise-sets" placeholder="Sets">
+                            <input type="number" id="exercise-reps" placeholder="Reps">
+                            <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
+                            <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
+                            <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
+                            <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
                         </div>
                     </div>
 
-                    <!-- Shortcuts Card -->
-                    <div class="card col-span-full">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
-                        <div class="flex flex-wrap gap-4 justify-center">
-                            <button class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Launch Study Timer</button>
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Add Game Clip</button>
-                            <button class="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Mark Workout Done</button>
-                            <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Record Mood</button>
+                    <!-- Body Progress Tracker -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Body Progress Tracker 📊</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Weight (kg/lbs)</th>
+                                        <th>Measurements</th>
+                                        <th>Goal</th>
+                                        <th>Photo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="body-progress-list">
+                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading body progress...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="body-record-date" class="mb-2">
+                            <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
+                            <input type="url" id="body-photo-url" placeholder="Photo URL">
+                            <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
+                            <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
+                            <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            <!-- Medical Student Hub Section -->
-            <section id="medical" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub 🩺</h2>
-                
-                <!-- Pomodoro Timer Card - Moved Here -->
-                <div class="card mb-6">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
-                    <div class="pomodoro-timer">
-                        <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
-                        <div class="timer-display" id="timer-display">25:00</div>
-                        <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
-                            <button onclick="startTimer()" class="add-btn">Start</button>
-                            <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
-                            <button onclick="resetTimer()" class="delete-btn">Reset</button>
+                    <!-- Nutrition Tab -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Nutrition Log 🍎</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Meal Type</th>
+                                        <th>Description</th>
+                                        <th>Calories</th>
+                                        <th>Protein (g)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nutrition-list">
+                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading nutrition data...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
-                            <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
-                            <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
+                        <div class="mt-4">
+                            <input type="date" id="meal-date" class="mb-2">
+                            <select id="meal-type" class="mb-2">
+                                <option value="">Select Meal Type</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                                <option value="Snack">Snack</option>
+                            </select>
+                            <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
+                            <input type="number" id="meal-calories" placeholder="Calories">
+                            <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
+                            <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Study Plan Tab -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Study Plan 📚</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Day</th>
-                                    <th>Time</th>
-                                    <th>Topic</th>
-                                    <th>Resource</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="study-plan-list">
-                                <tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Weekly Shopping List -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Shopping List 🛒</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shopping-list-items">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading shopping list...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="shopping-item-name" placeholder="Item Name">
+                            <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
+                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                                <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
+                            </label>
+                            <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
-                        <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
-                        <input type="text" id="study-topic" placeholder="Topic">
-                        <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
-                        <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
-                    </div>
-                </div>
+                </section>
 
-                <!-- Subjects Tracker -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Subjects Tracker 🧠</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Subject Name</th>
-                                    <th>Lectures Done</th>
-                                    <th>Total Lectures</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subjects-list">
-                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
-                            </tbody>
-                        </table>
+                <!-- Basketball & Analysis Lab Section -->
+                <section id="basketball" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball Analysis Lab 🏀</h2>
+                    
+                    <!-- Video Analysis Board -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Video Analysis Board 🎥</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Upload Date</th>
+                                        <th>Annotations</th>
+                                        <th>Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="game-clips-list">
+                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading game clips...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="clip-title" placeholder="Clip Title">
+                            <input type="url" id="clip-video-url" placeholder="Video URL">
+                            <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
+                            <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="subject-name" placeholder="Subject Name">
-                        <input type="number" id="subject-total-lectures" placeholder="Total Lectures" min="0">
-                        <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
-                        <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
-                    </div>
-                </div>
 
-                <!-- To-Read/Watch Queue -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">To-Read/Watch Queue 📺📖</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Link</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="read-watch-list">
-                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading queue...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Scouting Templates -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Scouting Templates 📝</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Template Name</th>
+                                        <th>Opponent</th>
+                                        <th>Report Content</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scouting-templates-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading scouting templates...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="template-name" placeholder="Template Name">
+                            <input type="text" id="opponent-name" placeholder="Opponent Name">
+                            <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
+                            <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="queue-title" placeholder="Title">
-                        <select id="queue-type" class="mb-2">
-                            <option value="">Select Type</option>
-                            <option value="Video">Video</option>
-                            <option value="PDF">PDF</option>
-                            <option value="Lecture">Lecture</option>
-                        </select>
-                        <input type="url" id="queue-url" placeholder="URL">
-                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" id="queue-completed" class="mr-2"> Completed
-                        </label>
-                        <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
-                    </div>
-                </div>
 
-                <!-- Progress Chart -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Study Progress Chart 📈</h3>
-                    <div class="chart-container"> <!-- Added container for fixed height -->
-                        <canvas id="studyProgressChart"></canvas>
+                    <!-- Learning Tab -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Learning Resources 🎓</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Platform</th>
+                                        <th>Link</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="learning-resources-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading learning resources...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="resource-title" placeholder="Resource Title">
+                            <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
+                            <input type="url" id="resource-url" placeholder="URL">
+                            <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="date" id="chart-week-start-date" class="mb-2">
-                        <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
-                        <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
-                        <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Fitness & Gym Tracker Section -->
-            <section id="fitness" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker 💪</h2>
-                
-                <!-- Workout Plan Tab -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Plan 🏋️</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Split</th>
-                                    <th>Exercise</th>
-                                    <th>Sets</th>
-                                    <th>Reps</th>
-                                    <th>Weight</th>
-                                    <th>Soreness</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody id="workout-list">
-                                <tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
-                            </tbody>
-                        </table>
+                <!-- Self-Development & Courses Section -->
+                <section id="self-development" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Skill & Courses Progression 🌟</h2>
+                    
+                    <!-- Courses Tracker -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Courses Tracker 📈</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Name</th>
+                                        <th>Status</th>
+                                        <th>Start Date</th>
+                                        <th>Completion Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="courses-list">
+                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading courses...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="course-name" placeholder="Course Name">
+                            <select id="course-status" class="mb-2">
+                                <option value="">Select Status</option>
+                                <option value="Not started">Not started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                            <input type="date" id="course-start-date" class="mb-2">
+                            <input type="date" id="course-completion-date" class="mb-2">
+                            <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="date" id="workout-date" class="mb-2">
-                        <select id="workout-split" class="mb-2">
-                            <option value="">Select Split</option>
-                            <option value="Push">Push</option>
-                            <option value="Pull">Pull</option>
-                            <option value="Legs">Legs</option>
-                            <option value="Cardio">Cardio</option>
-                            <option value="Mobility">Mobility</option>
-                        </select>
-                        <input type="text" id="exercise-name" placeholder="Exercise Name">
-                        <input type="number" id="exercise-sets" placeholder="Sets">
-                        <input type="number" id="exercise-reps" placeholder="Reps">
-                        <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
-                        <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
-                        <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
-                        <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
-                    </div>
-                </div>
 
-                <!-- Body Progress Tracker -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Body Progress Tracker 📊</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Weight (kg/lbs)</th>
-                                    <th>Measurements</th>
-                                    <th>Goal</th>
-                                    <th>Photo</th>
-                                </tr>
-                            </thead>
-                            <tbody id="body-progress-list">
-                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading body progress...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Skill Goals -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Skill Goals 🎯</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Skill Name</th>
+                                        <th>Target Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="skill-goals-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading skill goals...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
+                            <input type="date" id="skill-target-date" class="mb-2">
+                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                                <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
+                            </label>
+                            <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="date" id="body-record-date" class="mb-2">
-                        <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
-                        <input type="url" id="body-photo-url" placeholder="Photo URL">
-                        <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
-                        <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
-                        <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
-                    </div>
-                </div>
+                </section>
 
-                <!-- Nutrition Tab -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Nutrition Log 🍎</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Meal Type</th>
-                                    <th>Description</th>
-                                    <th>Calories</th>
-                                    <th>Protein (g)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="nutrition-list">
-                                <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading nutrition data...</td></tr>
-                            </tbody>
-                        </table>
+                <!-- Streaks & Checkpoints Section (NEW) -->
+                <section id="streaks-checkpoints" class="dashboard-section hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Streaks & Checkpoints ✅🔥</h2>
+                    
+                    <!-- Daily Schedule & Routine -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Schedule & Routine 📅</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Morning Routine Completed</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="daily-schedule-list">
+                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading daily schedule...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="schedule-date" class="mb-2">
+                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
+                                <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
+                            </label>
+                            <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="date" id="meal-date" class="mb-2">
-                        <select id="meal-type" class="mb-2">
-                            <option value="">Select Meal Type</option>
-                            <option value="Breakfast">Breakfast</option>
-                            <option value="Lunch">Lunch</option>
-                            <option value="Dinner">Dinner</option>
-                            <option value="Snack">Snack</option>
-                        </select>
-                        <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
-                        <input type="number" id="meal-calories" placeholder="Calories">
-                        <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
-                        <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
-                    </div>
-                </div>
 
-                <!-- Weekly Shopping List -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Shopping List 🛒</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                    <th>Quantity</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="shopping-list-items">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading shopping list...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Time-Blocking Plan -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Time-Blocking Plan ⏳</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time Slot</th>
+                                        <th>Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="time-blocking-list">
+                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="time-block-date" class="mb-2">
+                            <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
+                            <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
+                            <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="shopping-item-name" placeholder="Item Name">
-                        <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
-                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
-                        </label>
-                        <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Basketball & Analysis Lab Section -->
-            <section id="basketball" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball Analysis Lab 🏀</h2>
-                
-                <!-- Video Analysis Board -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Video Analysis Board 🎥</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Upload Date</th>
-                                    <th>Annotations</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody id="game-clips-list">
-                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading game clips...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Consistency Score -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Consistency Score ✅</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Sleep Score</th>
+                                        <th>Gym Score</th>
+                                        <th>Study Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="consistency-score-list">
+                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="consistency-date" class="mb-2">
+                            <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
+                            <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
+                            <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
+                            <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="clip-title" placeholder="Clip Title">
-                        <input type="url" id="clip-video-url" placeholder="Video URL">
-                        <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
-                        <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
-                    </div>
-                </div>
-
-                <!-- Scouting Templates -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Scouting Templates 📝</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Template Name</th>
-                                    <th>Opponent</th>
-                                    <th>Report Content</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scouting-templates-list">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading scouting templates...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="text" id="template-name" placeholder="Template Name">
-                        <input type="text" id="opponent-name" placeholder="Opponent Name">
-                        <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
-                        <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
-                    </div>
-                </div>
-
-                <!-- Learning Tab -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Learning Resources 🎓</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Platform</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody id="learning-resources-list">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading learning resources...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="text" id="resource-title" placeholder="Resource Title">
-                        <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
-                        <input type="url" id="resource-url" placeholder="URL">
-                        <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Self-Development & Courses Section -->
-            <section id="self-development" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Skill & Courses Progression 🌟</h2>
-                
-                <!-- Courses Tracker -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Courses Tracker 📈</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Course Name</th>
-                                    <th>Status</th>
-                                    <th>Start Date</th>
-                                    <th>Completion Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="courses-list">
-                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading courses...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="text" id="course-name" placeholder="Course Name">
-                        <select id="course-status" class="mb-2">
-                            <option value="">Select Status</option>
-                            <option value="Not started">Not started</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                        <input type="date" id="course-start-date" class="mb-2">
-                        <input type="date" id="course-completion-date" class="mb-2">
-                        <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
-                    </div>
-                </div>
-
-                <!-- Skill Goals -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Skill Goals 🎯</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Skill Name</th>
-                                    <th>Target Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="skill-goals-list">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading skill goals...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
-                        <input type="date" id="skill-target-date" class="mb-2">
-                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
-                        </label>
-                        <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Daily Schedule & Routine Section -->
-            <section id="daily-schedule" class="dashboard-section hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Daily Schedule & Routine 📅</h2>
-                
-                <!-- Morning Routine -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Morning Routine ☀️</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Morning Routine Completed</th>
-                                </tr>
-                            </thead>
-                            <tbody id="daily-schedule-list">
-                                <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No daily schedule entries yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="date" id="schedule-date" class="mb-2">
-                        <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
-                        </label>
-                        <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
-                    </div>
-                </div>
-
-                <!-- Time-Blocking Plan -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Time-Blocking Plan ⏳</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Time Slot</th>
-                                    <th>Activity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="time-blocking-list">
-                                <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="date" id="time-block-date" class="mb-2">
-                        <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
-                        <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
-                        <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
-                    </div>
-                </div>
-
-                <!-- Consistency Score -->
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Consistency Score ✅</h3>
-                    <div class="data-table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Sleep Score</th>
-                                    <th>Gym Score</th>
-                                    <th>Study Score</th>
-                                </tr>
-                            </thead>
-                            <tbody id="consistency-score-list">
-                                <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        <input type="date" id="consistency-date" class="mb-2">
-                        <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
-                        <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
-                        <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
-                        <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
-                    </div>
-                </div>
-            </section>
-        </main>
+                </section>
+            </main>
+        </div>
     </div>
 
     <!-- Message Box Modal -->
@@ -1052,6 +1062,10 @@
                 htmlElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
                 darkModeToggle.textContent = 'Dark Mode';
+            }
+            // Re-render chart to update colors if chart is visible
+            if (document.getElementById('medical').classList.contains('dashboard-section')) {
+                loadProgressCharts();
             }
         }
 
@@ -1230,9 +1244,11 @@
         async function loadSectionData(sectionId) {
             switch (sectionId) {
                 case 'home':
+                    await loadTodaySummary(); // New summary data for home
+                    break;
+                case 'wellness': // New wellness section
                     await loadMoods();
                     await loadSleepData();
-                    await loadAchievements();
                     break;
                 case 'medical':
                     await loadStudyPlans();
@@ -1255,10 +1271,11 @@
                     await loadCourses();
                     await loadSkillGoals();
                     break;
-                case 'daily-schedule':
+                case 'streaks-checkpoints': // New streaks section
                     await loadDailySchedule();
                     await loadTimeBlocking();
                     await loadConsistencyScore();
+                    await loadAchievements(); // Achievements also moved here for consistency
                     break;
                 default:
                     break;
@@ -1266,6 +1283,35 @@
         }
 
         // --- Home Section Functions ---
+        async function loadTodaySummary() {
+            const summaryData = await fetchData('/api/today_summary');
+            const todayScheduleList = document.getElementById('today-schedule-list');
+            const summaryPomodoroHours = document.getElementById('summary-pomodoro-hours');
+            const summaryLecturesCompleted = document.getElementById('summary-lectures-completed');
+            const summaryWorkoutsLogged = document.getElementById('summary-workouts-logged');
+
+            todayScheduleList.innerHTML = '';
+            if (summaryData && summaryData.today_schedule && summaryData.today_schedule.length > 0) {
+                summaryData.today_schedule.forEach(item => {
+                    todayScheduleList.innerHTML += `<li>${item.time_slot ? item.time_slot + ': ' : ''}${item.activity || item.topic}</li>`;
+                });
+            } else {
+                todayScheduleList.innerHTML = '<li>No specific plans for today! 🎉</li>';
+            }
+
+            if (summaryData && summaryData.overall_progress) {
+                summaryPomodoroHours.textContent = summaryData.overall_progress.pomodoro_hours_this_week.toFixed(1);
+                summaryLecturesCompleted.textContent = summaryData.overall_progress.total_lectures_completed;
+                summaryWorkoutsLogged.textContent = summaryData.overall_progress.workouts_this_week;
+            } else {
+                summaryPomodoroHours.textContent = 'N/A';
+                summaryLecturesCompleted.textContent = 'N/A';
+                summaryWorkoutsLogged.textContent = 'N/A';
+            }
+        }
+
+
+        // --- Wellness & Mood Section Functions ---
         async function loadMoods() {
             const moods = await fetchData('/api/mood_tracker');
             const moodListTbody = document.getElementById('mood-list');
@@ -1346,43 +1392,6 @@
             }
         }
 
-        async function loadAchievements() {
-            const achievements = await fetchData('/api/achievements');
-            const achievementsListTbody = document.getElementById('achievements-list');
-            achievementsListTbody.innerHTML = '';
-            if (achievements && achievements.length > 0) {
-                achievements.forEach(achievement => {
-                    achievementsListTbody.innerHTML += `
-                        <tr>
-                            <td>${achievement.achievement_date}</td>
-                            <td>${achievement.description}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                achievementsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No achievements yet.</td></tr>`;
-            }
-        }
-
-        async function addAchievement() {
-            const achievementDate = document.getElementById('achievement-date').value;
-            const description = document.getElementById('achievement-description').value;
-
-            if (!achievementDate || !description) {
-                showMessage('Please fill in achievement date and description.', 'error');
-                return;
-            }
-
-            const data = { achievement_date: achievementDate, description: description };
-            const result = await postData('/api/achievements', data);
-            if (result) {
-                showMessage('Achievement added successfully!', 'success');
-                document.getElementById('achievement-date').value = '';
-                document.getElementById('achievement-description').value = '';
-                await loadAchievements();
-            }
-        }
-
         // --- Pomodoro Timer Functions ---
         let workMinutesInput = document.getElementById('work-minutes');
         let breakMinutesInput = document.getElementById('break-minutes');
@@ -1416,6 +1425,7 @@
                     is_work_session: true
                 });
                 await loadProgressCharts(); // Refresh chart after recording session
+                await loadTodaySummary(); // Update summary if pomodoro hours are included
 
                 currentTime = parseInt(breakMinutesInput.value) * 60;
                 timerStatus.textContent = "Break Time!";
@@ -1508,8 +1518,7 @@
                 document.getElementById('study-topic').value = '';
                 document.getElementById('study-resource').value = '';
                 await loadStudyPlans();
-                // No direct chart update here, as study plans themselves don't directly map to chart metrics.
-                // Chart updates when pomodoro/lectures are done or manual hours added.
+                await loadTodaySummary(); // Update summary if new plans affect it
             }
         }
 
@@ -1518,6 +1527,7 @@
             if (result) {
                 showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadStudyPlans();
+                await loadTodaySummary(); // Update summary if completion affects it
             }
         }
 
@@ -1526,6 +1536,7 @@
             if (result) {
                 showMessage('Study plan deleted successfully!', 'success');
                 await loadStudyPlans();
+                await loadTodaySummary(); // Update summary if deletion affects it
             }
         }
 
@@ -1577,6 +1588,7 @@
                 document.getElementById('subject-description').value = '';
                 await loadSubjects();
                 await loadProgressCharts(); // Update chart on new subject (though counts are 0 initially)
+                await loadTodaySummary(); // Update summary
             }
         }
 
@@ -1586,6 +1598,7 @@
                 showMessage('Lecture marked as complete!', 'success');
                 await loadSubjects();
                 await loadProgressCharts();
+                await loadTodaySummary(); // Update summary
                 if (result.achievement_unlocked) {
                     showMessage(`Achievement Unlocked: ${result.achievement_description}!`, 'success');
                     await loadAchievements(); // Refresh achievements if a new one was added
@@ -1599,6 +1612,7 @@
                 showMessage('New lecture added to subject!', 'success');
                 await loadSubjects();
                 await loadProgressCharts();
+                await loadTodaySummary(); // Update summary
             }
         }
 
@@ -1826,6 +1840,7 @@
                 document.getElementById('muscle-soreness').value = '';
                 document.getElementById('workout-notes').value = '';
                 await loadWorkouts();
+                await loadTodaySummary(); // Update summary
             }
         }
 
@@ -2208,7 +2223,43 @@
             }
         }
 
-        // --- Daily Schedule & Routine Functions ---
+        // --- Streaks & Checkpoints Section Functions ---
+        async function loadAchievements() {
+            const achievements = await fetchData('/api/achievements');
+            const achievementsListTbody = document.getElementById('achievements-list');
+            achievementsListTbody.innerHTML = '';
+            if (achievements && achievements.length > 0) {
+                achievements.forEach(achievement => {
+                    achievementsListTbody.innerHTML += `
+                        <tr>
+                            <td>${achievement.achievement_date}</td>
+                            <td>${achievement.description}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                achievementsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No achievements yet.</td></tr>`;
+            }
+        }
+        async function addAchievement() {
+            const achievementDate = document.getElementById('achievement-date').value;
+            const description = document.getElementById('achievement-description').value;
+
+            if (!achievementDate || !description) {
+                showMessage('Please fill in achievement date and description.', 'error');
+                return;
+            }
+
+            const data = { achievement_date: achievementDate, description: description };
+            const result = await postData('/api/achievements', data);
+            if (result) {
+                showMessage('Achievement added successfully!', 'success');
+                document.getElementById('achievement-date').value = '';
+                document.getElementById('achievement-description').value = '';
+                await loadAchievements();
+            }
+        }
+
         async function loadDailySchedule() {
             const schedule = await fetchData('/api/daily_schedule');
             const dailyScheduleListTbody = document.getElementById('daily-schedule-list');
