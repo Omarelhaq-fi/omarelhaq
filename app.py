@@ -1,2415 +1,1492 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omar's Dashboard - Elevate Your Life</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* Base styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            transition: background-color 0.4s ease, color 0.4s ease;
-        }
-
-        /* Dark Mode styles */
-        .dark body {
-            background-color: #0d1117; /* Deeper dark background */
-            color: #e2e8f0;
-        }
-
-        .container {
-            max-width: 1400px; /* Wider container */
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        /* Sidebar styles */
-        .sidebar {
-            background-color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            transition: all 0.4s ease; /* Smooth transition for width and background */
-            padding: 1.5rem;
-            flex-shrink: 0; /* Prevent sidebar from shrinking */
-            width: 250px; /* Default width */
-            position: relative; /* For toggle button positioning */
-        }
-        .dark .sidebar {
-            background-color: #161b22; /* Darker sidebar */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-        }
-        .sidebar.collapsed {
-            width: 70px; /* Collapsed width */
-            overflow: hidden;
-        }
-        .sidebar.collapsed .nav-link span,
-        .sidebar.collapsed .sidebar-header h1,
-        .sidebar.collapsed #darkModeToggle {
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none;
-        }
-        .sidebar.collapsed .nav-link svg {
-            margin-right: 0 !important;
-        }
-        .sidebar-toggle-btn {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background-color: #6366f1;
-            color: white;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-        .sidebar.collapsed .sidebar-toggle-btn {
-            right: 20px; /* Adjust position when collapsed */
-        }
-        .sidebar-toggle-btn:hover {
-            background-color: #4f46e5;
-            transform: scale(1.1);
-        }
-        .sidebar-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 2rem;
-            transition: opacity 0.2s ease;
-        }
-        .sidebar.collapsed .sidebar-header {
-            margin-bottom: 0; /* Adjust margin when collapsed */
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.25rem;
-            border-radius: 0.75rem;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.25s ease-in-out;
-            color: #4a5568;
-        }
-        .dark .nav-link {
-            color: #cbd5e0;
-        }
-        .nav-link:hover {
-            background-color: #e2e8f0;
-            transform: translateX(5px);
-            color: #2d3748;
-        }
-        .dark .nav-link:hover {
-            background-color: #2a333d;
-            color: #e2e8f0;
-        }
-        .nav-link.active {
-            background-color: #6366f1; /* Vibrant blue/purple */
-            color: #ffffff;
-            font-weight: 700;
-            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
-        }
-        .nav-link.active svg {
-            fill: #ffffff;
-        }
-
-        .content-area-wrapper {
-            flex-grow: 1;
-            transition: margin-left 0.4s ease;
-        }
-
-        .content-section {
-            background-color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            padding: 2rem;
-            min-height: 80vh;
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
-            animation: fadeIn 0.6s ease-out; /* Smoother fade in */
-        }
-        .dark .content-section {
-            background-color: #161b22;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-        }
-
-        .card {
-            background-color: #f8fafc;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
-        }
-        .dark .card {
-            background-color: #21262d; /* Darker card background */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        input[type="text"], input[type="date"], input[type="number"], input[type="url"], textarea, select {
-            width: 100%;
-            padding: 0.85rem;
-            border-radius: 0.6rem;
-            border: 1px solid #cbd5e0;
-            margin-bottom: 0.85rem;
-            font-size: 1rem;
-            background-color: #ffffff;
-            color: #333;
-            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
-        }
-        .dark input[type="text"], .dark input[type="date"], .dark input[type="number"], .dark input[type="url"], .dark textarea, .dark select {
-            background-color: #21262d;
-            color: #e2e8f0;
-            border-color: #4a5568;
-        }
-
-        button {
-            background-color: #6366f1; /* Primary button color */
-            color: white;
-            padding: 0.85rem 1.75rem;
-            border-radius: 0.6rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
-        }
-        button:hover {
-            background-color: #4f46e5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
-        }
-        button:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
-        .delete-btn {
-            background-color: #ef4444;
-            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
-        }
-        .delete-btn:hover {
-            background-color: #dc2626;
-            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
-        }
-        .add-btn {
-            background-color: #10b981;
-            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-        }
-        .add-btn:hover {
-            background-color: #059669;
-            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
-        }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            padding: 30px;
-            border-radius: 1rem;
-            width: 90%;
-            max-width: 550px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            position: relative;
-            animation: slideIn 0.3s ease-out;
-        }
-        .dark .modal-content {
-            background-color: #21262d;
-            color: #e2e8f0;
-        }
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: #6366f1;
-            text-decoration: none;
-        }
-        .dark .close-button:hover,
-        .dark .close-button:focus {
-            color: #93c5fd;
-        }
-
-        /* Specific item styles */
-        .completed-item {
-            text-decoration: line-through;
-            color: #6b7280;
-            opacity: 0.7;
-        }
-        .dark .completed-item {
-            color: #a0aec0;
-        }
-
-        /* Pomodoro Timer */
-        .pomodoro-timer {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 1rem;
-            background-color: #e0f2fe;
-            color: #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
-        }
-        .dark .pomodoro-timer {
-            background-color: #1e3a8a;
-            color: #fff;
-        }
-        .timer-display {
-            font-size: 5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: #1d4ed8;
-            transition: color 0.4s ease;
-        }
-        .dark .timer-display {
-            color: #93c5fd;
-        }
-        .timer-buttons button {
-            margin: 0.75rem;
-            min-width: 120px;
-            font-size: 1.1rem;
-        }
-        .timer-config input {
-            width: 90px;
-            text-align: center;
-            margin: 0 0.75rem;
-            padding: 0.6rem;
-            font-size: 1.1rem;
-        }
-
-        /* Table styles */
-        .data-table-container {
-            overflow-x: auto; /* Ensures responsiveness for tables */
-            margin-top: 1.5rem;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: separate; /* Allows border-radius on cells */
-            border-spacing: 0 0.5rem; /* Space between rows */
-            text-align: left;
-        }
-        .data-table th, .data-table td {
-            padding: 1rem 1.25rem;
-            vertical-align: middle;
-        }
-        .data-table th {
-            background-color: #e2e8f0;
-            font-weight: 600;
-            color: #4a5568;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #cbd5e0;
-        }
-        .dark .data-table th {
-            background-color: #2a333d;
-            color: #a0aec0;
-            border-bottom: 2px solid #4a5568;
-        }
-        .data-table tbody tr {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease-in-out;
-        }
-        .dark .data-table tbody tr {
-            background-color: #2d3748;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        .data-table tbody tr:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .dark .data-table tbody tr:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-        .dark .data-table tbody tr:nth-child(even) {
-            background-color: #21262d;
-        }
-        .data-table td:first-child { border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; }
-        .data-table td:last-child { border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
-        .data-table th:first-child { border-top-left-radius: 0.75rem; }
-        .data-table th:last-child { border-top-right-radius: 0.75rem; }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Chart container height */
-        .chart-container {
-            position: relative;
-            height: 400px; /* Fixed height for the chart */
-            width: 100%;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container flex flex-col lg:flex-row gap-6 py-6">
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="sidebar p-6">
-            <div class="sidebar-toggle-btn" onclick="toggleSidebar()">
-                <svg id="sidebar-toggle-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-            </div>
-            <div class="sidebar-header">
-                <h1 class="text-3xl font-extrabold text-center text-indigo-500 dark:text-indigo-300">
-                    🚀 Omar's Life Hub
-                </h1>
-            </div>
-            <button id="darkModeToggle" class="w-full py-3 px-4 mb-6 rounded-lg bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 font-semibold transition-colors duration-300 shadow-md hover:shadow-lg">
-                Toggle Dark Mode
-            </button>
-            <nav>
-                <ul>
-                    <li>
-                        <a href="#home" class="nav-link active" data-section="home">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            <span>Dashboard Overview</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#wellness" class="nav-link" data-section="wellness">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M16.364 16.364l.707.707M12 21v-1m-6.364-1.636l-.707-.707M3 12H4M4.636 7.636l.707-.707M6 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            <span>Wellness & Mood</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#medical" class="nav-link" data-section="medical">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Medical Student Hub</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#fitness" class="nav-link" data-section="fitness">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            <span>Fitness & Gym Tracker</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#basketball" class="nav-link" data-section="basketball">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2m2-2l2 2m-2-2v12h5l2-2V6m0 0H9m11 0h-4M4 18v-7a4 4 0 014-4h8a4 4 0 014 4v7"></path></svg>
-                            <span>Basketball Analysis</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#self-development" class="nav-link" data-section="self-development">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                            <span>Skill & Courses</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#streaks-checkpoints" class="nav-link" data-section="streaks-checkpoints">
-                            <svg class="w-6 h-6 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Streaks & Checkpoints</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content Area -->
-        <div id="main-content" class="content-area-wrapper">
-            <main class="content-section">
-                <!-- Home Section -->
-                <section id="home" class="dashboard-section">
-                    <h2 class="text-4xl font-extrabold text-gray-800 dark:text-gray-100 mb-8">
-                        Hello, Omar! 👋 Your Daily Overview.
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Today's Summary Card -->
-                        <div class="card col-span-full">
-                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Today's Focus & Progress 🎯</h3>
-                            <div id="today-summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-                                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
-                                    <h4 class="font-semibold text-lg mb-2">Today's Schedule:</h4>
-                                    <ul id="today-schedule-list" class="list-disc list-inside">
-                                        <li>Loading...</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
-                                    <h4 class="font-semibold text-lg mb-2">Overall Progress:</h4>
-                                    <ul id="overall-progress-summary" class="list-disc list-inside">
-                                        <li>Pomodoro Hours (This Week): <span id="summary-pomodoro-hours">0</span></li>
-                                        <li>Lectures Completed (Total): <span id="summary-lectures-completed">0</span></li>
-                                        <li>Workouts Logged (This Week): <span id="summary-workouts-logged">0</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Achievements Card - Moved to Streaks & Checkpoints -->
-                        <!-- Shortcuts Card -->
-                        <div class="card col-span-full">
-                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
-                            <div class="flex flex-wrap gap-4 justify-center">
-                                <button class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Launch Study Timer</button>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Add Game Clip</button>
-                                <button class="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Mark Workout Done</button>
-                                <button class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg">Record Mood</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Wellness & Mood Section (NEW) -->
-                <section id="wellness" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Wellness & Mood ✨</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Mood Tracker Card -->
-                        <div class="card">
-                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Mood Tracker 😃</h3>
-                            <div class="data-table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Mood</th>
-                                            <th>Notes</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="mood-list">
-                                        <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading moods...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-4">
-                                <input type="date" id="mood-date" class="mb-2">
-                                <input type="number" id="mood-level" placeholder="Mood Level (1-5)" min="1" max="5" class="mb-2">
-                                <textarea id="mood-notes" placeholder="Notes..." rows="2"></textarea>
-                                <button onclick="addMood()" class="add-btn w-full">Add Mood</button>
-                            </div>
-                        </div>
-
-                        <!-- Sleep Tracker Card -->
-                        <div class="card">
-                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Sleep Tracker 😴</h3>
-                            <div class="data-table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Hours</th>
-                                            <th>Quality</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sleep-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading sleep data...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="sleep-date" class="mb-2">
-                            <input type="number" id="hours-slept" placeholder="Hours Slept" step="0.1" class="mb-2">
-                            <input type="number" id="sleep-quality" placeholder="Quality (1-5)" min="1" max="5" class="mb-2">
-                            <button onclick="addSleep()" class="add-btn w-full">Add Sleep</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Medical Student Hub Section -->
-                <section id="medical" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Medical Student Hub 🩺</h2>
-                    
-                    <!-- Pomodoro Timer Card - Moved Here -->
-                    <div class="card mb-6">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Pomodoro Timer ⏰</h3>
-                        <div class="pomodoro-timer">
-                            <p class="text-xl font-semibold mb-3" id="timer-status">Work Time!</p>
-                            <div class="timer-display" id="timer-display">25:00</div>
-                            <div class="timer-buttons flex justify-center flex-wrap gap-3 mb-4">
-                                <button onclick="startTimer()" class="add-btn">Start</button>
-                                <button onclick="pauseTimer()" class="bg-yellow-600 hover:bg-yellow-700">Pause</button>
-                                <button onclick="resetTimer()" class="delete-btn">Reset</button>
-                            </div>
-                            <div class="timer-config text-gray-700 dark:text-gray-300 flex justify-center items-center flex-wrap gap-4">
-                                <label class="flex flex-col items-center">Work (min): <input type="number" id="work-minutes" value="25" min="1" max="60"></label>
-                                <label class="flex flex-col items-center">Break (min): <input type="number" id="break-minutes" value="5" min="1" max="30"></label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Study Plan Tab -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Study Plan 📚</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Topic</th>
-                                        <th>Resource</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="study-plan-list">
-                                    <tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400">Loading study plans...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="study-day" placeholder="Day (e.g., Monday)">
-                            <input type="text" id="study-time" placeholder="Time Slot (e.g., 9-11 AM)">
-                            <input type="text" id="study-topic" placeholder="Topic">
-                            <input type="text" id="study-resource" placeholder="Resource (Anki, Lecturio, AMBOSS)">
-                            <button onclick="addStudyPlan()" class="add-btn w-full">Add Study Plan</button>
-                        </div>
-                    </div>
-
-                    <!-- Subjects Tracker -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Subjects Tracker 🧠</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Subject Name</th>
-                                        <th>Lectures Done</th>
-                                        <th>Total Lectures</th>
-                                        <th>Description</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="subjects-list">
-                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading subjects...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="subject-name" placeholder="Subject Name">
-                            <input type="number" id="subject-total-lectures" placeholder="Total Lectures" min="0">
-                            <textarea id="subject-description" placeholder="Description" rows="2"></textarea>
-                            <button onclick="addSubject()" class="add-btn w-full">Add Subject</button>
-                        </div>
-                    </div>
-
-                    <!-- To-Read/Watch Queue -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">To-Read/Watch Queue 📺📖</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>Link</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="read-watch-list">
-                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading queue...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="queue-title" placeholder="Title">
-                            <select id="queue-type" class="mb-2">
-                                <option value="">Select Type</option>
-                                <option value="Video">Video</option>
-                                <option value="PDF">PDF</option>
-                                <option value="Lecture">Lecture</option>
-                            </select>
-                            <input type="url" id="queue-url" placeholder="URL">
-                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                                <input type="checkbox" id="queue-completed" class="mr-2"> Completed
-                            </label>
-                            <button onclick="addReadWatchQueue()" class="add-btn w-full">Add to Queue</button>
-                        </div>
-                    </div>
-
-                    <!-- Progress Chart -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Study Progress Chart 📈</h3>
-                        <div class="chart-container"> <!-- Added container for fixed height -->
-                            <canvas id="studyProgressChart"></canvas>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="chart-week-start-date" class="mb-2">
-                            <input type="number" id="chart-hours-studied" placeholder="Hours Studied">
-                            <textarea id="chart-topics-covered" placeholder="Topics Covered" rows="2"></textarea>
-                            <button onclick="addProgressChartData()" class="add-btn w-full">Add Progress Data</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Fitness & Gym Tracker Section -->
-                <section id="fitness" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Fitness & Gym Tracker 💪</h2>
-                    
-                    <!-- Workout Plan Tab -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Plan 🏋️</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Split</th>
-                                        <th>Exercise</th>
-                                        <th>Sets</th>
-                                        <th>Reps</th>
-                                        <th>Weight</th>
-                                        <th>Soreness</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="workout-list">
-                                    <tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="workout-date" class="mb-2">
-                            <select id="workout-split" class="mb-2">
-                                <option value="">Select Split</option>
-                                <option value="Push">Push</option>
-                                <option value="Pull">Pull</option>
-                                <option value="Legs">Legs</option>
-                                <option value="Cardio">Cardio</option>
-                                <option value="Mobility">Mobility</option>
-                            </select>
-                            <input type="text" id="exercise-name" placeholder="Exercise Name">
-                            <input type="number" id="exercise-sets" placeholder="Sets">
-                            <input type="number" id="exercise-reps" placeholder="Reps">
-                            <input type="number" id="exercise-weight" placeholder="Weight (kg/lbs)">
-                            <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
-                            <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
-                            <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
-                        </div>
-                    </div>
-
-                    <!-- Body Progress Tracker -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Body Progress Tracker 📊</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Weight (kg/lbs)</th>
-                                        <th>Measurements</th>
-                                        <th>Goal</th>
-                                        <th>Photo</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="body-progress-list">
-                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading body progress...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="body-record-date" class="mb-2">
-                            <input type="number" id="body-weight" placeholder="Weight (kg/lbs)" step="0.1">
-                            <input type="url" id="body-photo-url" placeholder="Photo URL">
-                            <textarea id="body-measurements" placeholder='Measurements (e.g., {"chest": "40", "waist": "32"})' rows="2"></textarea>
-                            <input type="text" id="body-goal" placeholder="Goal (e.g., get shredded in 4 months)">
-                            <button onclick="addBodyProgress()" class="add-btn w-full">Add Body Progress</button>
-                        </div>
-                    </div>
-
-                    <!-- Nutrition Tab -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Nutrition Log 🍎</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Meal Type</th>
-                                        <th>Description</th>
-                                        <th>Calories</th>
-                                        <th>Protein (g)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="nutrition-list">
-                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400">Loading nutrition data...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="meal-date" class="mb-2">
-                            <select id="meal-type" class="mb-2">
-                                <option value="">Select Meal Type</option>
-                                <option value="Breakfast">Breakfast</option>
-                                <option value="Lunch">Lunch</option>
-                                <option value="Dinner">Dinner</option>
-                                <option value="Snack">Snack</option>
-                            </select>
-                            <textarea id="meal-description" placeholder="Meal Description" rows="2"></textarea>
-                            <input type="number" id="meal-calories" placeholder="Calories">
-                            <input type="number" id="meal-protein" placeholder="Protein Intake (g)" step="0.1">
-                            <button onclick="addNutrition()" class="add-btn w-full">Add Meal</button>
-                        </div>
-                    </div>
-
-                    <!-- Weekly Shopping List -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Shopping List 🛒</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item Name</th>
-                                        <th>Quantity</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="shopping-list-items">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading shopping list...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="shopping-item-name" placeholder="Item Name">
-                            <input type="text" id="shopping-item-quantity" placeholder="Quantity (e.g., 1kg, 6 eggs)">
-                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                                <input type="checkbox" id="shopping-item-purchased" class="mr-2"> Purchased
-                            </label>
-                            <button onclick="addShoppingItem()" class="add-btn w-full">Add Item to List</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Basketball & Analysis Lab Section -->
-                <section id="basketball" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Basketball Analysis Lab 🏀</h2>
-                    
-                    <!-- Video Analysis Board -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Video Analysis Board 🎥</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Upload Date</th>
-                                        <th>Annotations</th>
-                                        <th>Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="game-clips-list">
-                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading game clips...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="clip-title" placeholder="Clip Title">
-                            <input type="url" id="clip-video-url" placeholder="Video URL">
-                            <textarea id="clip-annotations" placeholder='Annotations (e.g., {"time": "0:15", "note": "Good screen"})' rows="3"></textarea>
-                            <button onclick="addGameClip()" class="add-btn w-full">Add Game Clip</button>
-                        </div>
-                    </div>
-
-                    <!-- Scouting Templates -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Scouting Templates 📝</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Template Name</th>
-                                        <th>Opponent</th>
-                                        <th>Report Content</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="scouting-templates-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading scouting templates...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="template-name" placeholder="Template Name">
-                            <input type="text" id="opponent-name" placeholder="Opponent Name">
-                            <textarea id="report-content" placeholder="Report Content" rows="3"></textarea>
-                            <button onclick="addScoutingTemplate()" class="add-btn w-full">Add Scouting Template</button>
-                        </div>
-                    </div>
-
-                    <!-- Learning Tab -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Learning Resources 🎓</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Platform</th>
-                                        <th>Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="learning-resources-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading learning resources...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="resource-title" placeholder="Resource Title">
-                            <input type="text" id="resource-platform" placeholder="Platform (YouTube, Coursera)">
-                            <input type="url" id="resource-url" placeholder="URL">
-                            <button onclick="addLearningResource()" class="add-btn w-full">Add Learning Resource</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Self-Development & Courses Section -->
-                <section id="self-development" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Skill & Courses Progression 🌟</h2>
-                    
-                    <!-- Courses Tracker -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Courses Tracker 📈</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Course Name</th>
-                                        <th>Status</th>
-                                        <th>Start Date</th>
-                                        <th>Completion Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="courses-list">
-                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400">Loading courses...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="course-name" placeholder="Course Name">
-                            <select id="course-status" class="mb-2">
-                                <option value="">Select Status</option>
-                                <option value="Not started">Not started</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Completed">Completed</option>
-                            </select>
-                            <input type="date" id="course-start-date" class="mb-2">
-                            <input type="date" id="course-completion-date" class="mb-2">
-                            <button onclick="addCourse()" class="add-btn w-full">Add Course</button>
-                        </div>
-                    </div>
-
-                    <!-- Skill Goals -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Skill Goals 🎯</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Skill Name</th>
-                                        <th>Target Date</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="skill-goals-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400">Loading skill goals...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="text" id="skill-name" placeholder="Skill Name (e.g., Learn Python)">
-                            <input type="date" id="skill-target-date" class="mb-2">
-                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                                <input type="checkbox" id="skill-achieved" class="mr-2"> Achieved
-                            </label>
-                            <button onclick="addSkillGoal()" class="add-btn w-full">Add Skill Goal</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Streaks & Checkpoints Section (NEW) -->
-                <section id="streaks-checkpoints" class="dashboard-section hidden">
-                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Streaks & Checkpoints ✅🔥</h2>
-                    
-                    <!-- Achievements Card - Moved Here -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Achievements 🏆</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="achievements-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="achievement-date" class="mb-2">
-                            <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
-                            <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
-                        </div>
-                    </div>
-
-                    <!-- Daily Schedule & Routine -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Schedule & Routine 📅</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Morning Routine Completed</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="daily-schedule-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading daily schedule...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="schedule-date" class="mb-2">
-                            <label class="flex items-center mb-2 text-gray-700 dark:text-gray-300">
-                                <input type="checkbox" id="morning-routine-completed" class="mr-2"> Morning Routine Completed
-                            </label>
-                            <button onclick="addDailySchedule()" class="add-btn w-full">Add Daily Schedule</button>
-                        </div>
-                    </div>
-
-                    <!-- Time-Blocking Plan -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Time-Blocking Plan ⏳</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Time Slot</th>
-                                        <th>Activity</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="time-blocking-list">
-                                    <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="time-block-date" class="mb-2">
-                            <input type="text" id="time-block-slot" placeholder="Time Slot (e.g., 9-11 AM)">
-                            <input type="text" id="time-block-activity" placeholder="Activity (e.g., Study Anatomy)">
-                            <button onclick="addTimeBlock()" class="add-btn w-full">Add Time Block</button>
-                        </div>
-                    </div>
-
-                    <!-- Consistency Score -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Consistency Score ✅</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Sleep Score</th>
-                                        <th>Gym Score</th>
-                                        <th>Study Score</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="consistency-score-list">
-                                    <tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="consistency-date" class="mb-2">
-                            <input type="number" id="consistency-sleep" placeholder="Sleep Score (1-10)" min="1" max="10">
-                            <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
-                            <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
-                            <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
-
-    <!-- Message Box Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeMessageModal()">&times;</span>
-            <p id="messageText" class="text-lg text-center"></p>
-        </div>
-    </div>
-
-    <audio id="timer-beep" src="https://www.soundjay.com/buttons/beep-07.wav" preload="auto"></audio>
-
-
-    <script>
-        // --- Dark Mode Toggle ---
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const htmlElement = document.documentElement;
-
-        // Check for saved theme preference or system preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-        function setDarkMode(isDark) {
-            if (isDark) {
-                htmlElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                darkModeToggle.textContent = 'Light Mode';
-            } else {
-                htmlElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                darkModeToggle.textContent = 'Dark Mode';
-            }
-            // Re-render chart to update colors if chart is visible
-            if (document.getElementById('medical').classList.contains('dashboard-section')) {
-                loadProgressCharts();
-            }
-        }
-
-        // Initialize theme on load
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setDarkMode(savedTheme === 'dark');
-        } else {
-            setDarkMode(prefersDark.matches); // Use system preference
-        }
-
-        // Listen for system theme changes
-        prefersDark.addEventListener('change', (e) => {
-            if (!localStorage.getItem('theme')) { // Only react if no explicit preference is set
-                setDarkMode(e.matches);
-            }
-        });
-
-        darkModeToggle.addEventListener('click', () => {
-            setDarkMode(!htmlElement.classList.contains('dark'));
-        });
-
-        // --- Sidebar Toggle ---
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
-        const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
-        let isSidebarCollapsed = false;
-
-        function toggleSidebar() {
-            isSidebarCollapsed = !isSidebarCollapsed;
-            if (isSidebarCollapsed) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('lg:ml-20'); // Adjust margin for collapsed sidebar
-                sidebarToggleIcon.innerHTML = `<path fill-rule="evenodd" d="M4 6h16V4H4zm0 5h16v-2H4zm0 5h16v-2H4z" clip-rule="evenodd"></path>`; // Hamburger icon
-            } else {
-                sidebar.classList.remove('collapsed');
-                mainContent.classList.remove('lg:ml-20');
-                sidebarToggleIcon.innerHTML = `<path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>`; // Close icon
-            }
-        }
-
-
-        // --- Utility Functions ---
-        function showMessage(message, type = 'info') {
-            const messageModal = document.getElementById('messageModal');
-            const messageText = document.getElementById('messageText');
-            messageText.textContent = message;
-            if (type === 'error') {
-                messageText.style.color = 'red';
-            } else if (type === 'success') {
-                messageText.style.color = 'green';
-            } else {
-                messageText.style.color = 'black';
-            }
-            messageModal.style.display = 'flex';
-        }
-
-        function closeMessageModal() {
-            document.getElementById('messageModal').style.display = 'none';
-        }
-
-        async function fetchData(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Fetch error:', error);
-                showMessage(`Error fetching data: ${error.message}`, 'error');
-                return null;
-            }
-        }
-
-        async function postData(url, data) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Post error:', error);
-                showMessage(`Error adding data: ${error.message}`, 'error');
-                return null;
-            }
-        }
-
-        async function putData(url, data) {
-            try {
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('PUT error:', error);
-                showMessage(`Error updating data: ${error.message}`, 'error');
-                return null;
-            }
-        }
-
-        async function deleteData(url) {
-            try {
-                const response = await fetch(url, {
-                    method: 'DELETE'
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Delete error:', error);
-                showMessage(`Error deleting data: ${error.message}`, 'error');
-                return null;
-            }
-        }
-
-        // --- Navigation Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.dashboard-section');
-
-            function showSection(sectionId) {
-                sections.forEach(section => {
-                    section.classList.add('hidden');
-                });
-                document.getElementById(sectionId).classList.remove('hidden');
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-                document.querySelector(`.nav-link[data-section="${sectionId}"]`).classList.add('active');
-                
-                // Load data for the active section
-                loadSectionData(sectionId);
-            }
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const sectionId = e.currentTarget.dataset.section;
-                    history.pushState(null, '', `#${sectionId}`);
-                    showSection(sectionId);
-                });
-            });
-
-            // Handle initial load and hash changes
-            const initialHash = window.location.hash.substring(1) || 'home';
-            showSection(initialHash);
-
-            window.addEventListener('hashchange', () => {
-                const newHash = window.location.hash.substring(1) || 'home';
-                showSection(newHash);
-            });
-        });
-
-        // --- Data Loading Functions for Each Section ---
-        async function loadSectionData(sectionId) {
-            switch (sectionId) {
-                case 'home':
-                    await loadTodaySummary(); // New summary data for home
-                    break;
-                case 'wellness': // New wellness section
-                    await loadMoods();
-                    await loadSleepData();
-                    break;
-                case 'medical':
-                    await loadStudyPlans();
-                    await loadSubjects();
-                    await loadReadWatchQueue();
-                    await loadProgressCharts();
-                    break;
-                case 'fitness':
-                    await loadWorkouts();
-                    await loadBodyProgress();
-                    await loadNutrition();
-                    await loadShoppingList();
-                    break;
-                case 'basketball':
-                    await loadGameClips();
-                    await loadScoutingTemplates();
-                    await loadLearningResources();
-                    break;
-                case 'self-development':
-                    await loadCourses();
-                    await loadSkillGoals();
-                    break;
-                case 'streaks-checkpoints': // New streaks section
-                    await loadDailySchedule();
-                    await loadTimeBlocking();
-                    await loadConsistencyScore();
-                    await loadAchievements(); // Achievements also moved here for consistency
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        // --- Home Section Functions ---
-        async function loadTodaySummary() {
-            const summaryData = await fetchData('/api/today_summary');
-            const todayScheduleList = document.getElementById('today-schedule-list');
-            const summaryPomodoroHours = document.getElementById('summary-pomodoro-hours');
-            const summaryLecturesCompleted = document.getElementById('summary-lectures-completed');
-            const summaryWorkoutsLogged = document.getElementById('summary-workouts-logged');
-
-            todayScheduleList.innerHTML = '';
-            if (summaryData && summaryData.today_schedule && summaryData.today_schedule.length > 0) {
-                summaryData.today_schedule.forEach(item => {
-                    todayScheduleList.innerHTML += `<li>${item.time_slot ? item.time_slot + ': ' : ''}${item.activity || item.topic}</li>`;
-                });
-            } else {
-                todayScheduleList.innerHTML = '<li>No specific plans for today! 🎉</li>';
-            }
-
-            if (summaryData && summaryData.overall_progress) {
-                summaryPomodoroHours.textContent = summaryData.overall_progress.pomodoro_hours_this_week.toFixed(1);
-                summaryLecturesCompleted.textContent = summaryData.overall_progress.total_lectures_completed;
-                summaryWorkoutsLogged.textContent = summaryData.overall_progress.workouts_this_week;
-            } else {
-                summaryPomodoroHours.textContent = 'N/A';
-                summaryLecturesCompleted.textContent = 'N/A';
-                summaryWorkoutsLogged.textContent = 'N/A';
-            }
-        }
-
-
-        // --- Wellness & Mood Section Functions ---
-        async function loadMoods() {
-            const moods = await fetchData('/api/mood_tracker');
-            const moodListTbody = document.getElementById('mood-list');
-            moodListTbody.innerHTML = ''; // Clear existing content
-            if (moods && moods.length > 0) {
-                moods.forEach(mood => {
-                    moodListTbody.innerHTML += `
-                        <tr>
-                            <td>${mood.record_date}</td>
-                            <td>${mood.mood_level}</td>
-                            <td>${mood.notes || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                moodListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No mood entries yet.</td></tr>`;
-            }
-        }
-
-        async function addMood() {
-            const recordDate = document.getElementById('mood-date').value;
-            const moodLevel = document.getElementById('mood-level').value;
-            const notes = document.getElementById('mood-notes').value;
-
-            if (!recordDate || !moodLevel) {
-                showMessage('Please fill in date and mood level.', 'error');
-                return;
-            }
-
-            const data = { record_date: recordDate, mood_level: parseInt(moodLevel), notes: notes };
-            const result = await postData('/api/mood_tracker', data);
-            if (result) {
-                showMessage('Mood added successfully!', 'success');
-                document.getElementById('mood-date').value = '';
-                document.getElementById('mood-level').value = '';
-                document.getElementById('mood-notes').value = '';
-                await loadMoods();
-            }
-        }
-
-        async function loadSleepData() {
-            const sleepData = await fetchData('/api/sleep_tracker');
-            const sleepListTbody = document.getElementById('sleep-list');
-            sleepListTbody.innerHTML = '';
-            if (sleepData && sleepData.length > 0) {
-                sleepData.forEach(sleep => {
-                    sleepListTbody.innerHTML += `
-                        <tr>
-                            <td>${sleep.sleep_date}</td>
-                            <td>${sleep.hours_slept}</td>
-                            <td>${sleep.quality_score}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                sleepListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No sleep entries yet.</td></tr>`;
-            }
-        }
-
-        async function addSleep() {
-            const sleepDate = document.getElementById('sleep-date').value;
-            const hoursSlept = document.getElementById('hours-slept').value;
-            const qualityScore = document.getElementById('sleep-quality').value;
-
-            if (!sleepDate || !hoursSlept || !qualityScore) {
-                showMessage('Please fill in all sleep details.', 'error');
-                return;
-            }
-
-            const data = { sleep_date: sleepDate, hours_slept: parseFloat(hoursSlept), quality_score: parseInt(qualityScore) };
-            const result = await postData('/api/sleep_tracker', data);
-            if (result) {
-                showMessage('Sleep entry added successfully!', 'success');
-                document.getElementById('sleep-date').value = '';
-                document.getElementById('hours-slept').value = '';
-                document.getElementById('sleep-quality').value = '';
-                await loadSleepData();
-            }
-        }
-
-        // --- Pomodoro Timer Functions ---
-        let workMinutesInput = document.getElementById('work-minutes');
-        let breakMinutesInput = document.getElementById('break-minutes');
-        let timerDisplay = document.getElementById('timer-display');
-        let timerStatus = document.getElementById('timer-status');
-        let timerBeep = document.getElementById('timer-beep');
-
-        let intervalId;
-        let isPaused = true;
-        let isWorkPhase = true;
-        let currentTime = 25 * 60; // Default work time in seconds
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(currentTime / 60);
-            const seconds = currentTime % 60;
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        async function togglePhase() {
-            isWorkPhase = !isWorkPhase;
-            if (isWorkPhase) {
-                currentTime = parseInt(workMinutesInput.value) * 60;
-                timerStatus.textContent = "Work Time!";
-            } else {
-                // Before starting break, record the work session
-                const sessionDate = new Date().toISOString().split('T')[0];
-                const duration = parseInt(workMinutesInput.value);
-                await postData('/api/pomodoro_sessions', {
-                    session_date: sessionDate,
-                    duration_minutes: duration,
-                    is_work_session: true
-                });
-                await loadProgressCharts(); // Refresh chart after recording session
-                await loadTodaySummary(); // Update summary if pomodoro hours are included
-
-                currentTime = parseInt(breakMinutesInput.value) * 60;
-                timerStatus.textContent = "Break Time!";
-            }
-            timerBeep.play(); // Play sound when phase changes
-            updateTimerDisplay();
-        }
-
-        function startTimer() {
-            if (!isPaused) return; // Already running
-            isPaused = false;
-            intervalId = setInterval(() => {
-                if (currentTime <= 0) {
-                    clearInterval(intervalId);
-                    togglePhase();
-                    startTimer(); // Auto-start next phase
-                } else {
-                    currentTime--;
-                    updateTimerDisplay();
-                }
-            }, 1000);
-        }
-
-        function pauseTimer() {
-            clearInterval(intervalId);
-            isPaused = true;
-        }
-
-        function resetTimer() {
-            clearInterval(intervalId);
-            isPaused = true;
-            isWorkPhase = true;
-            currentTime = parseInt(workMinutesInput.value) * 60;
-            timerStatus.textContent = "Work Time!";
-            updateTimerDisplay();
-        }
-
-        // Initialize timer display on load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateTimerDisplay();
-            workMinutesInput.addEventListener('change', resetTimer);
-            breakMinutesInput.addEventListener('change', resetTimer);
-        });
-
-
-        // --- Medical Student Hub Functions ---
-        async function loadStudyPlans() {
-            const plans = await fetchData('/api/study_plans');
-            const studyPlanListTbody = document.getElementById('study-plan-list');
-            studyPlanListTbody.innerHTML = '';
-            if (plans && plans.length > 0) {
-                plans.forEach(plan => {
-                    const completedClass = plan.is_completed ? 'completed-item' : '';
-                    studyPlanListTbody.innerHTML += `
-                        <tr class="${completedClass}">
-                            <td>${plan.day_of_week}</td>
-                            <td>${plan.time_slot}</td>
-                            <td>${plan.topic}</td>
-                            <td>${plan.resource_type}</td>
-                            <td>
-                                <input type="checkbox" ${plan.is_completed ? 'checked' : ''} onchange="toggleStudyPlanCompletion(${plan.id}, this.checked)">
-                                ${plan.is_completed ? '✅' : '⏳'}
-                            </td>
-                            <td><button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-3 py-1 rounded-md">Delete</button></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                studyPlanListTbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 dark:text-gray-400 py-4">No study plans yet.</td></tr>`;
-            }
-        }
-
-        async function addStudyPlan() {
-            const day = document.getElementById('study-day').value;
-            const time = document.getElementById('study-time').value;
-            const topic = document.getElementById('study-topic').value;
-            const resource = document.getElementById('study-resource').value;
-
-            if (!day || !time || !topic || !resource) {
-                showMessage('Please fill in all study plan fields.', 'error');
-                return;
-            }
-
-            const data = { day_of_week: day, time_slot: time, topic: topic, resource_type: resource, is_completed: false };
-            const result = await postData('/api/study_plans', data);
-            if (result) {
-                showMessage('Study plan added successfully!', 'success');
-                document.getElementById('study-day').value = '';
-                document.getElementById('study-time').value = '';
-                document.getElementById('study-topic').value = '';
-                document.getElementById('study-resource').value = '';
-                await loadStudyPlans();
-                await loadTodaySummary(); // Update summary if new plans affect it
-            }
-        }
-
-        async function toggleStudyPlanCompletion(id, isCompleted) {
-            const result = await putData(`/api/study_plans/${id}`, { is_completed: isCompleted });
-            if (result) {
-                showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
-                await loadStudyPlans();
-                await loadTodaySummary(); // Update summary if completion affects it
-            }
-        }
-
-        async function deleteStudyPlan(id) {
-            const result = await deleteData(`/api/study_plans/${id}`);
-            if (result) {
-                showMessage('Study plan deleted successfully!', 'success');
-                await loadStudyPlans();
-                await loadTodaySummary(); // Update summary if deletion affects it
-            }
-        }
-
-        async function loadSubjects() {
-            const subjects = await fetchData('/api/subjects');
-            const subjectsListTbody = document.getElementById('subjects-list');
-            subjectsListTbody.innerHTML = '';
-            if (subjects && subjects.length > 0) {
-                subjects.forEach(subject => {
-                    subjectsListTbody.innerHTML += `
-                        <tr>
-                            <td>${subject.subject_name}</td>
-                            <td>${subject.completed_lectures || 0}</td>
-                            <td>${subject.total_lectures || 'N/A'}</td>
-                            <td>${subject.description || 'N/A'}</td>
-                            <td>
-                                <button onclick="completeLecture(${subject.id})" class="add-btn text-white text-xs px-3 py-1 rounded-md mr-1">Done Lecture</button>
-                                <button onclick="addLecture(${subject.id})" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-md">New Lecture</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                subjectsListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No subjects added yet.</td></tr>`;
-            }
-        }
-
-        async function addSubject() {
-            const name = document.getElementById('subject-name').value;
-            const totalLectures = document.getElementById('subject-total-lectures').value;
-            const description = document.getElementById('subject-description').value;
-
-            if (!name) {
-                showMessage('Please enter a subject name.', 'error');
-                return;
-            }
-
-            const data = {
-                subject_name: name,
-                total_lectures: totalLectures ? parseInt(totalLectures) : 0,
-                completed_lectures: 0,
-                description: description
-            };
-            const result = await postData('/api/subjects', data);
-            if (result) {
-                showMessage('Subject added successfully!', 'success');
-                document.getElementById('subject-name').value = '';
-                document.getElementById('subject-total-lectures').value = '';
-                document.getElementById('subject-description').value = '';
-                await loadSubjects();
-                await loadProgressCharts(); // Update chart on new subject (though counts are 0 initially)
-                await loadTodaySummary(); // Update summary
-            }
-        }
-
-        async function completeLecture(id) {
-            const result = await putData(`/api/subjects/${id}/complete_lecture`);
-            if (result) {
-                showMessage('Lecture marked as complete!', 'success');
-                await loadSubjects();
-                await loadProgressCharts();
-                await loadTodaySummary(); // Update summary
-                if (result.achievement_unlocked) {
-                    showMessage(`Achievement Unlocked: ${result.achievement_description}!`, 'success');
-                    await loadAchievements(); // Refresh achievements if a new one was added
-                }
-            }
-        }
-
-        async function addLecture(id) {
-            const result = await putData(`/api/subjects/${id}/add_lecture`);
-            if (result) {
-                showMessage('New lecture added to subject!', 'success');
-                await loadSubjects();
-                await loadProgressCharts();
-                await loadTodaySummary(); // Update summary
-            }
-        }
-
-        async function loadReadWatchQueue() {
-            const queueItems = await fetchData('/api/read_watch_queue');
-            const readWatchListTbody = document.getElementById('read-watch-list');
-            readWatchListTbody.innerHTML = '';
-            if (queueItems && queueItems.length > 0) {
-                queueItems.forEach(item => {
-                    const completedClass = item.is_completed ? 'completed-item' : '';
-                    readWatchListTbody.innerHTML += `
-                        <tr class="${completedClass}">
-                            <td>${item.title}</td>
-                            <td>${item.type}</td>
-                            <td><a href="${item.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></td>
-                            <td>${item.is_completed ? '✅ Completed' : '⏳ Pending'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                readWatchListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No items in queue yet.</td></tr>`;
-            }
-        }
-
-        async function addReadWatchQueue() {
-            const title = document.getElementById('queue-title').value;
-            const type = document.getElementById('queue-type').value;
-            const url = document.getElementById('queue-url').value;
-            const isCompleted = document.getElementById('queue-completed').checked;
-
-            if (!title || !type || !url) {
-                showMessage('Please fill in all queue item fields.', 'error');
-                return;
-            }
-
-            const data = { title: title, type: type, url: url, is_completed: isCompleted };
-            const result = await postData('/api/read_watch_queue', data);
-            if (result) {
-                showMessage('Item added to queue successfully!', 'success');
-                document.getElementById('queue-title').value = '';
-                document.getElementById('queue-type').value = '';
-                document.getElementById('queue-url').value = '';
-                document.getElementById('queue-completed').checked = false;
-                await loadReadWatchQueue();
-            }
-        }
-
-        let studyProgressChartInstance = null;
-        async function loadProgressCharts() {
-            // Fetch aggregated data for the chart from a new API endpoint
-            const chartData = await fetchData('/api/dashboard_summary_data');
-            const ctx = document.getElementById('studyProgressChart').getContext('2d');
-            const chartContainer = document.querySelector('.chart-container');
-
-            // Clear any existing "no data" message
-            const existingNoDataMessage = chartContainer.querySelector('.no-chart-data-message');
-            if (existingNoDataMessage) {
-                existingNoDataMessage.remove();
-            }
-
-            if (studyProgressChartInstance) {
-                studyProgressChartInstance.destroy();
-            }
-
-            if (chartData && chartData.dates && chartData.dates.length > 0) {
-                const labels = chartData.dates; // Assuming dates are provided by the backend
-                const pomodoroHours = chartData.pomodoro_hours;
-                const lecturesCompleted = chartData.lectures_completed;
-                const manualStudyHours = chartData.manual_study_hours; // From progress_charts table
-
-                studyProgressChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Pomodoro Hours',
-                                data: pomodoroHours,
-                                borderColor: 'rgb(255, 99, 132)', // Reddish
-                                tension: 0.1,
-                                fill: false,
-                                pointBackgroundColor: 'rgb(255, 99, 132)',
-                                pointBorderColor: '#fff',
-                            },
-                            {
-                                label: 'Lectures Completed',
-                                data: lecturesCompleted,
-                                borderColor: 'rgb(54, 162, 235)', // Blueish
-                                tension: 0.1,
-                                fill: false,
-                                pointBackgroundColor: 'rgb(54, 162, 235)',
-                                pointBorderColor: '#fff',
-                            },
-                            {
-                                label: 'Manual Study Hours',
-                                data: manualStudyHours,
-                                borderColor: 'rgb(75, 192, 192)', // Greenish
-                                tension: 0.1,
-                                fill: false,
-                                pointBackgroundColor: 'rgb(75, 192, 192)',
-                                pointBorderColor: '#fff',
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false, // Keep this false as height is set by container
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: htmlElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                                },
-                                ticks: {
-                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: htmlElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                                },
-                                ticks: {
-                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: htmlElement.classList.contains('dark') ? '#e2e8f0' : '#333'
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                const noDataMessage = document.createElement('p');
-                noDataMessage.textContent = 'No chart data available yet.';
-                noDataMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4 no-chart-data-message';
-                chartContainer.appendChild(noDataMessage); // Append to the container
-            }
-        }
-
-        async function addProgressChartData() {
-            const weekStartDate = document.getElementById('chart-week-start-date').value;
-            const hoursStudied = document.getElementById('chart-hours-studied').value;
-            const topicsCovered = document.getElementById('chart-topics-covered').value;
-
-            if (!weekStartDate || !hoursStudied || !topicsCovered) {
-                showMessage('Please fill in all progress chart fields.', 'error');
-                return;
-            }
-
-            const data = { week_start_date: weekStartDate, hours_studied: parseFloat(hoursStudied), topics_covered: topicsCovered };
-            const result = await postData('/api/progress_charts', data);
-            if (result) {
-                showMessage('Progress data added successfully!', 'success');
-                document.getElementById('chart-week-start-date').value = '';
-                document.getElementById('chart-hours-studied').value = '';
-                document.getElementById('chart-topics-covered').value = '';
-                await loadProgressCharts();
-            }
-        }
-
-        // --- Fitness & Gym Tracker Functions ---
-        async function loadWorkouts() {
-            const workouts = await fetchData('/api/workouts');
-            const workoutListTbody = document.getElementById('workout-list');
-            workoutListTbody.innerHTML = '';
-            if (workouts && workouts.length > 0) {
-                workouts.forEach(workout => {
-                    workoutListTbody.innerHTML += `
-                        <tr>
-                            <td>${workout.workout_date}</td>
-                            <td>${workout.split_type}</td>
-                            <td>${workout.exercise_name}</td>
-                            <td>${workout.sets}</td>
-                            <td>${workout.reps}</td>
-                            <td>${workout.weight}</td>
-                            <td>${workout.muscle_soreness || 'N/A'}</td>
-                            <td>${workout.notes || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                workoutListTbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400 py-4">No workouts recorded yet.</td></tr>`;
-            }
-        }
-
-        async function addWorkout() {
-            const workoutDate = document.getElementById('workout-date').value;
-            const splitType = document.getElementById('workout-split').value;
-            const exerciseName = document.getElementById('exercise-name').value;
-            const sets = document.getElementById('exercise-sets').value;
-            const reps = document.getElementById('exercise-reps').value;
-            const weight = document.getElementById('exercise-weight').value;
-            const muscleSoreness = document.getElementById('muscle-soreness').value;
-            const notes = document.getElementById('workout-notes').value;
-
-            if (!workoutDate || !splitType || !exerciseName || !sets || !reps || !weight) {
-                showMessage('Please fill in all required workout fields.', 'error');
-                return;
-            }
-
-            const data = {
-                workout_date: workoutDate,
-                split_type: splitType,
-                exercise_name: exerciseName,
-                sets: parseInt(sets),
-                reps: parseInt(reps),
-                weight: parseFloat(weight),
-                muscle_soreness: muscleSoreness ? parseInt(muscleSoreness) : null,
-                notes: notes
-            };
-            const result = await postData('/api/workouts', data);
-            if (result) {
-                showMessage('Workout added successfully!', 'success');
-                document.getElementById('workout-date').value = '';
-                document.getElementById('workout-split').value = '';
-                document.getElementById('exercise-name').value = '';
-                document.getElementById('exercise-sets').value = '';
-                document.getElementById('exercise-reps').value = '';
-                document.getElementById('exercise-weight').value = '';
-                document.getElementById('muscle-soreness').value = '';
-                document.getElementById('workout-notes').value = '';
-                await loadWorkouts();
-                await loadTodaySummary(); // Update summary
-            }
-        }
-
-        async function loadBodyProgress() {
-            const progress = await fetchData('/api/body_progress');
-            const bodyProgressListTbody = document.getElementById('body-progress-list');
-            bodyProgressListTbody.innerHTML = '';
-            if (progress && progress.length > 0) {
-                progress.forEach(item => {
-                    const measurementsText = item.measurements ? JSON.stringify(item.measurements) : 'N/A';
-                    bodyProgressListTbody.innerHTML += `
-                        <tr>
-                            <td>${item.record_date}</td>
-                            <td>${item.weight}</td>
-                            <td>${measurementsText}</td>
-                            <td>${item.goal || 'N/A'}</td>
-                            <td>${item.photo_url ? `<a href="${item.photo_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">View</a>` : 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                bodyProgressListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No body progress recorded yet.</td></tr>`;
-            }
-        }
-
-        async function addBodyProgress() {
-            const recordDate = document.getElementById('body-record-date').value;
-            const weight = document.getElementById('body-weight').value;
-            const photoUrl = document.getElementById('body-photo-url').value;
-            const measurements = document.getElementById('body-measurements').value;
-            const goal = document.getElementById('body-goal').value;
-
-            if (!recordDate || !weight) {
-                showMessage('Please fill in record date and weight.', 'error');
-                return;
-            }
-
-            let parsedMeasurements = null;
-            if (measurements) {
-                try {
-                    parsedMeasurements = JSON.parse(measurements);
-                } catch (e) {
-                    showMessage('Invalid JSON for measurements.', 'error');
-                    return;
-                }
-            }
-
-            const data = {
-                record_date: recordDate,
-                weight: parseFloat(weight),
-                photo_url: photoUrl,
-                measurements: parsedMeasurements, // Send as object, Flask will stringify
-                goal: goal
-            };
-            const result = await postData('/api/body_progress', data);
-            if (result) {
-                showMessage('Body progress added successfully!', 'success');
-                document.getElementById('body-record-date').value = '';
-                document.getElementById('body-weight').value = '';
-                document.getElementById('body-photo-url').value = '';
-                document.getElementById('body-measurements').value = '';
-                document.getElementById('body-goal').value = '';
-                await loadBodyProgress();
-            }
-        }
-
-        async function loadNutrition() {
-            const nutritionData = await fetchData('/api/nutrition');
-            const nutritionListTbody = document.getElementById('nutrition-list');
-            nutritionListTbody.innerHTML = '';
-            if (nutritionData && nutritionData.length > 0) {
-                nutritionData.forEach(meal => {
-                    nutritionListTbody.innerHTML += `
-                        <tr>
-                            <td>${meal.meal_date}</td>
-                            <td>${meal.meal_type}</td>
-                            <td>${meal.meal_description}</td>
-                            <td>${meal.calories}</td>
-                            <td>${meal.protein_intake}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                nutritionListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No nutrition entries yet.</td></tr>`;
-            }
-        }
-
-        async function addNutrition() {
-            const mealDate = document.getElementById('meal-date').value;
-            const mealType = document.getElementById('meal-type').value;
-            const mealDescription = document.getElementById('meal-description').value;
-            const calories = document.getElementById('meal-calories').value;
-            const protein = document.getElementById('meal-protein').value;
-
-            if (!mealDate || !mealType || !mealDescription || !calories || !protein) {
-                showMessage('Please fill in all nutrition fields.', 'error');
-                return;
-            }
-
-            const data = {
-                meal_date: mealDate,
-                meal_type: mealType,
-                meal_description: mealDescription,
-                calories: parseInt(calories),
-                protein_intake: parseFloat(protein)
-            };
-            const result = await postData('/api/nutrition', data);
-            if (result) {
-                showMessage('Nutrition entry added successfully!', 'success');
-                document.getElementById('meal-date').value = '';
-                document.getElementById('meal-type').value = '';
-                document.getElementById('meal-description').value = '';
-                document.getElementById('meal-calories').value = '';
-                document.getElementById('meal-protein').value = '';
-                await loadNutrition();
-            }
-        }
-
-        async function loadShoppingList() {
-            const shoppingItems = await fetchData('/api/shopping_list');
-            const shoppingListItemsTbody = document.getElementById('shopping-list-items');
-            shoppingListItemsTbody.innerHTML = '';
-            if (shoppingItems && shoppingItems.length > 0) {
-                shoppingItems.forEach(item => {
-                    const completedClass = item.is_purchased ? 'completed-item' : '';
-                    shoppingListItemsTbody.innerHTML += `
-                        <tr class="${completedClass}">
-                            <td>${item.item_name}</td>
-                            <td>${item.quantity || 'N/A'}</td>
-                            <td>${item.is_purchased ? '✅ Purchased' : '🛒 Pending'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                shoppingListItemsTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No shopping items yet.</td></tr>`;
-            }
-        }
-
-        async function addShoppingItem() {
-            const itemName = document.getElementById('shopping-item-name').value;
-            const quantity = document.getElementById('shopping-item-quantity').value;
-            const isPurchased = document.getElementById('shopping-item-purchased').checked;
-
-            if (!itemName) {
-                showMessage('Please enter an item name.', 'error');
-                return;
-            }
-
-            const data = { item_name: itemName, quantity: quantity, is_purchased: isPurchased };
-            const result = await postData('/api/shopping_list', data);
-            if (result) {
-                showMessage('Item added to shopping list successfully!', 'success');
-                document.getElementById('shopping-item-name').value = '';
-                document.getElementById('shopping-item-quantity').value = '';
-                document.getElementById('shopping-item-purchased').checked = false;
-                await loadShoppingList();
-            }
-        }
-
-        // --- Basketball & Analysis Lab Functions ---
-        async function loadGameClips() {
-            const clips = await fetchData('/api/game_clips');
-            const gameClipsListTbody = document.getElementById('game-clips-list');
-            gameClipsListTbody.innerHTML = '';
-            if (clips && clips.length > 0) {
-                clips.forEach(clip => {
-                    const annotationsText = clip.annotations ? JSON.stringify(clip.annotations) : 'N/A';
-                    gameClipsListTbody.innerHTML += `
-                        <tr>
-                            <td>${clip.clip_title}</td>
-                            <td>${clip.upload_date}</td>
-                            <td>${annotationsText}</td>
-                            <td><a href="${clip.video_url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Watch Clip</a></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                gameClipsListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No game clips added yet.</td></tr>`;
-            }
-        }
-
-        async function addGameClip() {
-            const clipTitle = document.getElementById('clip-title').value;
-            const videoUrl = document.getElementById('clip-video-url').value;
-            const annotations = document.getElementById('clip-annotations').value;
-
-            if (!clipTitle || !videoUrl) {
-                showMessage('Please fill in clip title and video URL.', 'error');
-                return;
-            }
-
-            let parsedAnnotations = null;
-            if (annotations) {
-                try {
-                    parsedAnnotations = JSON.parse(annotations);
-                } catch (e) {
-                    showMessage('Invalid JSON for annotations.', 'error');
-                    return;
-                }
-            }
-
-            const data = { clip_title: clipTitle, video_url: videoUrl, annotations: parsedAnnotations };
-            const result = await postData('/api/game_clips', data);
-            if (result) {
-                showMessage('Game clip added successfully!', 'success');
-                document.getElementById('clip-title').value = '';
-                document.getElementById('clip-video-url').value = '';
-                document.getElementById('clip-annotations').value = '';
-                await loadGameClips();
-            }
-        }
-
-        async function loadScoutingTemplates() {
-            const templates = await fetchData('/api/scouting_templates');
-            const scoutingTemplatesListTbody = document.getElementById('scouting-templates-list');
-            scoutingTemplatesListTbody.innerHTML = '';
-            if (templates && templates.length > 0) {
-                templates.forEach(template => {
-                    scoutingTemplatesListTbody.innerHTML += `
-                        <tr>
-                            <td>${template.template_name}</td>
-                            <td>${template.opponent_name || 'N/A'}</td>
-                            <td>${template.report_content || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                scoutingTemplatesListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No scouting templates added yet.</td></tr>`;
-            }
-        }
-
-        async function addScoutingTemplate() {
-            const templateName = document.getElementById('template-name').value;
-            const opponentName = document.getElementById('opponent-name').value;
-            const reportContent = document.getElementById('report-content').value;
-
-            if (!templateName) {
-                showMessage('Please enter a template name.', 'error');
-                return;
-            }
-
-            const data = { template_name: templateName, opponent_name: opponentName, report_content: reportContent };
-            const result = await postData('/api/scouting_templates', data);
-            if (result) {
-                showMessage('Scouting template added successfully!', 'success');
-                document.getElementById('template-name').value = '';
-                document.getElementById('opponent-name').value = '';
-                document.getElementById('report-content').value = '';
-                await loadScoutingTemplates();
-            }
-        }
-
-        async function loadLearningResources() {
-            const resources = await fetchData('/api/learning_resources');
-            const learningResourcesListTbody = document.getElementById('learning-resources-list');
-            learningResourcesListTbody.innerHTML = '';
-            if (resources && resources.length > 0) {
-                resources.forEach(resource => {
-                    learningResourcesListTbody.innerHTML += `
-                        <tr>
-                            <td>${resource.resource_title}</td>
-                            <td>${resource.platform || 'N/A'}</td>
-                            <td><a href="${resource.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                learningResourcesListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No learning resources added yet.</td></tr>`;
-            }
-        }
-
-        async function addLearningResource() {
-            const resourceTitle = document.getElementById('resource-title').value;
-            const platform = document.getElementById('resource-platform').value;
-            const url = document.getElementById('resource-url').value;
-
-            if (!resourceTitle || !url) {
-                showMessage('Please fill in resource title and URL.', 'error');
-                return;
-            }
-
-            const data = { resource_title: resourceTitle, platform: platform, url: url };
-            const result = await postData('/api/learning_resources', data);
-            if (result) {
-                showMessage('Learning resource added successfully!', 'success');
-                document.getElementById('resource-title').value = '';
-                document.getElementById('resource-platform').value = '';
-                document.getElementById('resource-url').value = '';
-                await loadLearningResources();
-            }
-        }
-
-        // --- Self-Development & Courses Functions ---
-        async function loadCourses() {
-            const courses = await fetchData('/api/courses');
-            const coursesListTbody = document.getElementById('courses-list');
-            coursesListTbody.innerHTML = '';
-            if (courses && courses.length > 0) {
-                courses.forEach(course => {
-                    coursesListTbody.innerHTML += `
-                        <tr>
-                            <td>${course.course_name}</td>
-                            <td>${course.status}</td>
-                            <td>${course.start_date || 'N/A'}</td>
-                            <td>${course.completion_date || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                coursesListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No courses added yet.</td></tr>`;
-            }
-        }
-
-        async function addCourse() {
-            const courseName = document.getElementById('course-name').value;
-            const status = document.getElementById('course-status').value;
-            const startDate = document.getElementById('course-start-date').value;
-            const completionDate = document.getElementById('course-completion-date').value;
-
-            if (!courseName || !status) {
-                showMessage('Please fill in course name and status.', 'error');
-                return;
-            }
-
-            const data = {
-                course_name: courseName,
-                status: status,
-                start_date: startDate || null,
-                completion_date: completionDate || null
-            };
-            const result = await postData('/api/courses', data);
-            if (result) {
-                showMessage('Course added successfully!', 'success');
-                document.getElementById('course-name').value = '';
-                document.getElementById('course-status').value = '';
-                document.getElementById('course-start-date').value = '';
-                document.getElementById('course-completion-date').value = '';
-                await loadCourses();
-            }
-        }
-
-        async function loadSkillGoals() {
-            const goals = await fetchData('/api/skill_goals');
-            const skillGoalsListTbody = document.getElementById('skill-goals-list');
-            skillGoalsListTbody.innerHTML = '';
-            if (goals && goals.length > 0) {
-                goals.forEach(goal => {
-                    const achievedClass = goal.is_achieved ? 'completed-item' : '';
-                    skillGoalsListTbody.innerHTML += `
-                        <tr class="${achievedClass}">
-                            <td>${goal.skill_name}</td>
-                            <td>${goal.target_date || 'N/A'}</td>
-                            <td>${goal.is_achieved ? '🏆 Achieved' : '🎯 Pending'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                skillGoalsListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No skill goals added yet.</td></tr>`;
-            }
-        }
-
-        async function addSkillGoal() {
-            const skillName = document.getElementById('skill-name').value;
-            const targetDate = document.getElementById('skill-target-date').value;
-            const isAchieved = document.getElementById('skill-achieved').checked;
-
-            if (!skillName) {
-                showMessage('Please enter a skill name.', 'error');
-                return;
-            }
-
-            const data = { skill_name: skillName, target_date: targetDate || null, is_achieved: isAchieved };
-            const result = await postData('/api/skill_goals', data);
-            if (result) {
-                showMessage('Skill goal added successfully!', 'success');
-                document.getElementById('skill-name').value = '';
-                document.getElementById('skill-target-date').value = '';
-                document.getElementById('skill-achieved').checked = false;
-                await loadSkillGoals();
-            }
-        }
-
-        // --- Streaks & Checkpoints Section Functions ---
-        async function loadAchievements() {
-            const achievements = await fetchData('/api/achievements');
-            const achievementsListTbody = document.getElementById('achievements-list');
-            achievementsListTbody.innerHTML = '';
-            if (achievements && achievements.length > 0) {
-                achievements.forEach(achievement => {
-                    achievementsListTbody.innerHTML += `
-                        <tr>
-                            <td>${achievement.achievement_date}</td>
-                            <td>${achievement.description}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                achievementsListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No achievements yet.</td></tr>`;
-            }
-        }
-        async function addAchievement() {
-            const achievementDate = document.getElementById('achievement-date').value;
-            const description = document.getElementById('achievement-description').value;
-
-            if (!achievementDate || !description) {
-                showMessage('Please fill in achievement date and description.', 'error');
-                return;
-            }
-
-            const data = { achievement_date: achievementDate, description: description };
-            const result = await postData('/api/achievements', data);
-            if (result) {
-                showMessage('Achievement added successfully!', 'success');
-                document.getElementById('achievement-date').value = '';
-                document.getElementById('achievement-description').value = '';
-                await loadAchievements();
-            }
-        }
-
-        async function loadDailySchedule() {
-            const schedule = await fetchData('/api/daily_schedule');
-            const dailyScheduleListTbody = document.getElementById('daily-schedule-list');
-            dailyScheduleListTbody.innerHTML = '';
-            if (schedule && schedule.length > 0) {
-                schedule.forEach(entry => {
-                    const completedClass = entry.morning_routine_completed ? 'completed-item' : '';
-                    dailyScheduleListTbody.innerHTML += `
-                        <tr class="${completedClass}">
-                            <td>${entry.schedule_date}</td>
-                            <td>${entry.morning_routine_completed ? '✅ Completed' : '⏰ Pending'}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                dailyScheduleListTbody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No daily schedule entries yet.</td></tr>`;
-            }
-        }
-
-        async function addDailySchedule() {
-            const scheduleDate = document.getElementById('schedule-date').value;
-            const morningRoutineCompleted = document.getElementById('morning-routine-completed').checked;
-
-            if (!scheduleDate) {
-                showMessage('Please select a schedule date.', 'error');
-                return;
-            }
-
-            const data = { schedule_date: scheduleDate, morning_routine_completed: morningRoutineCompleted };
-            const result = await postData('/api/daily_schedule', data);
-            if (result) {
-                showMessage('Daily schedule entry added successfully!', 'success');
-                document.getElementById('schedule-date').value = '';
-                document.getElementById('morning-routine-completed').checked = false;
-                await loadDailySchedule();
-            }
-        }
-
-        async function loadTimeBlocking() {
-            const blocks = await fetchData('/api/time_blocking');
-            const timeBlockingListTbody = document.getElementById('time-blocking-list');
-            timeBlockingListTbody.innerHTML = '';
-            if (blocks && blocks.length > 0) {
-                blocks.forEach(block => {
-                    timeBlockingListTbody.innerHTML += `
-                        <tr>
-                            <td>${block.schedule_date}</td>
-                            <td>${block.time_slot}</td>
-                            <td>${block.activity}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                timeBlockingListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No time blocks added yet.</td></tr>`;
-            }
-        }
-
-        async function addTimeBlock() {
-            const scheduleDate = document.getElementById('time-block-date').value;
-            const timeSlot = document.getElementById('time-block-slot').value;
-            const activity = document.getElementById('time-block-activity').value;
-
-            if (!scheduleDate || !timeSlot || !activity) {
-                showMessage('Please fill in all time block fields.', 'error');
-                return;
-            }
-
-            const data = { schedule_date: scheduleDate, time_slot: timeSlot, activity: activity };
-            const result = await postData('/api/time_blocking', data);
-            if (result) {
-                showMessage('Time block added successfully!', 'success');
-                document.getElementById('time-block-date').value = '';
-                document.getElementById('time-block-slot').value = '';
-                document.getElementById('time-block-activity').value = '';
-                await loadTimeBlocking();
-            }
-        }
-
-        async function loadConsistencyScore() {
-            const scores = await fetchData('/api/consistency_score');
-            const consistencyScoreListTbody = document.getElementById('consistency-score-list');
-            consistencyScoreListTbody.innerHTML = '';
-            if (scores && scores.length > 0) {
-                scores.forEach(score => {
-                    consistencyScoreListTbody.innerHTML += `
-                        <tr>
-                            <td>${score.record_date}</td>
-                            <td>${score.sleep_score}</td>
-                            <td>${score.gym_score}</td>
-                            <td>${score.study_score}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                consistencyScoreListTbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-4">No consistency scores yet.</td></tr>`;
-            }
-        }
-
-        async function addConsistencyScore() {
-            const recordDate = document.getElementById('consistency-date').value;
-            const sleepScore = document.getElementById('consistency-sleep').value;
-            const gymScore = document.getElementById('consistency-gym').value;
-            const studyScore = document.getElementById('consistency-study').value;
-
-            if (!recordDate || !sleepScore || !gymScore || !studyScore) {
-                showMessage('Please fill in all consistency score fields.', 'error');
-                return;
-            }
-
-            const data = {
-                record_date: recordDate,
-                sleep_score: parseInt(sleepScore),
-                gym_score: parseInt(gymScore),
-                study_score: parseInt(studyScore)
-            };
-            const result = await postData('/api/consistency_score', data);
-            if (result) {
-                showMessage('Consistency score added successfully!', 'success');
-                document.getElementById('consistency-date').value = '';
-                document.getElementById('consistency-sleep').value = '';
-                document.getElementById('consistency-gym').value = '';
-                document.getElementById('consistency-study').value = '';
-                await loadConsistencyScore();
-            }
-        }
-
-    </script>
-</body>
-</html>
+import os
+import json
+from flask import Flask, render_template, request, jsonify
+import mysql.connector
+from mysql.connector import Error
+from datetime import datetime, date, timedelta
+
+app = Flask(__name__)
+
+# --- MySQL Database Configuration ---
+# Your actual database details are now directly in the file.
+# Remember that for production deployments, using environment variables
+# (as in the previous version) is generally more secure.
+DB_CONFIG = {
+    'host': 'mysql6013.site4now.net',
+    'port': 3306, # Assuming default MySQL port as not explicitly provided in new image
+    'database': 'db_abc901_omarelh',
+    'user': 'abc901_omarelh',
+    'password': 'omarreda123'
+}
+
+# --- Database Connection Helper ---
+def create_db_connection():
+    """Establishes a connection to the MySQL database."""
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        if connection.is_connected():
+            print(f"DEBUG: Successfully connected to MySQL database: {DB_CONFIG['database']}")
+        return connection
+    except Error as e:
+        print(f"ERROR: Database connection failed in create_db_connection: {e}")
+        return None # Explicitly return None on failure
+
+# Global flag to track if database initialization was successful
+db_initialized_successfully = False
+
+def initialize_database():
+    global db_initialized_successfully
+    connection = None
+    try:
+        connection = create_db_connection()
+        if connection:
+            cursor = connection.cursor()
+            # Users table (basic for now, can be expanded with hashing for passwords)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(255) NOT NULL UNIQUE,
+                    password VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) UNIQUE
+                )
+            """)
+            # Medical Student Hub
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS study_plans (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    day_of_week VARCHAR(10),
+                    time_slot VARCHAR(50),
+                    topic VARCHAR(255),
+                    resource_type VARCHAR(50),
+                    is_completed BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS subjects (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    subject_name VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    total_lectures INT DEFAULT 0,
+                    completed_lectures INT DEFAULT 0,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS read_watch_queue (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    title VARCHAR(255) NOT NULL,
+                    type VARCHAR(50),
+                    url TEXT,
+                    is_completed BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS progress_charts (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    week_start_date DATE,
+                    hours_studied DECIMAL(5,2),
+                    topics_covered TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # Fitness & Gym Tracker
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS workouts (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    workout_date DATE NOT NULL,
+                    split_type VARCHAR(50),
+                    exercise_name VARCHAR(255),
+                    sets INT,
+                    reps INT,
+                    weight DECIMAL(7,2),
+                    muscle_soreness INT,
+                    notes TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS body_progress (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    record_date DATE NOT NULL,
+                    weight DECIMAL(5,2),
+                    photo_url TEXT,
+                    measurements TEXT, -- JSON string
+                    goal TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS nutrition (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    meal_date DATE NOT NULL,
+                    meal_type VARCHAR(50),
+                    meal_description TEXT,
+                    calories INT,
+                    protein_intake DECIMAL(7,2),
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS shopping_list (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    item_name VARCHAR(255) NOT NULL,
+                    quantity VARCHAR(50),
+                    is_purchased BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # Basketball & Analysis Lab
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS game_clips (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    clip_title VARCHAR(255) NOT NULL,
+                    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    video_url TEXT,
+                    annotations TEXT, -- JSON string
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS scouting_templates (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    template_name VARCHAR(255) NOT NULL,
+                    opponent_name VARCHAR(255),
+                    report_content TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS learning_resources (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    resource_title VARCHAR(255) NOT NULL,
+                    platform VARCHAR(100),
+                    url TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # Self-Development & Courses
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS courses (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    course_name VARCHAR(255) NOT NULL,
+                    status VARCHAR(50),
+                    start_date DATE,
+                    completion_date DATE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS skill_goals (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    skill_name VARCHAR(255) NOT NULL,
+                    target_date DATE,
+                    is_achieved BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # Daily Schedule & Routine
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS daily_schedule (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    schedule_date DATE NOT NULL,
+                    morning_routine_completed BOOLEAN DEFAULT FALSE,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS time_blocking (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    schedule_date DATE NOT NULL,
+                    time_slot VARCHAR(50),
+                    activity VARCHAR(255),
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS consistency_score (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    record_date DATE NOT NULL,
+                    sleep_score INT,
+                    gym_score INT,
+                    study_score INT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # Dashboard Home Page
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS mood_tracker (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    record_date DATE NOT NULL,
+                    mood_level INT,
+                    notes TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS sleep_tracker (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    sleep_date DATE NOT NULL,
+                    hours_slept DECIMAL(4,2),
+                    quality_score INT,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS achievements (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    achievement_date DATE NOT NULL,
+                    description TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # New table for Pomodoro sessions
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pomodoro_sessions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    session_date DATE NOT NULL,
+                    duration_minutes INT NOT NULL,
+                    is_work_session BOOLEAN NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """)
+            # New table for Lecture Completion Log
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS lecture_completion_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    subject_id INT,
+                    completion_date DATE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+                )
+            """)
+
+            connection.commit()
+            print("DEBUG: All tables checked/created successfully.")
+
+            # Add Omar Elhaq as a default user if not exists
+            cursor.execute("SELECT id FROM users WHERE username = 'Omar Elhaq'")
+            user_exists = cursor.fetchone()
+            if not user_exists:
+                cursor.execute("INSERT INTO users (username, password, email) VALUES (%s, %s, %s)",
+                               ("Omar Elhaq", "password123", "omar.elhaq@example.com")) # Use a strong password in production
+                connection.commit()
+                print("DEBUG: Default user 'Omar Elhaq' added.")
+            else:
+                print("DEBUG: Default user 'Omar Elhaq' already exists.")
+            db_initialized_successfully = True
+        else:
+            print("ERROR: Could not get database connection for initialization.")
+            db_initialized_successfully = False
+    except Error as e:
+        print(f"CRITICAL ERROR: Database initialization failed: {e}")
+        db_initialized_successfully = False
+        if connection:
+            connection.rollback() # Rollback any partial changes
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+# Call database initialization on startup
+# This will run when the serverless function is "warmed up" or first invoked.
+initialize_database()
+
+# --- Helper to get Omar's user ID (for demonstration) ---
+def get_omar_user_id():
+    # Only try to get user ID if DB was initialized
+    if not db_initialized_successfully:
+        print("WARNING: Database not initialized, cannot get user ID.")
+        return None
+
+    connection = create_db_connection()
+    user_id = None
+    if connection:
+        cursor = connection.cursor(dictionary=True)
+        try:
+            cursor.execute("SELECT id FROM users WHERE username = 'Omar Elhaq'")
+            user = cursor.fetchone()
+            if user:
+                user_id = user['id']
+        except Error as e:
+            print(f"ERROR: Error fetching user ID: {e}")
+        finally:
+            if connection and connection.is_connected(): # Ensure connection is valid before closing
+                cursor.close()
+                connection.close()
+    return user_id
+
+# --- Flask Routes ---
+
+@app.route('/')
+def index():
+    """Renders the main dashboard HTML page."""
+    return render_template('index.html')
+
+# New health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok", "db_initialized": db_initialized_successfully})
+
+# --- API Endpoints ---
+
+# Medical Student Hub - Study Plans
+@app.route('/api/study_plans', methods=['GET', 'POST'])
+def handle_study_plans():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM study_plans WHERE user_id = %s ORDER BY day_of_week, time_slot", (user_id,))
+            plans = cursor.fetchall()
+            return jsonify(plans)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['day_of_week', 'time_slot', 'topic', 'resource_type']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO study_plans (user_id, day_of_week, time_slot, topic, resource_type, is_completed) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, data['day_of_week'], data['time_slot'], data['topic'], data['resource_type'], data.get('is_completed', False))
+            )
+            connection.commit()
+            return jsonify({"message": "Study plan added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/study_plans/<int:plan_id>', methods=['PUT', 'DELETE'])
+def manage_study_plan(plan_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'PUT':
+        data = request.get_json()
+        # Allow updating specific fields, including is_completed
+        update_fields = []
+        update_values = []
+        if 'day_of_week' in data:
+            update_fields.append("day_of_week = %s")
+            update_values.append(data['day_of_week'])
+        if 'time_slot' in data:
+            update_fields.append("time_slot = %s")
+            update_values.append(data['time_slot'])
+        if 'topic' in data:
+            update_fields.append("topic = %s")
+            update_values.append(data['topic'])
+        if 'resource_type' in data:
+            update_fields.append("resource_type = %s")
+            update_values.append(data['resource_type'])
+        if 'is_completed' in data:
+            update_fields.append("is_completed = %s")
+            update_values.append(data['is_completed'])
+        
+        if not update_fields:
+            return jsonify({"error": "No fields to update"}), 400
+
+        query = f"UPDATE study_plans SET {', '.join(update_fields)} WHERE id=%s AND user_id=%s"
+        update_values.extend([plan_id, user_id])
+
+        try:
+            cursor.execute(query, tuple(update_values))
+            connection.commit()
+            if cursor.rowcount == 0:
+                return jsonify({"message": "Study plan not found or not authorized"}), 404
+            return jsonify({"message": "Study plan updated successfully"})
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'DELETE':
+        try:
+            cursor.execute("DELETE FROM study_plans WHERE id=%s AND user_id=%s", (plan_id, user_id))
+            connection.commit()
+            if cursor.rowcount == 0:
+                return jsonify({"message": "Study plan not found or not authorized"}), 404
+            return jsonify({"message": "Study plan deleted successfully"})
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Medical Student Hub - Subjects
+@app.route('/api/subjects', methods=['GET', 'POST'])
+def handle_subjects():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM subjects WHERE user_id = %s", (user_id,))
+            subjects = cursor.fetchall()
+            return jsonify(subjects)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        if 'subject_name' not in data:
+            return jsonify({"error": "Missing subject_name"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO subjects (user_id, subject_name, description, total_lectures, completed_lectures) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['subject_name'], data.get('description'), data.get('total_lectures', 0), data.get('completed_lectures', 0))
+            )
+            connection.commit()
+            return jsonify({"message": "Subject added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/subjects/<int:subject_id>/complete_lecture', methods=['PUT'])
+def complete_lecture(subject_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT completed_lectures, total_lectures, subject_name FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_completed_lectures = subject['completed_lectures'] + 1
+        
+        # Update subject's completed lectures
+        cursor.execute("UPDATE subjects SET completed_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_completed_lectures, subject_id, user_id))
+        
+        # Log lecture completion
+        cursor.execute("INSERT INTO lecture_completion_log (user_id, subject_id, completion_date) VALUES (%s, %s, %s)",
+                       (user_id, subject_id, date.today()))
+        
+        connection.commit()
+
+        achievement_unlocked = False
+        achievement_description = ""
+
+        # Check for achievement (e.g., "Completed 10 lectures in Anatomy")
+        if subject['subject_name'] == 'Anatomy' and new_completed_lectures == 10:
+            achievement_description = "Completed 10 Anatomy Lectures!"
+            cursor.execute("INSERT INTO achievements (user_id, achievement_date, description) VALUES (%s, %s, %s)",
+                           (user_id, date.today(), achievement_description))
+            connection.commit()
+            achievement_unlocked = True
+
+        return jsonify({
+            "message": "Lecture marked as complete!",
+            "achievement_unlocked": achievement_unlocked,
+            "achievement_description": achievement_description
+        })
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/subjects/<int:subject_id>/add_lecture', methods=['PUT'])
+def add_lecture(subject_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT total_lectures FROM subjects WHERE id = %s AND user_id = %s", (subject_id, user_id))
+        subject = cursor.fetchone()
+
+        if not subject:
+            return jsonify({"message": "Subject not found or not authorized"}), 404
+
+        new_total_lectures = subject['total_lectures'] + 1
+        cursor.execute("UPDATE subjects SET total_lectures = %s WHERE id = %s AND user_id = %s",
+                       (new_total_lectures, subject_id, user_id))
+        connection.commit()
+        return jsonify({"message": "New lecture added to subject!"})
+    except Error as e:
+        connection.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# Medical Student Hub - Read/Watch Queue
+@app.route('/api/read_watch_queue', methods=['GET', 'POST'])
+def handle_read_watch_queue():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM read_watch_queue WHERE user_id = %s", (user_id,))
+            queue_items = cursor.fetchall()
+            return jsonify(queue_items)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['title', 'type', 'url']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO read_watch_queue (user_id, title, type, url, is_completed) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['title'], data['type'], data['url'], data.get('is_completed', False))
+            )
+            connection.commit()
+            return jsonify({"message": "Item added to queue successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Medical Student Hub - Progress Charts (Manual Study Hours)
+@app.route('/api/progress_charts', methods=['GET', 'POST'])
+def handle_progress_charts():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM progress_charts WHERE user_id = %s ORDER BY week_start_date", (user_id,))
+            charts_data = cursor.fetchall()
+            # Convert date objects to string for JSON serialization
+            for row in charts_data:
+                if isinstance(row['week_start_date'], date):
+                    row['week_start_date'] = row['week_start_date'].isoformat()
+            return jsonify(charts_data)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['week_start_date', 'hours_studied', 'topics_covered']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO progress_charts (user_id, week_start_date, hours_studied, topics_covered) VALUES (%s, %s, %s, %s)",
+                (user_id, data['week_start_date'], data['hours_studied'], data['topics_covered'])
+            )
+            connection.commit()
+            return jsonify({"message": "Progress data added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Fitness & Gym Tracker
+@app.route('/api/workouts', methods=['GET', 'POST'])
+def handle_workouts():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM workouts WHERE user_id = %s ORDER BY workout_date DESC", (user_id,))
+            workouts = cursor.fetchall()
+            for row in workouts:
+                if isinstance(row['workout_date'], date):
+                    row['workout_date'] = row['workout_date'].isoformat()
+            return jsonify(workouts)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['workout_date', 'split_type', 'exercise_name', 'sets', 'reps', 'weight']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO workouts (user_id, workout_date, split_type, exercise_name, sets, reps, weight, muscle_soreness, notes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (user_id, data['workout_date'], data['split_type'], data['exercise_name'], data['sets'], data['reps'], data['weight'], data.get('muscle_soreness'), data.get('notes'))
+            )
+            connection.commit()
+            return jsonify({"message": "Workout added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Body Progress
+@app.route('/api/body_progress', methods=['GET', 'POST'])
+def handle_body_progress():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM body_progress WHERE user_id = %s ORDER BY record_date DESC", (user_id,))
+            progress_data = cursor.fetchall()
+            for row in progress_data:
+                if isinstance(row['record_date'], date):
+                    row['record_date'] = row['record_date'].isoformat()
+                # Parse JSON string back to object
+                if row['measurements']:
+                    row['measurements'] = json.loads(row['measurements'])
+            return jsonify(progress_data)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['record_date', 'weight']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        measurements_json = json.dumps(data.get('measurements')) if 'measurements' in data else None
+        
+        try:
+            cursor.execute(
+                "INSERT INTO body_progress (user_id, record_date, weight, photo_url, measurements, goal) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, data['record_date'], data['weight'], data.get('photo_url'), measurements_json, data.get('goal'))
+            )
+            connection.commit()
+            return jsonify({"message": "Body progress added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Nutrition
+@app.route('/api/nutrition', methods=['GET', 'POST'])
+def handle_nutrition():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM nutrition WHERE user_id = %s ORDER BY meal_date DESC", (user_id,))
+            nutrition_data = cursor.fetchall()
+            for row in nutrition_data:
+                if isinstance(row['meal_date'], date):
+                    row['meal_date'] = row['meal_date'].isoformat()
+            return jsonify(nutrition_data)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['meal_date', 'meal_type', 'meal_description', 'calories', 'protein_intake']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO nutrition (user_id, meal_date, meal_type, meal_description, calories, protein_intake) VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, data['meal_date'], data['meal_type'], data['meal_description'], data['calories'], data['protein_intake'])
+            )
+            connection.commit()
+            return jsonify({"message": "Nutrition entry added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Shopping List
+@app.route('/api/shopping_list', methods=['GET', 'POST'])
+def handle_shopping_list():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM shopping_list WHERE user_id = %s ORDER BY item_name", (user_id,))
+            shopping_items = cursor.fetchall()
+            return jsonify(shopping_items)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        if 'item_name' not in data:
+            return jsonify({"error": "Missing item_name"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO shopping_list (user_id, item_name, quantity, is_purchased) VALUES (%s, %s, %s, %s)",
+                (user_id, data['item_name'], data.get('quantity'), data.get('is_purchased', False))
+            )
+            connection.commit()
+            return jsonify({"message": "Item added to shopping list successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Basketball & Analysis Lab
+@app.route('/api/game_clips', methods=['GET', 'POST'])
+def handle_game_clips():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM game_clips WHERE user_id = %s ORDER BY upload_date DESC", (user_id,))
+            clips = cursor.fetchall()
+            for row in clips:
+                if isinstance(row['upload_date'], datetime):
+                    row['upload_date'] = row['upload_date'].isoformat()
+                if row['annotations']:
+                    row['annotations'] = json.loads(row['annotations'])
+            return jsonify(clips)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['clip_title', 'video_url']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO game_clips (user_id, clip_title, video_url, annotations) VALUES (%s, %s, %s, %s)",
+                (user_id, data['clip_title'], data['video_url'], annotations_json)
+            )
+            connection.commit()
+            return jsonify({"message": "Game clip added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Scouting Templates
+@app.route('/api/scouting_templates', methods=['GET', 'POST'])
+def handle_scouting_templates():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM scouting_templates WHERE user_id = %s ORDER BY template_name", (user_id,))
+            templates = cursor.fetchall()
+            return jsonify(templates)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        if 'template_name' not in data:
+            return jsonify({"error": "Missing template_name"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO scouting_templates (user_id, template_name, opponent_name, report_content) VALUES (%s, %s, %s, %s)",
+                (user_id, data['template_name'], data.get('opponent_name'), data.get('report_content'))
+            )
+            connection.commit()
+            return jsonify({"message": "Scouting template added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Learning Resources
+@app.route('/api/learning_resources', methods=['GET', 'POST'])
+def handle_learning_resources():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM learning_resources WHERE user_id = %s ORDER BY resource_title", (user_id,))
+            resources = cursor.fetchall()
+            return jsonify(resources)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['resource_title', 'url']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO learning_resources (user_id, resource_title, platform, url) VALUES (%s, %s, %s, %s)",
+                (user_id, data['resource_title'], data.get('platform'), data['url'])
+            )
+            connection.commit()
+            return jsonify({"message": "Learning resource added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Self-Development & Courses
+@app.route('/api/courses', methods=['GET', 'POST'])
+def handle_courses():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM courses WHERE user_id = %s ORDER BY course_name", (user_id,))
+            courses = cursor.fetchall()
+            for row in courses:
+                if isinstance(row['start_date'], date):
+                    row['start_date'] = row['start_date'].isoformat()
+                if isinstance(row['completion_date'], date):
+                    row['completion_date'] = row['completion_date'].isoformat()
+            return jsonify(courses)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['course_name', 'status']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO courses (user_id, course_name, status, start_date, completion_date) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['course_name'], data['status'], data.get('start_date'), data.get('completion_date'))
+            )
+            connection.commit()
+            return jsonify({"message": "Course added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Skill Goals
+@app.route('/api/skill_goals', methods=['GET', 'POST'])
+def handle_skill_goals():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM skill_goals WHERE user_id = %s ORDER BY skill_name", (user_id,))
+            goals = cursor.fetchall()
+            for row in goals:
+                if isinstance(row['target_date'], date):
+                    row['target_date'] = row['target_date'].isoformat()
+            return jsonify(goals)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['skill_name']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO skill_goals (user_id, skill_name, target_date, is_achieved) VALUES (%s, %s, %s, %s)",
+                (user_id, data['skill_name'], data.get('target_date'), data.get('is_achieved', False))
+            )
+            connection.commit()
+            return jsonify({"message": "Skill goal added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Daily Schedule & Routine
+@app.route('/api/daily_schedule', methods=['GET', 'POST'])
+def handle_daily_schedule():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM daily_schedule WHERE user_id = %s ORDER BY schedule_date DESC", (user_id,))
+            schedule = cursor.fetchall()
+            for row in schedule:
+                if isinstance(row['schedule_date'], date):
+                    row['schedule_date'] = row['schedule_date'].isoformat()
+            return jsonify(schedule)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        if 'schedule_date' not in data:
+            return jsonify({"error": "Missing schedule_date"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO daily_schedule (user_id, schedule_date, morning_routine_completed) VALUES (%s, %s, %s)",
+                (user_id, data['schedule_date'], data.get('morning_routine_completed', False))
+            )
+            connection.commit()
+            return jsonify({"message": "Daily schedule entry added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Time Blocking
+@app.route('/api/time_blocking', methods=['GET', 'POST'])
+def handle_time_blocking():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM time_blocking WHERE user_id = %s ORDER BY schedule_date, time_slot", (user_id,))
+            blocks = cursor.fetchall()
+            for row in blocks:
+                if isinstance(row['schedule_date'], date):
+                    row['schedule_date'] = row['schedule_date'].isoformat()
+            return jsonify(blocks)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['schedule_date', 'time_slot', 'activity']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO time_blocking (user_id, schedule_date, time_slot, activity) VALUES (%s, %s, %s, %s)",
+                (user_id, data['schedule_date'], data['time_slot'], data['activity'])
+            )
+            connection.commit()
+            return jsonify({"message": "Time block added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Consistency Score
+@app.route('/api/consistency_score', methods=['GET', 'POST'])
+def handle_consistency_score():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM consistency_score WHERE user_id = %s ORDER BY record_date DESC", (user_id,))
+            scores = cursor.fetchall()
+            for row in scores:
+                if isinstance(row['record_date'], date):
+                    row['record_date'] = row['record_date'].isoformat()
+            return jsonify(scores)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['record_date', 'sleep_score', 'gym_score', 'study_score']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO consistency_score (user_id, record_date, sleep_score, gym_score, study_score) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, data['record_date'], data['sleep_score'], data['gym_score'], data['study_score'])
+            )
+            connection.commit()
+            return jsonify({"message": "Consistency score added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# Dashboard Home Page - Mood Tracker
+@app.route('/api/mood_tracker', methods=['GET', 'POST'])
+def handle_mood_tracker():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM mood_tracker WHERE user_id = %s ORDER BY record_date DESC", (user_id,))
+            moods = cursor.fetchall()
+            for row in moods:
+                if isinstance(row['record_date'], date):
+                    row['record_date'] = row['record_date'].isoformat()
+            return jsonify(moods)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['record_date', 'mood_level']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO mood_tracker (user_id, record_date, mood_level, notes) VALUES (%s, %s, %s, %s)",
+                (user_id, data['record_date'], data['mood_level'], data.get('notes'))
+            )
+            connection.commit()
+            return jsonify({"message": "Mood entry added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/sleep_tracker', methods=['GET', 'POST'])
+def handle_sleep_tracker():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM sleep_tracker WHERE user_id = %s ORDER BY sleep_date DESC", (user_id,))
+            sleep_data = cursor.fetchall()
+            for row in sleep_data:
+                if isinstance(row['sleep_date'], date):
+                    row['sleep_date'] = row['sleep_date'].isoformat()
+            return jsonify(sleep_data)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['sleep_date', 'hours_slept', 'quality_score']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO sleep_tracker (user_id, sleep_date, hours_slept, quality_score) VALUES (%s, %s, %s, %s)",
+                (user_id, data['sleep_date'], data['hours_slept'], data['quality_score'])
+            )
+            connection.commit()
+            return jsonify({"message": "Sleep entry added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/achievements', methods=['GET', 'POST'])
+def handle_achievements():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    if request.method == 'GET':
+        try:
+            cursor.execute("SELECT * FROM achievements WHERE user_id = %s ORDER BY achievement_date DESC", (user_id,))
+            achievements = cursor.fetchall()
+            for row in achievements:
+                if isinstance(row['achievement_date'], date):
+                    row['achievement_date'] = row['achievement_date'].isoformat()
+            return jsonify(achievements)
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+    elif request.method == 'POST':
+        data = request.get_json()
+        required_fields = ['achievement_date', 'description']
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required_fields"}), 400
+        try:
+            cursor.execute(
+                "INSERT INTO achievements (user_id, achievement_date, description) VALUES (%s, %s, %s)",
+                (user_id, data['achievement_date'], data['description'])
+            )
+            connection.commit()
+            return jsonify({"message": "Achievement added successfully", "id": cursor.lastrowid}), 201
+        except Error as e:
+            return jsonify({"error": str(e)}), 500
+        finally:
+            if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for Pomodoro sessions
+@app.route('/api/pomodoro_sessions', methods=['POST'])
+def add_pomodoro_session():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor()
+
+    data = request.get_json()
+    required_fields = ['session_date', 'duration_minutes', 'is_work_session']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    try:
+        cursor.execute(
+            "INSERT INTO pomodoro_sessions (user_id, session_date, duration_minutes, is_work_session) VALUES (%s, %s, %s, %s)",
+            (user_id, data['session_date'], data['duration_minutes'], data['is_work_session'])
+        )
+        connection.commit()
+        return jsonify({"message": "Pomodoro session recorded successfully", "id": cursor.lastrowid}), 201
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for aggregated dashboard summary data for charts
+@app.route('/api/dashboard_summary_data', methods=['GET'])
+def dashboard_summary_data():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Define the date range (e.g., last 8 weeks)
+        today = date.today()
+        # Find the start of the current week (Monday)
+        current_week_start = today - timedelta(days=today.weekday())
+        
+        # Generate labels for the last 8 weeks
+        labels = []
+        week_starts = []
+        for i in range(8): # For last 8 weeks
+            week_start = current_week_start - timedelta(weeks=7 - i)
+            labels.append(week_start.strftime('%Y-%m-%d'))
+            week_starts.append(week_start)
+
+        pomodoro_hours = [0] * 8
+        lectures_completed_weekly = [0] * 8
+        manual_study_hours = [0] * 8
+
+        # Fetch Pomodoro data
+        cursor.execute("""
+            SELECT session_date, duration_minutes FROM pomodoro_sessions
+            WHERE user_id = %s AND is_work_session = TRUE AND session_date >= %s
+            ORDER BY session_date
+        """, (user_id, week_starts[0]))
+        pomodoro_data = cursor.fetchall()
+
+        for session in pomodoro_data:
+            session_date = session['session_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= session_date < ws + timedelta(weeks=1):
+                    pomodoro_hours[i] += session['duration_minutes'] / 60.0 # Convert minutes to hours
+                    break
+        
+        # Fetch Lecture Completion Log data
+        cursor.execute("""
+            SELECT completion_date FROM lecture_completion_log
+            WHERE user_id = %s AND completion_date >= %s
+            ORDER BY completion_date
+        """, (user_id, week_starts[0]))
+        lecture_log_data = cursor.fetchall()
+
+        for log_entry in lecture_log_data:
+            completion_date = log_entry['completion_date']
+            for i, ws in enumerate(week_starts):
+                if ws <= completion_date < ws + timedelta(weeks=1):
+                    lectures_completed_weekly[i] += 1
+                    break
+
+        # Fetch Manual Study Hours data (from progress_charts)
+        cursor.execute("""
+            SELECT week_start_date, hours_studied FROM progress_charts
+            WHERE user_id = %s AND week_start_date >= %s
+            ORDER BY week_start_date
+        """, (user_id, week_starts[0]))
+        manual_study_data = cursor.fetchall()
+
+        for study_entry in manual_study_data:
+            study_week_start = study_entry['week_start_date']
+            for i, ws in enumerate(week_starts):
+                if ws == study_week_start: # Match exact week start date
+                    manual_study_hours[i] = study_entry['hours_studied']
+                    break
+
+        return jsonify({
+            "dates": labels,
+            "pomodoro_hours": pomodoro_hours,
+            "lectures_completed": lectures_completed_weekly,
+            "manual_study_hours": manual_study_hours
+        })
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for today's summary data
+@app.route('/api/today_summary', methods=['GET'])
+def today_summary():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    today = date.today()
+    day_of_week = today.strftime('%A') # e.g., "Wednesday"
+
+    today_schedule_items = []
+    overall_progress = {
+        "pomodoro_hours_this_week": 0,
+        "total_lectures_completed": 0,
+        "workouts_this_week": 0
+    }
+
+    try:
+        # Fetch today's study plans
+        cursor.execute("""
+            SELECT topic, time_slot FROM study_plans
+            WHERE user_id = %s AND day_of_week = %s AND is_completed = FALSE
+            ORDER BY time_slot
+        """, (user_id, day_of_week))
+        study_plans_today = cursor.fetchall()
+        for plan in study_plans_today:
+            today_schedule_items.append({"type": "study", "topic": plan['topic'], "time_slot": plan['time_slot']})
+
+        # Fetch today's time blocks
+        cursor.execute("""
+            SELECT activity, time_slot FROM time_blocking
+            WHERE user_id = %s AND schedule_date = %s
+            ORDER BY time_slot
+        """, (user_id, today))
+        time_blocks_today = cursor.fetchall()
+        for block in time_blocks_today:
+            today_schedule_items.append({"type": "time_block", "activity": block['activity'], "time_slot": block['time_slot']})
+
+        # Sort today's schedule by time_slot (if available) or activity/topic
+        today_schedule_items.sort(key=lambda x: x.get('time_slot', 'ZZZ')) # 'ZZZ' to put items without time at end
+
+        # --- Overall Progress Summary ---
+        # Pomodoro Hours this week
+        current_week_start = today - timedelta(days=today.weekday())
+        cursor.execute("""
+            SELECT SUM(duration_minutes) as total_minutes FROM pomodoro_sessions
+            WHERE user_id = %s AND is_work_session = TRUE AND session_date >= %s
+        """, (user_id, current_week_start))
+        pomodoro_sum = cursor.fetchone()
+        if pomodoro_sum and pomodoro_sum['total_minutes']:
+            overall_progress['pomodoro_hours_this_week'] = pomodoro_sum['total_minutes'] / 60.0
+
+        # Total Lectures Completed
+        cursor.execute("""
+            SELECT SUM(completed_lectures) as total_completed FROM subjects
+            WHERE user_id = %s
+        """, (user_id,))
+        lectures_sum = cursor.fetchone()
+        if lectures_sum and lectures_sum['total_completed']:
+            overall_progress['total_lectures_completed'] = int(lectures_sum['total_completed'])
+
+        # Workouts this week
+        cursor.execute("""
+            SELECT COUNT(DISTINCT workout_date) as workouts_count FROM workouts
+            WHERE user_id = %s AND workout_date >= %s
+        """, (user_id, current_week_start))
+        workouts_count = cursor.fetchone()
+        if workouts_count and workouts_count['workouts_count']:
+            overall_progress['workouts_this_week'] = int(workouts_count['workouts_count'])
+
+
+        return jsonify({
+            "today_schedule": today_schedule_items,
+            "overall_progress": overall_progress
+        })
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# This is for Vercel deployment. Vercel expects a 'wsgi.py' or 'app.py' at the root
+# and will automatically detect the 'app' variable.
+# The local `app.run` is removed as Vercel handles the server.
