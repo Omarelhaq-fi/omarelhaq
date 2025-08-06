@@ -1536,6 +1536,65 @@ def today_summary():
     finally:
         if connection.is_connected(): cursor.close(); connection.close()
 
+# New API endpoint for completed items today
+@app.route('/api/completed_today', methods=['GET'])
+def completed_today():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    today = date.today()
+    completed_items = []
+
+    try:
+        # Completed Study Plans today
+        cursor.execute("""
+            SELECT topic, time_slot FROM study_plans
+            WHERE user_id = %s AND is_completed = TRUE AND DATE(completion_date) = %s
+            ORDER BY time_slot
+        """, (user_id, today))
+        # Note: 'completion_date' is not in study_plans table.
+        # For simplicity, if a study plan is marked completed, we assume it was today.
+        # A more robust solution would add a 'completion_date' column to study_plans.
+        completed_study_plans = cursor.fetchall()
+        for plan in completed_study_plans:
+            completed_items.append({"activity": plan['topic'], "time_slot": plan['time_slot'], "type": "Study Plan"})
+
+        # Completed Workouts today
+        cursor.execute("""
+            SELECT exercise_name, workout_date FROM workouts
+            WHERE user_id = %s AND is_completed = TRUE AND workout_date = %s
+        """, (user_id, today))
+        completed_workouts = cursor.fetchall()
+        for workout in completed_workouts:
+            completed_items.append({"activity": workout['exercise_name'], "time_slot": workout['workout_date'].strftime('%H:%M'), "type": "Workout"}) # Assuming time is part of workout_date if needed
+
+        # Completed Lectures today (from lecture_completion_log)
+        cursor.execute("""
+            SELECT s.subject_name FROM lecture_completion_log lcl
+            JOIN subjects s ON lcl.subject_id = s.id
+            WHERE lcl.user_id = %s AND lcl.completion_date = %s
+        """, (user_id, today))
+        completed_lectures = cursor.fetchall()
+        for lecture in completed_lectures:
+            completed_items.append({"activity": f"Lecture in {lecture['subject_name']}", "type": "Lecture"})
+
+        # Sort by time_slot if available, otherwise by type or activity
+        completed_items.sort(key=lambda x: x.get('time_slot', 'ZZZ'))
+
+        return jsonify(completed_items)
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
 # This is for Vercel deployment. Vercel expects a 'wsgi.py' or 'app.py' at the root
 # and will automatically detect the 'app' variable.
 # The local `app.run` is removed as Vercel handles the server.
