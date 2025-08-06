@@ -108,6 +108,7 @@ def initialize_database():
                     weight DECIMAL(7,2),
                     muscle_soreness INT,
                     notes TEXT,
+                    is_completed BOOLEAN DEFAULT FALSE,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """)
@@ -688,8 +689,8 @@ def handle_workouts():
             return jsonify({"error": "Missing required fields"}), 400
         try:
             cursor.execute(
-                "INSERT INTO workouts (user_id, workout_date, split_type, exercise_name, sets, reps, weight, muscle_soreness, notes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (user_id, data['workout_date'], data['split_type'], data['exercise_name'], data['sets'], data['reps'], data['weight'], data.get('muscle_soreness'), data.get('notes'))
+                "INSERT INTO workouts (user_id, workout_date, split_type, exercise_name, sets, reps, weight, muscle_soreness, notes, is_completed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (user_id, data['workout_date'], data['split_type'], data['exercise_name'], data['sets'], data['reps'], data['weight'], data.get('muscle_soreness'), data.get('notes'), data.get('is_completed', False))
             )
             connection.commit()
             return jsonify({"message": "Workout added successfully", "id": cursor.lastrowid}), 201
@@ -697,6 +698,44 @@ def handle_workouts():
             return jsonify({"error": str(e)}), 500
         finally:
             if connection.is_connected(): cursor.close(); connection.close()
+
+@app.route('/api/workouts/<int:workout_id>', methods=['PUT'])
+def update_workout(workout_id):
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    data = request.get_json()
+    update_fields = []
+    update_values = []
+    if 'is_completed' in data:
+        update_fields.append("is_completed = %s")
+        update_values.append(data['is_completed'])
+    # Add other fields if you want to allow updating them via PUT
+    
+    if not update_fields:
+        return jsonify({"error": "No fields to update"}), 400
+
+    query = f"UPDATE workouts SET {', '.join(update_fields)} WHERE id=%s AND user_id=%s"
+    update_values.extend([workout_id, user_id])
+
+    try:
+        cursor.execute(query, tuple(update_values))
+        connection.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"message": "Workout not found or not authorized"}), 404
+        return jsonify({"message": "Workout updated successfully"})
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
 
 # Body Progress
 @app.route('/api/body_progress', methods=['GET', 'POST'])
@@ -1444,6 +1483,16 @@ def today_summary():
         for block in time_blocks_today:
             today_schedule_items.append({"type": "time_block", "activity": block['activity'], "time_slot": block['time_slot']})
 
+        # Fetch today's incomplete workouts
+        cursor.execute("""
+            SELECT exercise_name, split_type FROM workouts
+            WHERE user_id = %s AND workout_date = %s AND is_completed = FALSE
+        """, (user_id, today))
+        workouts_today = cursor.fetchall()
+        for workout in workouts_today:
+            today_schedule_items.append({"type": "workout", "activity": f"{workout['exercise_name']} ({workout['split_type']})"})
+
+
         # Sort today's schedule by time_slot (if available) or activity/topic
         today_schedule_items.sort(key=lambda x: x.get('time_slot', 'ZZZ')) # 'ZZZ' to put items without time at end
 
@@ -1470,7 +1519,7 @@ def today_summary():
         # Workouts this week
         cursor.execute("""
             SELECT COUNT(DISTINCT workout_date) as workouts_count FROM workouts
-            WHERE user_id = %s AND workout_date >= %s
+            WHERE user_id = %s AND workout_date >= %s AND is_completed = TRUE
         """, (user_id, current_week_start))
         workouts_count = cursor.fetchone()
         if workouts_count and workouts_count['workouts_count']:
