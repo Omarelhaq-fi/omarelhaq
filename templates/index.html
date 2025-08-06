@@ -686,10 +686,11 @@
                                         <th>Weight</th>
                                         <th>Soreness</th>
                                         <th>Notes</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="workout-list">
-                                    <tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
+                                    <tr><td colspan="9" class="text-center text-gray-500 dark:text-gray-400">Loading workouts...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1809,8 +1810,9 @@
             workoutListTbody.innerHTML = '';
             if (workouts && workouts.length > 0) {
                 workouts.forEach(workout => {
+                    const completedClass = workout.is_completed ? 'completed-item' : '';
                     workoutListTbody.innerHTML += `
-                        <tr>
+                        <tr class="${completedClass}">
                             <td>${workout.workout_date}</td>
                             <td>${workout.split_type}</td>
                             <td>${workout.exercise_name}</td>
@@ -1819,11 +1821,15 @@
                             <td>${workout.weight}</td>
                             <td>${workout.muscle_soreness || 'N/A'}</td>
                             <td>${workout.notes || 'N/A'}</td>
+                            <td>
+                                <input type="checkbox" ${workout.is_completed ? 'checked' : ''} onchange="toggleWorkoutCompletion(${workout.id}, this.checked)">
+                                ${workout.is_completed ? '✅' : '⏳'}
+                            </td>
                         </tr>
                     `;
                 });
             } else {
-                workoutListTbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 dark:text-gray-400 py-4">No workouts recorded yet.</td></tr>`;
+                workoutListTbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 dark:text-gray-400 py-4">No workouts recorded yet.</td></tr>`;
             }
         }
 
@@ -1850,7 +1856,8 @@
                 reps: parseInt(reps),
                 weight: parseFloat(weight),
                 muscle_soreness: muscleSoreness ? parseInt(muscleSoreness) : null,
-                notes: notes
+                notes: notes,
+                is_completed: false // Default to not completed
             };
             const result = await postData('/api/workouts', data);
             if (result) {
@@ -1863,6 +1870,15 @@
                 document.getElementById('exercise-weight').value = '';
                 document.getElementById('muscle-soreness').value = '';
                 document.getElementById('workout-notes').value = '';
+                await loadWorkouts();
+                await loadTodaySummary(); // Update summary
+            }
+        }
+
+        async function toggleWorkoutCompletion(id, isCompleted) {
+            const result = await putData(`/api/workouts/${id}`, { is_completed: isCompleted });
+            if (result) {
+                showMessage(`Workout marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadWorkouts();
                 await loadTodaySummary(); // Update summary
             }
