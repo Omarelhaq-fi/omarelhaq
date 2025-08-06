@@ -858,9 +858,6 @@ def handle_game_clips():
         required_fields = ['clip_title', 'video_url']
         if not all(field in data for field in required_fields):
             return jsonify({"error": "Missing required fields"}), 400
-        
-        annotations_json = json.dumps(data.get('annotations')) if 'annotations' in data else None
-
         try:
             cursor.execute(
                 "INSERT INTO game_clips (user_id, clip_title, video_url, annotations) VALUES (%s, %s, %s, %s)",
