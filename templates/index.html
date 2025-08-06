@@ -266,6 +266,20 @@
         .dark .completed-item {
             color: #a0aec0;
         }
+        .status-completed {
+            color: #10b981; /* Green */
+            font-weight: 600;
+        }
+        .dark .status-completed {
+            color: #34d399;
+        }
+        .status-pending {
+            color: #ef4444; /* Red */
+            font-weight: 600;
+        }
+        .dark .status-pending {
+            color: #f87171;
+        }
 
         /* Pomodoro Timer */
         .pomodoro-timer {
@@ -1543,16 +1557,17 @@
             studyPlanListTbody.innerHTML = '';
             if (plans && plans.length > 0) {
                 plans.forEach(plan => {
-                    const completedClass = plan.is_completed ? 'completed-item' : '';
+                    const statusClass = plan.is_completed ? 'status-completed' : 'status-pending';
+                    const statusText = plan.is_completed ? 'Completed' : 'NEEDED TO BE COMPLETED';
                     studyPlanListTbody.innerHTML += `
-                        <tr class="${completedClass}">
+                        <tr>
                             <td>${plan.day_of_week}</td>
                             <td>${plan.time_slot}</td>
                             <td>${plan.topic}</td>
                             <td>${plan.resource_type}</td>
-                            <td>
+                            <td class="${statusClass}">
                                 <input type="checkbox" ${plan.is_completed ? 'checked' : ''} onchange="toggleStudyPlanCompletion(${plan.id}, this.checked)">
-                                ${plan.is_completed ? '✅' : '⏳'}
+                                ${plan.is_completed ? '✅' : '⏳'} ${statusText}
                             </td>
                             <td><button onclick="deleteStudyPlan(${plan.id})" class="delete-btn text-white text-xs px-3 py-1 rounded-md">Delete</button></td>
                         </tr>
@@ -1588,7 +1603,7 @@
         }
 
         async function toggleStudyPlanCompletion(id, isCompleted) {
-            const result = await putData(`/api/study_plans/${id}`, { is_completed: isCompleted });
+            const result = await putData(`/api/study_plans/${id}`, { is_completed: isCompleted, completion_date: isCompleted ? new Date().toISOString().split('T')[0] : null });
             if (result) {
                 showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadStudyPlans();
@@ -1689,13 +1704,14 @@
             readWatchListTbody.innerHTML = '';
             if (queueItems && queueItems.length > 0) {
                 queueItems.forEach(item => {
-                    const completedClass = item.is_completed ? 'completed-item' : '';
+                    const statusClass = item.is_completed ? 'status-completed' : 'status-pending';
+                    const statusText = item.is_completed ? 'Completed' : 'NEEDED TO BE COMPLETED';
                     readWatchListTbody.innerHTML += `
-                        <tr class="${completedClass}">
+                        <tr class="${statusClass}">
                             <td>${item.title}</td>
                             <td>${item.type}</td>
                             <td><a href="${item.url}" target="_blank" class="text-blue-500 hover:underline dark:text-blue-300">Link</a></td>
-                            <td>${item.is_completed ? '✅ Completed' : '⏳ Pending'}</td>
+                            <td>${item.is_completed ? '✅' : '⏳'} ${statusText}</td>
                         </tr>
                     `;
                 });
@@ -1852,9 +1868,10 @@
             workoutListTbody.innerHTML = '';
             if (workouts && workouts.length > 0) {
                 workouts.forEach(workout => {
-                    const completedClass = workout.is_completed ? 'completed-item' : '';
+                    const statusClass = workout.is_completed ? 'status-completed' : 'status-pending';
+                    const statusText = workout.is_completed ? 'Completed' : 'NEEDED TO BE COMPLETED';
                     workoutListTbody.innerHTML += `
-                        <tr class="${completedClass}">
+                        <tr>
                             <td>${workout.workout_date}</td>
                             <td>${workout.split_type}</td>
                             <td>${workout.exercise_name}</td>
@@ -1863,9 +1880,9 @@
                             <td>${workout.weight}</td>
                             <td>${workout.muscle_soreness || 'N/A'}</td>
                             <td>${workout.notes || 'N/A'}</td>
-                            <td>
+                            <td class="${statusClass}">
                                 <input type="checkbox" ${workout.is_completed ? 'checked' : ''} onchange="toggleWorkoutCompletion(${workout.id}, this.checked)">
-                                ${workout.is_completed ? '✅' : '⏳'}
+                                ${workout.is_completed ? '✅' : '⏳'} ${statusText}
                             </td>
                         </tr>
                     `;
