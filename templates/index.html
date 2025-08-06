@@ -450,7 +450,7 @@
                         Hello, Omar! 👋 Your Daily Overview.
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Today's Summary Card -->
+                        <!-- Today's Focus & Progress Card -->
                         <div class="card col-span-full">
                             <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Today's Focus & Progress 🎯</h3>
                             <div id="today-summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
@@ -471,7 +471,25 @@
                             </div>
                         </div>
 
-                        <!-- Achievements Card - Moved to Streaks & Checkpoints -->
+                        <!-- Completed Today Card (NEW) -->
+                        <div class="card col-span-full">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Completed Today 🎉</h3>
+                            <div class="data-table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Activity</th>
+                                            <th>Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="completed-today-list">
+                                        <tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No completions yet today. Keep going!</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- Shortcuts Card -->
                         <div class="card col-span-full">
                             <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
@@ -967,7 +985,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="achievements-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
+                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No achievements yet.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1270,6 +1288,7 @@
             switch (sectionId) {
                 case 'home':
                     await loadTodaySummary(); // New summary data for home
+                    await loadCompletedToday(); // Load completed items for the new section
                     break;
                 case 'wellness': // New wellness section
                     await loadMoods();
@@ -1332,6 +1351,26 @@
                 summaryPomodoroHours.textContent = 'N/A';
                 summaryLecturesCompleted.textContent = 'N/A';
                 summaryWorkoutsLogged.textContent = 'N/A';
+            }
+        }
+
+        async function loadCompletedToday() {
+            const completedData = await fetchData('/api/completed_today');
+            const completedTodayListTbody = document.getElementById('completed-today-list');
+            completedTodayListTbody.innerHTML = '';
+
+            if (completedData && completedData.length > 0) {
+                completedData.forEach(item => {
+                    completedTodayListTbody.innerHTML += `
+                        <tr>
+                            <td>${item.time_slot || 'N/A'}</td>
+                            <td>${item.activity || item.topic || item.exercise_name || item.subject_name}</td>
+                            <td>${item.type}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                completedTodayListTbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 dark:text-gray-400 py-4">No completions yet today. Keep going!</td></tr>`;
             }
         }
 
@@ -1451,6 +1490,7 @@
                 });
                 await loadProgressCharts(); // Refresh chart after recording session
                 await loadTodaySummary(); // Update summary if pomodoro hours are included
+                await loadCompletedToday(); // Update completed section
 
                 currentTime = parseInt(breakMinutesInput.value) * 60;
                 timerStatus.textContent = "Break Time!";
@@ -1553,6 +1593,7 @@
                 showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadStudyPlans();
                 await loadTodaySummary(); // Update summary if completion affects it
+                await loadCompletedToday(); // Update completed section
             }
         }
 
@@ -1624,6 +1665,7 @@
                 await loadSubjects();
                 await loadProgressCharts();
                 await loadTodaySummary(); // Update summary
+                await loadCompletedToday(); // Update completed section
                 if (result.achievement_unlocked) {
                     showMessage(`Achievement Unlocked: ${result.achievement_description}!`, 'success');
                     await loadAchievements(); // Refresh achievements if a new one was added
@@ -1881,6 +1923,7 @@
                 showMessage(`Workout marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadWorkouts();
                 await loadTodaySummary(); // Update summary
+                await loadCompletedToday(); // Update completed section
             }
         }
 
