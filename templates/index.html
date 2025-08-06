@@ -466,13 +466,12 @@
                                         <li>Pomodoro Hours (This Week): <span id="summary-pomodoro-hours">0</span></li>
                                         <li>Lectures Completed (Total): <span id="summary-lectures-completed">0</span></li>
                                         <li>Workouts Logged (This Week): <span id="summary-workouts-logged">0</span></li>
-                                        <li>Current Workout Streak: <span id="summary-workout-streak">0 days</span></li>
-                                        <li>Current Study Streak: <span id="summary-study-streak">0 days</span></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Achievements Card - Moved to Streaks & Checkpoints -->
                         <!-- Shortcuts Card -->
                         <div class="card col-span-full">
                             <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Quick Actions ⚡</h3>
@@ -674,7 +673,7 @@
                     
                     <!-- Workout Plan Tab -->
                     <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Log 🏋️</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Plan 🏋️</h3>
                         <div class="data-table-container">
                             <table class="data-table">
                                 <thead>
@@ -711,42 +710,6 @@
                             <input type="number" id="muscle-soreness" placeholder="Muscle Soreness (1-5)" min="1" max="5">
                             <textarea id="workout-notes" placeholder="Notes..." rows="2"></textarea>
                             <button onclick="addWorkout()" class="add-btn w-full">Add Workout</button>
-                        </div>
-                    </div>
-
-                    <!-- Workout Schedule Tab (NEW) -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Workout Schedule 🗓️</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Workout Type</th>
-                                        <th>Status Today</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="workout-schedule-list">
-                                    <tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading workout schedule...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <select id="schedule-day-of-week" class="mb-2">
-                                <option value="">Select Day</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                            <input type="text" id="schedule-time" placeholder="Time (e.g., 6:00 AM)">
-                            <input type="text" id="schedule-workout-type" placeholder="Workout Type (e.g., Push, Cardio)">
-                            <button onclick="addWorkoutSchedule()" class="add-btn w-full">Add Schedule</button>
                         </div>
                     </div>
 
@@ -991,6 +954,29 @@
                 <section id="streaks-checkpoints" class="dashboard-section hidden">
                     <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Streaks & Checkpoints ✅🔥</h2>
                     
+                    <!-- Achievements Card - Moved Here -->
+                    <div class="card">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Achievements 🏆</h3>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="achievements-list">
+                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <input type="date" id="achievement-date" class="mb-2">
+                            <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
+                            <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
+                        </div>
+                    </div>
+
                     <!-- Daily Schedule & Routine -->
                     <div class="card">
                         <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Daily Schedule & Routine 📅</h3>
@@ -1003,7 +989,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="daily-schedule-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">No daily schedule entries yet.</td></tr>
+                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading daily schedule...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1065,29 +1051,6 @@
                             <input type="number" id="consistency-gym" placeholder="Gym Score (1-10)" min="1" max="10">
                             <input type="number" id="consistency-study" placeholder="Study Score (1-10)" min="1" max="10">
                             <button onclick="addConsistencyScore()" class="add-btn w-full">Add Consistency Score</button>
-                        </div>
-                    </div>
-
-                    <!-- Achievements Card - Moved Here -->
-                    <div class="card">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Achievements 🏆</h3>
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="achievements-list">
-                                    <tr><td colspan="2" class="text-center text-gray-500 dark:text-gray-400">Loading achievements...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <input type="date" id="achievement-date" class="mb-2">
-                            <textarea id="achievement-description" placeholder="Achievement description..." rows="2"></textarea>
-                            <button onclick="addAchievement()" class="add-btn w-full">Add Achievement</button>
                         </div>
                     </div>
                 </section>
@@ -1319,7 +1282,6 @@
                     break;
                 case 'fitness':
                     await loadWorkouts();
-                    await loadWorkoutSchedule(); // Load new workout schedule
                     await loadBodyProgress();
                     await loadNutrition();
                     await loadShoppingList();
@@ -1351,14 +1313,11 @@
             const summaryPomodoroHours = document.getElementById('summary-pomodoro-hours');
             const summaryLecturesCompleted = document.getElementById('summary-lectures-completed');
             const summaryWorkoutsLogged = document.getElementById('summary-workouts-logged');
-            const summaryWorkoutStreak = document.getElementById('summary-workout-streak');
-            const summaryStudyStreak = document.getElementById('summary-study-streak');
-
 
             todayScheduleList.innerHTML = '';
             if (summaryData && summaryData.today_schedule && summaryData.today_schedule.length > 0) {
                 summaryData.today_schedule.forEach(item => {
-                    todayScheduleList.innerHTML += `<li>${item.time_slot ? item.time_slot + ': ' : ''}${item.activity || item.topic || item.workout_type}</li>`;
+                    todayScheduleList.innerHTML += `<li>${item.time_slot ? item.time_slot + ': ' : ''}${item.activity || item.topic}</li>`;
                 });
             } else {
                 todayScheduleList.innerHTML = '<li>No specific plans for today! 🎉</li>';
@@ -1368,14 +1327,10 @@
                 summaryPomodoroHours.textContent = summaryData.overall_progress.pomodoro_hours_this_week.toFixed(1);
                 summaryLecturesCompleted.textContent = summaryData.overall_progress.total_lectures_completed;
                 summaryWorkoutsLogged.textContent = summaryData.overall_progress.workouts_this_week;
-                summaryWorkoutStreak.textContent = `${summaryData.overall_progress.workout_streak} days`;
-                summaryStudyStreak.textContent = `${summaryData.overall_progress.study_streak} days`;
             } else {
                 summaryPomodoroHours.textContent = 'N/A';
                 summaryLecturesCompleted.textContent = 'N/A';
                 summaryWorkoutsLogged.textContent = 'N/A';
-                summaryWorkoutStreak.textContent = 'N/A';
-                summaryStudyStreak.textContent = 'N/A';
             }
         }
 
@@ -1458,8 +1413,6 @@
                 document.getElementById('hours-slept').value = '';
                 document.getElementById('sleep-quality').value = '';
                 await loadSleepData();
-                await loadTodaySummary(); // Update summary
-                await updateConsistencyScore(); // Update consistency score
             }
         }
 
@@ -1497,7 +1450,6 @@
                 });
                 await loadProgressCharts(); // Refresh chart after recording session
                 await loadTodaySummary(); // Update summary if pomodoro hours are included
-                await updateConsistencyScore(); // Update consistency score
 
                 currentTime = parseInt(breakMinutesInput.value) * 60;
                 timerStatus.textContent = "Break Time!";
@@ -1600,7 +1552,6 @@
                 showMessage(`Study plan marked as ${isCompleted ? 'completed' : 'pending'}!`, 'success');
                 await loadStudyPlans();
                 await loadTodaySummary(); // Update summary if completion affects it
-                await updateConsistencyScore(); // Update consistency score
             }
         }
 
@@ -1672,7 +1623,6 @@
                 await loadSubjects();
                 await loadProgressCharts();
                 await loadTodaySummary(); // Update summary
-                await updateConsistencyScore(); // Update consistency score
                 if (result.achievement_unlocked) {
                     showMessage(`Achievement Unlocked: ${result.achievement_description}!`, 'success');
                     await loadAchievements(); // Refresh achievements if a new one was added
@@ -1917,79 +1867,6 @@
                 await loadTodaySummary(); // Update summary
             }
         }
-
-        // New Workout Schedule Functions
-        async function loadWorkoutSchedule() {
-            const schedule = await fetchData('/api/workout_schedule');
-            const workoutScheduleListTbody = document.getElementById('workout-schedule-list');
-            workoutScheduleListTbody.innerHTML = '';
-            const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD for comparison
-
-            if (schedule && schedule.length > 0) {
-                schedule.forEach(item => {
-                    const isToday = item.day_of_week === new Date().toLocaleString('en-US', { weekday: 'long' });
-                    const statusToday = isToday && item.completed_today ? '✅ Done' : (isToday ? '⏳ Pending' : 'N/A');
-                    const completedClass = isToday && item.completed_today ? 'completed-item' : '';
-
-                    workoutScheduleListTbody.innerHTML += `
-                        <tr class="${completedClass}">
-                            <td>${item.day_of_week}</td>
-                            <td>${item.time_slot}</td>
-                            <td>${item.workout_type}</td>
-                            <td>${statusToday}</td>
-                            <td>
-                                ${isToday && !item.completed_today ? `<button onclick="markWorkoutCompleted(${item.id})" class="add-btn text-white text-xs px-3 py-1 rounded-md">Mark Done</button>` : ''}
-                                <button onclick="deleteWorkoutSchedule(${item.id})" class="delete-btn text-white text-xs px-3 py-1 rounded-md ml-1">Delete</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                workoutScheduleListTbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 dark:text-gray-400 py-4">No workout schedule entries yet.</td></tr>`;
-            }
-        }
-
-        async function addWorkoutSchedule() {
-            const dayOfWeek = document.getElementById('schedule-day-of-week').value;
-            const timeSlot = document.getElementById('schedule-time').value;
-            const workoutType = document.getElementById('schedule-workout-type').value;
-
-            if (!dayOfWeek || !timeSlot || !workoutType) {
-                showMessage('Please fill in all workout schedule fields.', 'error');
-                return;
-            }
-
-            const data = { day_of_week: dayOfWeek, time_slot: timeSlot, workout_type: workoutType };
-            const result = await postData('/api/workout_schedule', data);
-            if (result) {
-                showMessage('Workout schedule added successfully!', 'success');
-                document.getElementById('schedule-day-of-week').value = '';
-                document.getElementById('schedule-time').value = '';
-                document.getElementById('schedule-workout-type').value = '';
-                await loadWorkoutSchedule();
-                await loadTodaySummary(); // Update summary
-            }
-        }
-
-        async function markWorkoutCompleted(id) {
-            const result = await putData(`/api/workout_schedule/${id}/complete`);
-            if (result) {
-                showMessage('Workout marked as completed today!', 'success');
-                await loadWorkoutSchedule();
-                await loadTodaySummary(); // Update summary
-                await updateConsistencyScore(); // Update consistency score
-            }
-        }
-
-        async function deleteWorkoutSchedule(id) {
-            const result = await deleteData(`/api/workout_schedule/${id}`);
-            if (result) {
-                showMessage('Workout schedule deleted!', 'success');
-                await loadWorkoutSchedule();
-                await loadTodaySummary(); // Update summary
-            }
-        }
-
 
         async function loadBodyProgress() {
             const progress = await fetchData('/api/body_progress');
@@ -2442,7 +2319,6 @@
                 document.getElementById('schedule-date').value = '';
                 document.getElementById('morning-routine-completed').checked = false;
                 await loadDailySchedule();
-                await updateConsistencyScore(); // Update consistency score
             }
         }
 
@@ -2531,21 +2407,6 @@
                 document.getElementById('consistency-gym').value = '';
                 document.getElementById('consistency-study').value = '';
                 await loadConsistencyScore();
-            }
-        }
-
-        // Function to calculate and update consistency score
-        async function updateConsistencyScore() {
-            const today = new Date().toISOString().split('T')[0];
-            const consistencyData = await fetchData(`/api/consistency_score_today`); // New API endpoint
-
-            if (consistencyData) {
-                const { sleep_score, gym_score, study_score } = consistencyData;
-                // You can decide how to combine these into a single score or display them individually
-                // For now, let's just log them or update a hidden field if needed.
-                console.log(`Today's Consistency: Sleep: ${sleep_score}, Gym: ${gym_score}, Study: ${study_score}`);
-                // If you want to automatically add to consistency_score table, you'd call a POST here
-                // postData('/api/consistency_score', { record_date: today, sleep_score: sleep_score, gym_score: gym_score, study_score: study_score });
             }
         }
 
