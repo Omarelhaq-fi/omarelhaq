@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime, date, timedelta 
+from datetime import datetime, date, timedelta
 
 app = Flask(__name__)
 
@@ -278,7 +278,8 @@ def initialize_database():
                     user_id INT,
                     subject_id INT,
                     completion_date DATE NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES subjects(id)
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (subject_id) REFERENCES subjects(id)
                 )
             """)
 
@@ -1390,6 +1391,93 @@ def dashboard_summary_data():
             "pomodoro_hours": pomodoro_hours,
             "lectures_completed": lectures_completed_weekly,
             "manual_study_hours": manual_study_hours
+        })
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if connection.is_connected(): cursor.close(); connection.close()
+
+# New API endpoint for today's summary data
+@app.route('/api/today_summary', methods=['GET'])
+def today_summary():
+    if not db_initialized_successfully:
+        return jsonify({"error": "Database not initialized, please check server logs."}), 500
+
+    user_id = get_omar_user_id()
+    if not user_id: return jsonify({"error": "User not found"}), 404
+
+    connection = create_db_connection()
+    if not connection: return jsonify({"error": "Database connection failed"}), 500
+    cursor = connection.cursor(dictionary=True)
+
+    today = date.today()
+    day_of_week = today.strftime('%A') # e.g., "Wednesday"
+
+    today_schedule_items = []
+    overall_progress = {
+        "pomodoro_hours_this_week": 0,
+        "total_lectures_completed": 0,
+        "workouts_this_week": 0
+    }
+
+    try:
+        # Fetch today's study plans
+        cursor.execute("""
+            SELECT topic, time_slot FROM study_plans
+            WHERE user_id = %s AND day_of_week = %s AND is_completed = FALSE
+            ORDER BY time_slot
+        """, (user_id, day_of_week))
+        study_plans_today = cursor.fetchall()
+        for plan in study_plans_today:
+            today_schedule_items.append({"type": "study", "topic": plan['topic'], "time_slot": plan['time_slot']})
+
+        # Fetch today's time blocks
+        cursor.execute("""
+            SELECT activity, time_slot FROM time_blocking
+            WHERE user_id = %s AND schedule_date = %s
+            ORDER BY time_slot
+        """, (user_id, today))
+        time_blocks_today = cursor.fetchall()
+        for block in time_blocks_today:
+            today_schedule_items.append({"type": "time_block", "activity": block['activity'], "time_slot": block['time_slot']})
+
+        # Sort today's schedule by time_slot (if available) or activity/topic
+        today_schedule_items.sort(key=lambda x: x.get('time_slot', 'ZZZ')) # 'ZZZ' to put items without time at end
+
+        # --- Overall Progress Summary ---
+        # Pomodoro Hours this week
+        current_week_start = today - timedelta(days=today.weekday())
+        cursor.execute("""
+            SELECT SUM(duration_minutes) as total_minutes FROM pomodoro_sessions
+            WHERE user_id = %s AND is_work_session = TRUE AND session_date >= %s
+        """, (user_id, current_week_start))
+        pomodoro_sum = cursor.fetchone()
+        if pomodoro_sum and pomodoro_sum['total_minutes']:
+            overall_progress['pomodoro_hours_this_week'] = pomodoro_sum['total_minutes'] / 60.0
+
+        # Total Lectures Completed
+        cursor.execute("""
+            SELECT SUM(completed_lectures) as total_completed FROM subjects
+            WHERE user_id = %s
+        """, (user_id,))
+        lectures_sum = cursor.fetchone()
+        if lectures_sum and lectures_sum['total_completed']:
+            overall_progress['total_lectures_completed'] = int(lectures_sum['total_completed'])
+
+        # Workouts this week
+        cursor.execute("""
+            SELECT COUNT(DISTINCT workout_date) as workouts_count FROM workouts
+            WHERE user_id = %s AND workout_date >= %s
+        """, (user_id, current_week_start))
+        workouts_count = cursor.fetchone()
+        if workouts_count and workouts_count['workouts_count']:
+            overall_progress['workouts_this_week'] = int(workouts_count['workouts_count'])
+
+
+        return jsonify({
+            "today_schedule": today_schedule_items,
+            "overall_progress": overall_progress
         })
 
     except Error as e:
